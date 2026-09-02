@@ -1,14 +1,15 @@
-# 🎨 Animations Lab - Web Animations & Motion Gallery
+# 🎨 Animations Lab — Web Animations & Motion Gallery
 
-Welcome to **Animations Lab**, an open-source collection of high-performance, drop-in web animations and interactive UI components. Built for modern frontends using **GSAP**, **ScrollTrigger**, and **Tailwind CSS**.
+Welcome to **Animations Lab**, an open-source collection of high-performance, drop-in web animations, 3D spatial components, and interactive UI motion architectures. Built for modern frontends using **GSAP**, **Framer Motion**, and **Tailwind CSS**.
 
 ---
 
 ## 🌟 Available Animations
 
-| Preview | Animation Name | Tech Stack | Status | Links |
+| Preview | Animation Name | Core Tech Stack | Status | Quick Links |
 |:---:|:---|:---|:---:|:---|
-| 🎴 | **GSAP 3D Card Deck Stack**<br><sub>Hardware-accelerated 3D scroll scrub with tiered depth scaling</sub> | `GSAP 3.12`<br>`ScrollTrigger`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Page Demo](gsap-3d-card-stack.html) • [Code & Prompt](#-gsap-3d-scrolltrigger-card-deck) |
+| 🎴 | **01. GSAP 3D Card Deck Stack**<br><sub>Hardware-accelerated 3D scroll scrub with tiered depth scaling</sub> | `GSAP 3.12`<br>`ScrollTrigger`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](gsap-3d-card-stack.html) • [Code & Guide](#-01-gsap-3d-scrolltrigger-card-deck) |
+| 💫 | **02. 3D Perspective Carousel & Glare Stack**<br><sub>Spatial 3D depth wings with dynamic cursor-tracked radial glare</sub> | `Framer Motion`<br>`3D Glare Tilt`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-3d-review-stack.html) • [Code & Guide](#-02-3d-perspective-carousel--glare-stack) |
 
 ---
 
@@ -30,11 +31,12 @@ npx serve .
 ```
 
 - **Gallery Hub**: [`index.html`](index.html) (browse animations with interactive mini-window preview)
-- **Full-Page Demo**: [`gsap-3d-card-stack.html`](gsap-3d-card-stack.html) (fullscreen scroll scrubbing & documentation)
+- **01. GSAP 3D Card Stack**: [`gsap-3d-card-stack.html`](gsap-3d-card-stack.html) (fullscreen scroll scrubbing & documentation)
+- **02. 3D Glare Review Carousel**: [`interactive-3d-review-stack.html`](interactive-3d-review-stack.html) (fullscreen 3D glare carousel from AvadaKeDevara)
 
 ---
 
-## 🎴 GSAP 3D ScrollTrigger Card Deck
+## 🎴 01. GSAP 3D ScrollTrigger Card Deck
 
 A tactile 3D card deck that smoothly ascends and lands on top of previous cards as the user scrolls. Uses CSS 3D perspective (`perspective: 1200px`) with scroll scrubbing and section pinning.
 
@@ -52,147 +54,21 @@ A tactile 3D card deck that smoothly ascends and lands on top of previous cards 
 
 ---
 
-### 🤖 AI Agent System Prompt (Copy-Paste)
+## 💫 02. 3D Perspective Carousel & Glare Stack
 
-To replicate the 3D card stack in any project using AI assistants (ChatGPT, Claude, Cursor, Antigravity):
+The production review stack architecture from **AvadaKeDevara** featuring depth-tiered 3D side wings, real-time cursor-tracked radial glare shine, drag/swipe gestures, and auto-play cycling.
 
-```markdown
-Please implement a GSAP ScrollTrigger 3D Card Stack review section.
-Key requirements:
-1. Container has perspective: 1200px and pins to the top of viewport for the duration: (totalCards - 1) * 900px (desktop) / 700px (mobile).
-2. Card 0 starts active on stage at y: 0, rotateX: 0, scale: 1, zIndex: 1.
-3. Cards 1..N start below viewport with y: 650 (mobile 480), rotateX: 38deg (mobile 28deg), scale: 0.92, with ascending zIndex (zIndex = i + 1).
-4. On GSAP scrub timeline:
-   - When card i ascends to y: 0 and rotateX: 0, all previous cards (prev < i) scale down to (1 - depthDiff * 0.04) and shift upward to (-depthDiff * 18px).
-   - Higher z-index ensures incoming cards land ON TOP of older cards in the deck.
-5. Provide a responsive, accessible fallback when prefers-reduced-motion is true.
-6. Support ambient parallax gradient glow in the background.
-```
+### 3D Spatial Variant Matrix
+
+| Relative Index (`diff`) | Translation (`x`) | Scale | `rotateY` Tilt | Z-Index | Visual Effects |
+|:---|:---:|:---:|:---:|:---:|:---|
+| **Center (`diff = 0`)** | `0%` | `1.0` | `0deg` | `10` | Full opacity + Dynamic cursor glare & tilt |
+| **Left Wing (`diff = -1`)** | `-52%` | `0.88` | `+10deg` | `5` | `opacity: 0.6`, `blur(2px)` |
+| **Right Wing (`diff = +1`)** | `+52%` | `0.88` | `-10deg` | `5` | `opacity: 0.6`, `blur(2px)` |
+| **Background Queue** | `±85%` | `0.75` | `0deg` | `1` | `opacity: 0`, `blur(4px)` |
 
 ---
 
-### ⚛️ React / Next.js Component Code
+## 📄 License & Attribution
 
-```tsx
-import React, { useRef, useState, useEffect } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
-export const ReviewsStack: React.FC = () => {
-  const containerRef = useRef<HTMLElement>(null);
-  const [isReducedMotion, setIsReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setIsReducedMotion(mediaQuery.matches);
-    const handler = (e: MediaQueryListEvent) => setIsReducedMotion(e.matches);
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
-
-  useGSAP(
-    () => {
-      if (typeof window === "undefined" || isReducedMotion) return;
-
-      const isMobile = window.innerWidth < 768;
-      const cardEls = gsap.utils.toArray<HTMLElement>(".review-stack-card");
-      const totalCards = cardEls.length;
-      if (totalCards === 0) return;
-
-      // 1. Initial 3D state
-      gsap.set(cardEls[0], {
-        transformOrigin: "50% 0%",
-        y: 0,
-        rotateX: 0,
-        scale: 1,
-        opacity: 1,
-        zIndex: 1,
-      });
-
-      const initialYOffset = isMobile ? 480 : 650;
-      const initialTiltAngle = isMobile ? 28 : 38;
-
-      for (let i = 1; i < totalCards; i++) {
-        gsap.set(cardEls[i], {
-          transformOrigin: "50% 0%",
-          y: initialYOffset,
-          rotateX: initialTiltAngle,
-          scale: 0.92,
-          opacity: 1,
-          zIndex: i + 1,
-        });
-      }
-
-      // 2. Timeline setup
-      const scrollDistancePerCard = isMobile ? 700 : 900;
-      const totalScrollDistance = (totalCards - 1) * scrollDistancePerCard;
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: () => "top top",
-          end: () => `+=${totalScrollDistance}`,
-          pin: true,
-          pinSpacing: true,
-          scrub: 1.2,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
-
-      // 3. Step timeline
-      for (let i = 1; i < totalCards; i++) {
-        const incomingCard = cardEls[i];
-        const stepLabel = `step-${i}`;
-
-        for (let prev = 0; prev < i; prev++) {
-          const depthDiff = i - prev;
-          tl.to(
-            cardEls[prev],
-            {
-              scale: 1 - depthDiff * 0.04,
-              y: -depthDiff * (isMobile ? 12 : 18),
-              ease: "none",
-              duration: 1,
-            },
-            stepLabel
-          );
-        }
-
-        tl.to(
-          incomingCard,
-          {
-            y: 0,
-            rotateX: 0,
-            scale: 1,
-            opacity: 1,
-            ease: "none",
-            duration: 1,
-          },
-          stepLabel
-        );
-      }
-    },
-    { scope: containerRef, dependencies: [isReducedMotion] }
-  );
-
-  return (
-    <section ref={containerRef} className="relative min-h-screen flex flex-col justify-between overflow-hidden bg-white py-16">
-      <div className="relative flex-1 flex items-center justify-center px-4 w-full" style={{ perspective: "1200px" }}>
-        {/* Your cards go here */}
-      </div>
-    </section>
-  );
-};
-```
-
----
-
-## 📜 License
-
-MIT License &bull; Free for personal and commercial use!
+Open-source component library under the **MIT License**. Free to use, adapt, and drop into commercial and personal web projects.

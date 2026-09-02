@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Perspective Carousel &amp; Glare Review Stack — Developer Guide</title>
+  <meta name="description" content="A physics-based 3D perspective review carousel with dynamic mouse glare, drag/swipe gestures, left/right depth wings, and auto-play as featured in AvadaKeDevara." />
+
+  <!-- Google Fonts: Instrument Serif + Almarai + Plus Jakarta Sans + Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Fira+Code:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Almarai', '"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            warm: {
+              50: '#FDFCFB',
+              100: '#FAF9F6',
+              200: '#F4F1EA',
+              300: '#EDE8DC',
+              400: '#DEDBC8',
+              500: '#C8C4AB',
+              600: '#A49F83',
+              700: '#757159',
+              800: '#474435',
+              900: '#1C1B15',
+            },
+            ink: {
+              DEFAULT: '#141413',
+              muted: '#6C6A63',
+              subtle: '#9E9B91',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP CDN for Hardware-Accelerated 60+ FPS 3D Motion -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <style>
+    :root {
+      --bg-warm: #FAF9F6;
+      --foreground: #141413;
+    }
+
+    body {
+      background-color: #FAF9F6;
+      color: #141413;
+      font-family: 'Almarai', 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Subtle warm noise texture overlay */
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.08;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    /* 3D Perspective Stage */
+    .perspective-stage {
+      perspective: 1200px;
+      perspective-origin: 50% 50%;
+    }
+
+    .carousel-card {
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      will-change: transform, opacity, filter;
+      touch-action: pan-y;
+    }
+
+    .card-shadow {
+      box-shadow: 0 10px 30px -5px rgba(40, 30, 10, 0.08), 0 25px 60px -15px rgba(40, 30, 10, 0.12);
+    }
+
+    /* Dynamic Glare Overlay */
+    .glare-shine {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      background: radial-gradient(circle at 50% 50%, rgba(222, 219, 200, 0.45) 0%, rgba(255, 255, 255, 0) 65%);
+      mix-blend-mode: overlay;
+      z-index: 25;
+    }
+
+    /* Ambient atmospheric glow orb */
+    .glow-orb {
+      filter: blur(95px);
+      border-radius: 9999px;
+      pointer-events: none;
+      position: absolute;
+    }
+
+    /* Code block tabs active indicator */
+    .tab-btn.active {
+      background-color: #141413;
+      color: #FAF9F6;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(20, 20, 19, 0.2);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAF9F6;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #DEDBC8;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C8C4AB;
+    }
+  </style>
+</head>
+<body class="bg-[#FAF9F6] text-ink font-sans antialiased overflow-x-hidden selection:bg-warm-400 selection:text-ink">
+
+  <!-- Noise Texture -->
+  <div class="noise-overlay"></div>
+
+  <!-- ========================================================================= -->
+  <!-- Floating Pill Navbar (Warm Light Glass)                                    -->
+  <!-- ========================================================================= -->
+  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[94%] sm:w-auto max-w-[1200px] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/85 backdrop-blur-md px-5 sm:px-7 py-2.5 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-between sm:gap-8">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink text-[10px] sm:text-xs font-semibold tracking-wider uppercase transition-colors shadow-2xs">
+        <span>←</span>
+        <span>Gallery Hub</span>
+      </a>
+      <div class="h-4 w-[1px] bg-warm-300 hidden sm:block"></div>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-full bg-warm-200 border border-warm-400/50 text-ink flex items-center justify-center font-bold text-xs shadow-2xs">
+          💫
+        </div>
+        <span class="font-bold text-xs sm:text-sm tracking-wider uppercase text-ink">3D Glare <span class="text-warm-700 font-normal">Carousel</span></span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <a href="#live-demo" class="text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink-muted hover:text-ink transition-all shadow-2xs">
+        Live Demo
+      </a>
+      <a href="#readme-section" class="text-[10px] sm:text-xs font-bold tracking-widest uppercase border px-4 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] flex items-center gap-1.5">
+        <span>📖</span>
+        <span>Docs &amp; Code</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- 1. Hero Intro Section                                                     -->
+  <!-- ========================================================================= -->
+  <header id="live-demo" class="relative min-h-[55vh] flex flex-col items-center justify-center text-center px-4 bg-[#FAF9F6] overflow-hidden pt-28 pb-8">
+    <!-- Atmospheric Warm Glow -->
+    <div class="glow-orb top-8 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-warm-300/35 -z-10"></div>
+
+    <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 shadow-2xs">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-warm-600 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-warm-700"></span>
+      </span>
+      <span class="text-[10px] sm:text-xs tracking-[0.15em] uppercase text-ink font-bold font-mono">
+        AvadaKeDevara Interactive 3D Stack Architecture
+      </span>
+    </div>
+
+    <h1 class="text-ink text-4xl sm:text-6xl md:text-7xl font-normal leading-[1.08] tracking-tight max-w-4xl font-serif">
+      3D Perspective <span class="italic">Review Carousel</span> &amp; Dynamic Glare
+    </h1>
+
+    <p class="mt-4 text-xs sm:text-sm md:text-base text-ink-muted max-w-2xl mx-auto leading-relaxed">
+      A buttery-smooth, hardware-accelerated 3D spatial carousel with depth-angled side wings, cursor-tracked radial glare, responsive swipe gestures, and auto-play.
+    </p>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. Interactive 3D Perspective Carousel Stage                              -->
+  <!-- ========================================================================= -->
+  <section id="carousel-stage-section" class="relative py-12 sm:py-16 bg-gradient-to-b from-[#FAF9F6] via-warm-100 to-[#FAF9F6] border-y border-warm-300 overflow-hidden">
+    
+    <!-- Atmospheric Parallax Glow -->
+    <div class="glow-orb top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[450px] bg-gradient-to-tr from-warm-300/30 via-amber-100/25 to-warm-200/30 rounded-full blur-3xl opacity-75 -z-10"></div>
+
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
+      
+      <!-- Editorial Header -->
+      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 text-xs font-bold uppercase tracking-wider mb-3.5 shadow-2xs font-mono">
+          <span>Real Families &bull; Real Progress</span>
+        </div>
+        <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-ink leading-[1.15]">
+          Built for the people behind <span class="italic">every academic milestone.</span>
+        </h2>
+        <p class="mt-3 text-xs sm:text-sm md:text-base text-ink-muted leading-relaxed">
+          Hover over the active center card to experience inertial 3D tilt &amp; dynamic radial glare. Swipe or click side cards to smoothly rotate the 3D carousel.
+        </p>
+      </div>
+
+      <!-- 3D Carousel Stage Wrapper -->
+      <div 
+        id="carousel-viewport" 
+        class="perspective-stage relative w-full h-[400px] sm:h-[400px] md:h-[430px] flex items-center justify-center select-none"
+        onmouseenter="pauseCarousel()"
+        onmouseleave="resumeCarousel()"
+      >
+        <div id="cards-container" class="relative w-full max-w-5xl h-full flex items-center justify-center">
+
+          <!-- Card 0: Vikram R. -->
+          <div id="card-0" onclick="cardClicked(0)" class="carousel-card absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
+            <div class="glare-shine" id="glare-0"></div>
+            
+            <!-- Top Header -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
+                  <span>Exam Preparation</span>
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span>Timed Simulation</span>
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="flex text-amber-500 text-xs">★★★★★</div>
+                <span class="font-mono text-xs font-bold text-ink-subtle">01 / 04</span>
+              </div>
+            </div>
+
+            <!-- Quote Body -->
+            <div class="py-4 flex-1 flex flex-col justify-center relative z-10">
+              <blockquote class="font-serif italic text-sm sm:text-base md:text-[1.05rem] text-ink leading-relaxed">
+                "The CBT simulator felt identical to the real testing environment. Practising with the ticking countdown timer, question palette, and negative marking rules dramatically improved my exam-day pacing and reduced nervousness."
+              </blockquote>
+            </div>
+
+            <!-- Bottom Author -->
+            <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
+              <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
+                  VR
+                </div>
+                <div>
+                  <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Vikram R.</h4>
+                  <p class="text-xs text-ink-muted">Competitive Exam Aspirant, Bengaluru</p>
+                </div>
+              </div>
+              <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+            </div>
+          </div>
+
+          <!-- Card 1: James T. -->
+          <div id="card-1" onclick="cardClicked(1)" class="carousel-card absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
+            <div class="glare-shine" id="glare-1"></div>
+            
+            <!-- Top Header -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
+                  <span>Parent Oversight</span>
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span>Daily Practice</span>
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="flex text-amber-500 text-xs">★★★★★</div>
+                <span class="font-mono text-xs font-bold text-ink-subtle">02 / 04</span>
+              </div>
+            </div>
+
+            <!-- Quote Body -->
+            <div class="py-4 flex-1 flex flex-col justify-center relative z-10">
+              <blockquote class="font-serif italic text-sm sm:text-base md:text-[1.05rem] text-ink leading-relaxed">
+                "EduMagik provided complete transparency into our daughter's learning habits without constant micro-management. The parent dashboard pinpointed specific weak areas in algebraic fractions."
+              </blockquote>
+            </div>
+
+            <!-- Bottom Author -->
+            <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
+              <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
+                  JT
+                </div>
+                <div>
+                  <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">James T.</h4>
+                  <p class="text-xs text-ink-muted">Parent, Surrey</p>
+                </div>
+              </div>
+              <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Priya K. -->
+          <div id="card-2" onclick="cardClicked(2)" class="carousel-card absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
+            <div class="glare-shine" id="glare-2"></div>
+            
+            <!-- Top Header -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
+                  <span>For Educators</span>
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span>Topic Mastery</span>
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="flex text-amber-500 text-xs">★★★★★</div>
+                <span class="font-mono text-xs font-bold text-ink-subtle">03 / 04</span>
+              </div>
+            </div>
+
+            <!-- Quote Body -->
+            <div class="py-4 flex-1 flex flex-col justify-center relative z-10">
+              <blockquote class="font-serif italic text-sm sm:text-base md:text-[1.05rem] text-ink leading-relaxed">
+                "As both a teacher and a parent, I love the academic depth and secure environment. The walled student cohorts and 3-click assignment dispatch save hours of manual grading."
+              </blockquote>
+            </div>
+
+            <!-- Bottom Author -->
+            <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
+              <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
+                  PK
+                </div>
+                <div>
+                  <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Priya K.</h4>
+                  <p class="text-xs text-ink-muted">Educator &amp; Parent, Birmingham</p>
+                </div>
+              </div>
+              <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Sarah M. -->
+          <div id="card-3" onclick="cardClicked(3)" class="carousel-card absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
+            <div class="glare-shine" id="glare-3"></div>
+            
+            <!-- Top Header -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
+                  <span>Parent Engagement</span>
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span>Daily Routine</span>
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="flex text-amber-500 text-xs">★★★★★</div>
+                <span class="font-mono text-xs font-bold text-ink-subtle">04 / 04</span>
+              </div>
+            </div>
+
+            <!-- Quote Body -->
+            <div class="py-4 flex-1 flex flex-col justify-center relative z-10">
+              <blockquote class="font-serif italic text-sm sm:text-base md:text-[1.05rem] text-ink leading-relaxed">
+                "EduMagik made child's preparation fun. My child now asks to practice every evening without any friction, motivated by the streak counters and clear badges."
+              </blockquote>
+            </div>
+
+            <!-- Bottom Author -->
+            <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
+              <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
+                  SM
+                </div>
+                <div>
+                  <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Sarah M.</h4>
+                  <p class="text-xs text-ink-muted">Parent, London</p>
+                </div>
+              </div>
+              <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Left & Right Chevron Navigation Buttons -->
+        <div class="absolute -inset-x-2 sm:-inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-40 px-2 sm:px-0">
+          <button
+            type="button"
+            onclick="prevCard()"
+            aria-label="Previous review"
+            class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-warm-300 text-ink shadow-[0_8px_30px_rgba(40,30,10,0.12)] flex items-center justify-center pointer-events-auto hover:bg-ink hover:text-white hover:border-ink hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+          >
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <button
+            type="button"
+            onclick="nextCard()"
+            aria-label="Next review"
+            class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-warm-300 text-ink shadow-[0_8px_30px_rgba(40,30,10,0.12)] flex items-center justify-center pointer-events-auto hover:bg-ink hover:text-white hover:border-ink hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+          >
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Dot Pill Track Indicators -->
+      <div class="mt-8 flex items-center justify-center gap-2 z-30">
+        <button onclick="goToCard(0)" id="dot-0" class="h-2 rounded-full transition-all duration-300 w-8 bg-ink shadow-2xs"></button>
+        <button onclick="goToCard(1)" id="dot-1" class="h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400"></button>
+        <button onclick="goToCard(2)" id="dot-2" class="h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400"></button>
+        <button onclick="goToCard(3)" id="dot-3" class="h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400"></button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 3. DEVELOPER README & REACT CODE MIGRATION                                -->
+  <!-- ========================================================================= -->
+  <article id="readme-section" class="relative max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-20 bg-[#FAF9F6] border-t border-warm-300">
+    
+    <!-- Header -->
+    <div class="mb-14 pb-8 border-b border-warm-300">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-warm-100 border border-warm-300 text-warm-800 text-xs font-mono font-bold uppercase tracking-wider mb-4 shadow-2xs">
+        <span>DEVELOPER DOCS &bull; AVADAKEDEVARA PRODUCTION COMPONENT</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-serif text-ink font-normal tracking-tight">
+        3D Perspective Review Stack Architecture &amp; <span class="italic">React Guide</span>
+      </h2>
+      <p class="mt-3 text-xs sm:text-sm md:text-base text-ink-muted leading-relaxed max-w-3xl">
+        This animation architecture combines CSS 3D perspective (<code class="font-mono text-xs bg-warm-200 px-1.5 py-0.5 rounded border border-warm-300 text-ink">perspective: 1200px</code>), 3-tier depth coordinates, dynamic cursor-tracked radial glare, spring transitions, and drag/touch gestures.
+      </p>
+    </div>
+
+    <!-- Section 1: Variant Calculator & 3D Mechanics -->
+    <section class="mb-14 space-y-4">
+      <h3 class="text-xl sm:text-2xl font-serif text-ink font-normal flex items-center gap-2">
+        <span class="text-warm-700 font-mono text-base font-bold">01.</span> Mathematical 3D Variant Matrix
+      </h3>
+
+      <div class="overflow-x-auto rounded-2xl border border-warm-300 shadow-xs bg-white">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-warm-100 border-b border-warm-300 text-ink font-bold uppercase tracking-wider">
+            <tr>
+              <th class="p-3.5">Position Relative to Active</th>
+              <th class="p-3.5">X Translation</th>
+              <th class="p-3.5">Scale</th>
+              <th class="p-3.5">rotateY Tilt</th>
+              <th class="p-3.5">Z-Index</th>
+              <th class="p-3.5">Opacity / Blur</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-warm-200 text-ink-muted">
+            <tr class="bg-warm-50/60 font-semibold text-ink">
+              <td class="p-3.5 text-warm-800 font-bold">Center (Active, diff = 0)</td>
+              <td class="p-3.5 font-bold text-ink">0%</td>
+              <td class="p-3.5 font-bold text-ink">1.00</td>
+              <td class="p-3.5 font-bold text-ink">0 deg (+ mouse tilt)</td>
+              <td class="p-3.5 font-bold text-ink">10</td>
+              <td class="p-3.5 font-bold text-ink">1.0 / 0px</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-ink">Left Wing (diff = -1 or N-1)</td>
+              <td class="p-3.5 text-warm-800 font-bold">-52%</td>
+              <td class="p-3.5 text-warm-800 font-bold">0.88</td>
+              <td class="p-3.5 text-warm-800 font-bold">+10 deg</td>
+              <td class="p-3.5 text-warm-800 font-bold">5</td>
+              <td class="p-3.5">0.65 / 1.5px blur</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-ink">Right Wing (diff = +1)</td>
+              <td class="p-3.5 text-warm-800 font-bold">+52%</td>
+              <td class="p-3.5 text-warm-800 font-bold">0.88</td>
+              <td class="p-3.5 text-warm-800 font-bold">-10 deg</td>
+              <td class="p-3.5 text-warm-800 font-bold">5</td>
+              <td class="p-3.5">0.65 / 1.5px blur</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-ink">Background Queue</td>
+              <td class="p-3.5">&plusmn; 85%</td>
+              <td class="p-3.5">0.75</td>
+              <td class="p-3.5">0 deg</td>
+              <td class="p-3.5">1</td>
+              <td class="p-3.5">0.0 / 4px blur</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 2: Production Code Snippets -->
+    <section class="mb-14 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h3 class="text-xl sm:text-2xl font-serif text-ink font-normal flex items-center gap-2">
+          <span class="text-warm-700 font-mono text-base font-bold">02.</span> Production Component Code
+        </h3>
+        
+        <!-- Tab Selectors -->
+        <div class="flex items-center gap-1.5 p-1 bg-warm-200 rounded-full border border-warm-300 self-start sm:self-auto shadow-2xs">
+          <button id="btn-tab-react" onclick="switchTab('react')" class="tab-btn active px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-all">
+            React + Framer Motion
+          </button>
+          <button id="btn-tab-vanilla" onclick="switchTab('vanilla')" class="tab-btn px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink transition-all">
+            Vanilla HTML + JS (GSAP)
+          </button>
+        </div>
+      </div>
+
+      <!-- React / Next.js Tab Content -->
+      <div id="tab-react-content" class="space-y-2">
+        <div class="flex justify-between items-center px-1">
+          <span class="text-xs font-semibold text-ink-muted font-mono">GlobalReviewsStack.tsx (From AvadaKeDevara Frontend)</span>
+          <button onclick="copyCode('react-code', this)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-warm-300 hover:bg-ink hover:text-white text-ink text-xs font-mono font-bold tracking-wider uppercase transition-all shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy React Code</span>
+          </button>
+        </div>
+
+        <div class="relative rounded-2xl bg-warm-900 border border-warm-800 p-5 text-warm-100 font-mono text-xs overflow-x-auto leading-relaxed max-h-[520px] shadow-xl">
+<pre id="react-code"><code>import React, { useState, useEffect, useRef } from "react";
+import {
+  motion,
+  AnimatePresence,
+  PanInfo,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
+import { Star, ChevronLeft, ChevronRight, Quote, CheckCircle2, Sparkles } from "lucide-react";
+
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  category: string;
+  highlight?: string;
+  text: string;
+  initials: string;
+  rating: number;
+}
+
+export const GlobalReviewsStack: React.FC&lt;{ testimonials: Testimonial[] }&gt; = ({ testimonials }) => {
+  const [currentIndex, setCurrentIndex] = useState&lt;number&gt;(0);
+  const [isHovered, setIsHovered] = useState&lt;boolean&gt;(false);
+  const [direction, setDirection] = useState&lt;number&gt;(0);
+  const total = testimonials.length;
+  const autoPlayRef = useRef&lt;number | undefined&gt;(undefined);
+
+  useEffect(() => {
+    if (isHovered || total &lt;= 1) {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+      return;
+    }
+    autoPlayRef.current = window.setInterval(() => {
+      setDirection(1);
+      setCurrentIndex((prev) => (prev + 1) % total);
+    }, 4500);
+    return () => {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    };
+  }, [isHovered, total]);
+
+  const handleNext = () => {
+    setDirection(1);
+    setCurrentIndex((prev) => (prev + 1) % total);
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setCurrentIndex((prev) => (prev - 1 + total) % total);
+  };
+
+  const handleDragEnd = (_e: any, { offset }: PanInfo) => {
+    if (offset.x &lt; -50) handleNext();
+    else if (offset.x &gt; 50) handlePrev();
+  };
+
+  const getVariants = (index: number) => {
+    const diff = (index - currentIndex + total) % total;
+    if (diff === 0) {
+      return { x: "0%", scale: 1, zIndex: 10, opacity: 1, filter: "blur(0px)", rotateY: 0 };
+    } else if (diff === total - 1 || diff === -1) {
+      return { x: "-52%", scale: 0.88, zIndex: 5, opacity: 0.6, filter: "blur(2px)", rotateY: 10 };
+    } else if (diff === 1) {
+      return { x: "52%", scale: 0.88, zIndex: 5, opacity: 0.6, filter: "blur(2px)", rotateY: -10 };
+    } else {
+      return { x: diff &gt; 1 && diff &lt; total / 2 ? "85%" : "-85%", scale: 0.75, zIndex: 1, opacity: 0, filter: "blur(4px)", rotateY: 0 };
+    }
+  };
+
+  // 3D Tilt & Radial Glare Motion Values
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-100, 100], [5, -5]);
+  const rotateY = useTransform(x, [-100, 100], [-5, 5]);
+  const glareX = useTransform(x, [-100, 100], [100, -100]);
+  const glareY = useTransform(y, [-100, 100], [100, -100]);
+
+  const handleMouseMove = (e: React.MouseEvent&lt;HTMLDivElement&gt;) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set(e.clientX - (rect.left + rect.width / 2));
+    y.set(e.clientY - (rect.top + rect.height / 2));
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    &lt;div
+      className="relative w-full h-[400px] flex items-center justify-center select-none"
+      style={{ perspective: 1200 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    &gt;
+      &lt;div className="relative w-full max-w-5xl h-full flex items-center justify-center"&gt;
+        &lt;AnimatePresence initial={false} custom={direction}&gt;
+          {testimonials.map((t, idx) =&gt; {
+            const diff = (idx - currentIndex + total) % total;
+            const isCenter = diff === 0;
+
+            return (
+              &lt;motion.div
+                key={t.id}
+                className="absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 md:p-8 shadow-2xl border border-border/90 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer"
+                animate={getVariants(idx)}
+                style={isCenter ? { rotateX, rotateY } : {}}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                drag={isCenter ? "x" : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                onDragEnd={handleDragEnd}
+                onClick={() =&gt; {
+                  if (diff === 1) handleNext();
+                  if (diff === total - 1) handlePrev();
+                }}
+                onMouseMove={isCenter ? handleMouseMove : undefined}
+                onMouseLeave={isCenter ? handleMouseLeave : undefined}
+              &gt;
+                {isCenter && (
+                  &lt;motion.div
+                    className="absolute inset-0 z-20 pointer-events-none opacity-0 hover:opacity-100 transition-opacity rounded-3xl"
+                    style={{
+                      background: "radial-gradient(circle at center, rgba(59,130,246,0.15) 0%, rgba(255,255,255,0) 65%)",
+                      x: glareX,
+                      y: glareY,
+                    }}
+                  /&gt;
+                )}
+
+                &lt;div className="flex items-center justify-between pb-3 border-b border-border/50"&gt;
+                  &lt;span className="text-xs font-bold uppercase text-primary"&gt;{t.category}&lt;/span&gt;
+                  &lt;span className="text-xs font-mono text-slate-400"&gt;0{idx + 1}/0{total}&lt;/span&gt;
+                &lt;/div&gt;
+
+                &lt;p className="font-serif italic text-sm md:text-base text-slate-800 my-4"&gt;"{t.text}"&lt;/p&gt;
+
+                &lt;div className="flex items-center justify-between pt-3 border-t border-border/50"&gt;
+                  &lt;div className="flex items-center gap-3"&gt;
+                    &lt;div className="w-10 h-10 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center"&gt;{t.initials}&lt;/div&gt;
+                    &lt;div&gt;
+                      &lt;h4 className="font-bold text-sm text-slate-900"&gt;{t.name}&lt;/h4&gt;
+                      &lt;p className="text-xs text-slate-500"&gt;{t.role}&lt;/p&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/motion.div&gt;
+            );
+          })}
+        &lt;/AnimatePresence&gt;
+      &lt;/div&gt;
+
+      &lt;button onClick={handlePrev} className="absolute left-2 w-12 h-12 rounded-full bg-white border shadow-lg flex items-center justify-center z-40"&gt;
+        &lt;ChevronLeft className="w-6 h-6" /&gt;
+      &lt;/button&gt;
+      &lt;button onClick={handleNext} className="absolute right-2 w-12 h-12 rounded-full bg-white border shadow-lg flex items-center justify-center z-40"&gt;
+        &lt;ChevronRight className="w-6 h-6" /&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+};</code></pre>
+        </div>
+      </div>
+
+      <!-- Vanilla HTML + JS Tab Content -->
+      <div id="tab-vanilla-content" class="hidden space-y-2">
+        <div class="flex justify-between items-center px-1">
+          <span class="text-xs font-semibold text-ink-muted font-mono">Vanilla JavaScript + GSAP 3D Matrix &amp; Smooth Inertia</span>
+          <button onclick="copyCode('vanilla-code', this)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-warm-300 hover:bg-ink hover:text-white text-ink text-xs font-mono font-bold tracking-wider uppercase transition-all shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy Vanilla JS</span>
+          </button>
+        </div>
+
+        <div class="relative rounded-2xl bg-warm-900 border border-warm-800 p-5 text-warm-100 font-mono text-xs overflow-x-auto leading-relaxed max-h-[520px] shadow-xl">
+<pre id="vanilla-code"><code>// Include GSAP:
+// &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"&gt;&lt;/script&gt;
+
+let activeIdx = 0;
+const totalCards = 4;
+
+function renderCarousel(animate = true) {
+  for (let i = 0; i &lt; totalCards; i++) {
+    const card = document.getElementById(`card-${i}`);
+    const dot = document.getElementById(`dot-${i}`);
+    const diff = (i - activeIdx + totalCards) % totalCards;
+
+    let target = {};
+    if (diff === 0) {
+      // Center Active Card
+      target = {
+        xPercent: 0,
+        scale: 1,
+        rotateY: 0,
+        rotateX: 0,
+        opacity: 1,
+        zIndex: 10,
+        filter: "blur(0px) brightness(1)",
+        duration: animate ? 0.7 : 0,
+        ease: "power3.out",
+        overwrite: "auto",
+      };
+      if (dot) dot.className = "h-2 rounded-full transition-all duration-300 w-8 bg-ink shadow-2xs";
+    } else if (diff === totalCards - 1 || diff === -1) {
+      // Left Wing Card
+      target = {
+        xPercent: -52,
+        scale: 0.88,
+        rotateY: 12,
+        rotateX: 0,
+        opacity: 0.65,
+        zIndex: 5,
+        filter: "blur(1.5px) brightness(0.98)",
+        duration: animate ? 0.7 : 0,
+        ease: "power3.out",
+        overwrite: "auto",
+      };
+      if (dot) dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400";
+    } else if (diff === 1) {
+      // Right Wing Card
+      target = {
+        xPercent: 52,
+        scale: 0.88,
+        rotateY: -12,
+        rotateX: 0,
+        opacity: 0.65,
+        zIndex: 5,
+        filter: "blur(1.5px) brightness(0.98)",
+        duration: animate ? 0.7 : 0,
+        ease: "power3.out",
+        overwrite: "auto",
+      };
+      if (dot) dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400";
+    } else {
+      // Background Queue
+      const xP = (diff &gt; 1 && diff &lt; totalCards / 2) ? 85 : -85;
+      target = {
+        xPercent: xP,
+        scale: 0.75,
+        rotateY: 0,
+        rotateX: 0,
+        opacity: 0,
+        zIndex: 1,
+        filter: "blur(4px) brightness(0.9)",
+        duration: animate ? 0.6 : 0,
+        ease: "power3.inOut",
+        overwrite: "auto",
+      };
+      if (dot) dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400";
+    }
+
+    gsap.to(card, target);
+  }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer of Readme -->
+    <div class="pt-8 border-t border-warm-300 text-center text-xs text-ink-muted font-mono flex flex-col sm:flex-row items-center justify-between gap-3">
+      <span>AvadaKeDevara Review Stack Motion Component</span>
+      <span>MIT License &bull; Free for Personal &amp; Commercial Use</span>
+    </div>
+  </article>
+
+  <!-- ========================================================================= -->
+  <!-- Toast Notification Container                                              -->
+  <!-- ========================================================================= -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-ink border border-warm-800 text-warm-100 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-mono">
+    <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>
+    <span id="toast-text">Code copied to clipboard!</span>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- Ultra-Smooth GSAP 3D Matrix & Inertial Glare Engine                        -->
+  <!-- ========================================================================= -->
+  <script>
+    let activeIdx = 0;
+    const totalCards = 4;
+    let autoPlayInterval = null;
+    let isPaused = false;
+
+    // Smooth Hardware-Accelerated 3D Carousel Transition using GSAP
+    function renderCarousel(animate = true) {
+      for (let i = 0; i < totalCards; i++) {
+        const card = document.getElementById(`card-${i}`);
+        const glare = document.getElementById(`glare-${i}`);
+        const dot = document.getElementById(`dot-${i}`);
+        if (!card) continue;
+
+        const diff = (i - activeIdx + totalCards) % totalCards;
+
+        let target = {};
+        if (diff === 0) {
+          // Center Active Card
+          target = {
+            xPercent: 0,
+            scale: 1,
+            rotateY: 0,
+            rotateX: 0,
+            opacity: 1,
+            zIndex: 10,
+            filter: "blur(0px) brightness(1)",
+            duration: animate ? 0.7 : 0,
+            ease: "power3.out",
+            overwrite: "auto",
+          };
+          if (dot) {
+            dot.className = "h-2 rounded-full transition-all duration-300 w-8 bg-ink shadow-2xs";
+          }
+        } else if (diff === totalCards - 1 || diff === -1) {
+          // Left Wing
+          target = {
+            xPercent: -52,
+            scale: 0.88,
+            rotateY: 12,
+            rotateX: 0,
+            opacity: 0.65,
+            zIndex: 5,
+            filter: "blur(1.5px) brightness(0.98)",
+            duration: animate ? 0.7 : 0,
+            ease: "power3.out",
+            overwrite: "auto",
+          };
+          if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
+          if (dot) {
+            dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400";
+          }
+        } else if (diff === 1) {
+          // Right Wing
+          target = {
+            xPercent: 52,
+            scale: 0.88,
+            rotateY: -12,
+            rotateX: 0,
+            opacity: 0.65,
+            zIndex: 5,
+            filter: "blur(1.5px) brightness(0.98)",
+            duration: animate ? 0.7 : 0,
+            ease: "power3.out",
+            overwrite: "auto",
+          };
+          if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
+          if (dot) {
+            dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400";
+          }
+        } else {
+          // Background queue
+          const xP = (diff > 1 && diff < totalCards / 2) ? 85 : -85;
+          target = {
+            xPercent: xP,
+            scale: 0.75,
+            rotateY: 0,
+            rotateX: 0,
+            opacity: 0,
+            zIndex: 1,
+            filter: "blur(4px) brightness(0.9)",
+            duration: animate ? 0.6 : 0,
+            ease: "power3.inOut",
+            overwrite: "auto",
+          };
+          if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
+          if (dot) {
+            dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400";
+          }
+        }
+
+        gsap.to(card, target);
+      }
+    }
+
+    function nextCard() {
+      activeIdx = (activeIdx + 1) % totalCards;
+      renderCarousel(true);
+    }
+
+    function prevCard() {
+      activeIdx = (activeIdx - 1 + totalCards) % totalCards;
+      renderCarousel(true);
+    }
+
+    function goToCard(idx) {
+      if (idx === activeIdx) return;
+      activeIdx = idx;
+      renderCarousel(true);
+    }
+
+    function cardClicked(idx) {
+      const diff = (idx - activeIdx + totalCards) % totalCards;
+      if (diff === 1) nextCard();
+      if (diff === totalCards - 1) prevCard();
+    }
+
+    function startAutoPlay() {
+      if (autoPlayInterval) clearInterval(autoPlayInterval);
+      autoPlayInterval = setInterval(() => {
+        if (!isPaused) {
+          nextCard();
+        }
+      }, 4500);
+    }
+
+    function pauseCarousel() {
+      isPaused = true;
+    }
+
+    function resumeCarousel() {
+      isPaused = false;
+    }
+
+    // Buttery Smooth Inertial 3D Cursor Tilt & Glare Tracking using GSAP
+    let isHoveringCenter = false;
+
+    function initSmoothGlareTilt() {
+      const stage = document.getElementById("carousel-viewport");
+      if (!stage) return;
+
+      stage.addEventListener("mousemove", (e) => {
+        const activeCard = document.getElementById(`card-${activeIdx}`);
+        const glare = document.getElementById(`glare-${activeIdx}`);
+        if (!activeCard) return;
+
+        const rect = activeCard.getBoundingClientRect();
+        const isInside = 
+          e.clientX >= rect.left && 
+          e.clientX <= rect.right && 
+          e.clientY >= rect.top && 
+          e.clientY <= rect.bottom;
+
+        if (isInside) {
+          isHoveringCenter = true;
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = (e.clientX - cx) / (rect.width / 2);
+          const dy = (e.clientY - cy) / (rect.height / 2);
+
+          // Smooth spring damping on cursor tilt
+          gsap.to(activeCard, {
+            rotateX: -dy * 7,
+            rotateY: dx * 7,
+            duration: 0.35,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+
+          if (glare) {
+            const px = ((e.clientX - rect.left) / rect.width) * 100;
+            const py = ((e.clientY - rect.top) / rect.height) * 100;
+            glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(222, 219, 200, 0.45) 0%, rgba(255, 255, 255, 0) 65%)`;
+            gsap.to(glare, { opacity: 1, duration: 0.25, overwrite: "auto" });
+          }
+        } else {
+          if (isHoveringCenter) {
+            isHoveringCenter = false;
+            gsap.to(activeCard, {
+              rotateX: 0,
+              rotateY: 0,
+              duration: 0.5,
+              ease: "power2.out",
+              overwrite: "auto",
+            });
+            if (glare) gsap.to(glare, { opacity: 0, duration: 0.3, overwrite: "auto" });
+          }
+        }
+      });
+
+      stage.addEventListener("mouseleave", () => {
+        const activeCard = document.getElementById(`card-${activeIdx}`);
+        const glare = document.getElementById(`glare-${activeIdx}`);
+        if (activeCard) {
+          gsap.to(activeCard, {
+            rotateX: 0,
+            rotateY: 0,
+            duration: 0.5,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+        }
+        if (glare) gsap.to(glare, { opacity: 0, duration: 0.3, overwrite: "auto" });
+        isHoveringCenter = false;
+      });
+    }
+
+    // Touch / Swipe support for mobile with inertia
+    let touchStartX = 0;
+    let touchEndX = 0;
+    function initTouchSupport() {
+      const stage = document.getElementById("carousel-viewport");
+      if (!stage) return;
+
+      stage.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        pauseCarousel();
+      }, { passive: true });
+
+      stage.addEventListener("touchend", (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchEndX - touchStartX;
+        if (diff < -45) {
+          nextCard();
+        } else if (diff > 45) {
+          prevCard();
+        }
+        resumeCarousel();
+      }, { passive: true });
+    }
+
+    // Code Tab Switcher
+    function switchTab(tab) {
+      const btnReact = document.getElementById("btn-tab-react");
+      const btnVanilla = document.getElementById("btn-tab-vanilla");
+      const contentReact = document.getElementById("tab-react-content");
+      const contentVanilla = document.getElementById("tab-vanilla-content");
+
+      if (tab === 'react') {
+        btnReact.classList.add("active");
+        btnReact.classList.remove("text-ink-muted");
+        btnVanilla.classList.remove("active");
+        btnVanilla.classList.add("text-ink-muted");
+        contentReact.classList.remove("hidden");
+        contentVanilla.classList.add("hidden");
+      } else {
+        btnVanilla.classList.add("active");
+        btnVanilla.classList.remove("text-ink-muted");
+        btnReact.classList.remove("active");
+        btnReact.classList.add("text-ink-muted");
+        contentVanilla.classList.remove("hidden");
+        contentReact.classList.add("hidden");
+      }
+    }
+
+    // Copy to Clipboard with Toast
+    function copyCode(elementId, btnElement) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      navigator.clipboard.writeText(el.innerText).then(() => {
+        showToast("Copied to clipboard!");
+        if (btnElement) {
+          btnElement.classList.add("bg-ink", "text-white", "border-ink");
+          setTimeout(() => {
+            btnElement.classList.remove("bg-ink", "text-white", "border-ink");
+          }, 1800);
+        }
+      }).catch(err => {
+        showToast("Failed to copy code");
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const toastText = document.getElementById("toast-text");
+      if (!toast || !toastText) return;
+
+      toastText.innerText = message;
+      toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+        toast.classList.remove("translate-y-0", "opacity-100");
+      }, 2500);
+    }
+
+    // Initialize all engines on DOM load
+    document.addEventListener("DOMContentLoaded", () => {
+      renderCarousel(false);
+      initSmoothGlareTilt();
+      initTouchSupport();
+      startAutoPlay();
+    });
+  </script>
+</body>
+</html>
