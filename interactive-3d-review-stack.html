@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Perspective Carousel &amp; Glare Review Stack — Developer Guide</title>
-  <meta name="description" content="A physics-based 3D perspective review carousel with dynamic mouse glare, drag/swipe gestures, left/right depth wings, and auto-play as featured in AvadaKeDevara." />
+  <title>3D Perspective Carousel &amp; Glare Motion Lab — Interactive Showcase</title>
+  <meta name="description" content="An interactive spatial 3D perspective review carousel with real-time cursor-tracked glare, physics controls, visual deconstructor, and production React / Framer Motion code." />
 
   <!-- Google Fonts: Instrument Serif + Almarai + Plus Jakarta Sans + Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,7 +46,7 @@
     }
   </script>
 
-  <!-- GSAP CDN for Hardware-Accelerated 60+ FPS 3D Motion -->
+  <!-- GSAP CDN for Hardware-Accelerated 60+ FPS Motion -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
   <style>
@@ -67,15 +67,20 @@
       position: fixed;
       inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-      opacity: 0.08;
+      opacity: 0.07;
       mix-blend-mode: multiply;
       pointer-events: none;
       z-index: 99;
     }
 
-    /* 3D Perspective Stage */
+    /* 3D Perspective Stages */
     .perspective-stage {
       perspective: 1200px;
+      perspective-origin: 50% 50%;
+    }
+
+    .deconstruct-perspective-stage {
+      perspective: 1000px;
       perspective-origin: 50% 50%;
     }
 
@@ -86,8 +91,19 @@
       touch-action: pan-y;
     }
 
+    .deconstruct-card {
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      will-change: transform, opacity, filter;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     .card-shadow {
       box-shadow: 0 10px 30px -5px rgba(40, 30, 10, 0.08), 0 25px 60px -15px rgba(40, 30, 10, 0.12);
+    }
+
+    .card-active-glow {
+      box-shadow: 0 0 0 2px #141413, 0 20px 50px -10px rgba(40, 30, 10, 0.2);
     }
 
     /* Dynamic Glare Overlay */
@@ -98,7 +114,7 @@
       border-radius: 1.5rem;
       opacity: 0;
       transition: opacity 0.3s ease;
-      background: radial-gradient(circle at 50% 50%, rgba(222, 219, 200, 0.45) 0%, rgba(255, 255, 255, 0) 65%);
+      background: radial-gradient(circle at 50% 50%, rgba(222, 219, 200, 0.5) 0%, rgba(255, 255, 255, 0) 65%);
       mix-blend-mode: overlay;
       z-index: 25;
     }
@@ -117,6 +133,44 @@
       color: #FAF9F6;
       font-weight: 700;
       box-shadow: 0 4px 15px rgba(20, 20, 19, 0.2);
+    }
+
+    /* Preset buttons active indicator */
+    .preset-btn.active {
+      background-color: #141413;
+      color: #FAF9F6;
+      border-color: #141413;
+    }
+
+    /* Deconstruct tab active */
+    .deconstruct-nav-btn.active {
+      background-color: #141413;
+      color: #FAF9F6;
+      border-color: #141413;
+    }
+
+    /* Custom range slider */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #EDE8DC;
+      border-radius: 9999px;
+      height: 6px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #141413;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
     }
 
     /* Custom scrollbar */
@@ -141,398 +195,643 @@
   <div class="noise-overlay"></div>
 
   <!-- ========================================================================= -->
-  <!-- Floating Pill Navbar (Warm Light Glass)                                    -->
+  <!-- FLOATING NAVIGATION BAR                                                   -->
   <!-- ========================================================================= -->
-  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[94%] sm:w-auto max-w-[1200px] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/85 backdrop-blur-md px-5 sm:px-7 py-2.5 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-between sm:gap-8">
-    <div class="flex items-center gap-3">
-      <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink text-[10px] sm:text-xs font-semibold tracking-wider uppercase transition-colors shadow-2xs">
+  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[94%] sm:w-auto max-w-[1200px] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/90 backdrop-blur-md px-4 sm:px-6 py-2 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-between sm:gap-6">
+    <div class="flex items-center gap-2.5 sm:gap-3">
+      <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-[10px] sm:text-xs font-semibold tracking-wider uppercase transition-colors shadow-2xs">
         <span>←</span>
-        <span>Gallery Hub</span>
+        <span>Gallery</span>
       </a>
-      <div class="h-4 w-[1px] bg-warm-300 hidden sm:block"></div>
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 rounded-full bg-warm-200 border border-warm-400/50 text-ink flex items-center justify-center font-bold text-xs shadow-2xs">
-          💫
-        </div>
-        <span class="font-bold text-xs sm:text-sm tracking-wider uppercase text-ink">3D Glare <span class="text-warm-700 font-normal">Carousel</span></span>
+      <div class="h-3.5 w-[1px] bg-warm-300 hidden sm:block"></div>
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="font-bold text-xs sm:text-sm tracking-wide uppercase text-ink font-mono">3D Glare <span class="text-warm-700 font-normal">Showcase</span></span>
       </div>
     </div>
 
-    <div class="flex items-center gap-2 sm:gap-3">
-      <a href="#live-demo" class="text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink-muted hover:text-ink transition-all shadow-2xs">
-        Live Demo
-      </a>
-      <a href="#readme-section" class="text-[10px] sm:text-xs font-bold tracking-widest uppercase border px-4 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] flex items-center gap-1.5">
-        <span>📖</span>
-        <span>Docs &amp; Code</span>
+    <!-- Quick Jump Links -->
+    <div class="hidden md:flex items-center gap-1 bg-warm-200/70 p-1 rounded-full border border-warm-300 text-xs font-mono">
+      <a href="#experience" class="px-3 py-1 rounded-full hover:bg-white text-ink font-medium transition-all">01. Live Stage</a>
+      <a href="#deconstruct" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">02. Deconstruct</a>
+      <a href="#build" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">03. Code</a>
+      <a href="#reference" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">04. Specs</a>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a href="#build" class="text-[10px] sm:text-xs font-bold tracking-wider uppercase border px-3.5 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-xs flex items-center gap-1">
+        <span>&lt;/&gt;</span>
+        <span>Get Code</span>
       </a>
     </div>
   </nav>
 
-  <!-- ========================================================================= -->
-  <!-- 1. Hero Intro Section                                                     -->
-  <!-- ========================================================================= -->
-  <header id="live-demo" class="relative min-h-[55vh] flex flex-col items-center justify-center text-center px-4 bg-[#FAF9F6] overflow-hidden pt-28 pb-8">
-    <!-- Atmospheric Warm Glow -->
-    <div class="glow-orb top-8 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-warm-300/35 -z-10"></div>
 
-    <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 shadow-2xs">
-      <span class="relative flex h-2 w-2">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-warm-600 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-warm-700"></span>
-      </span>
-      <span class="text-[10px] sm:text-xs tracking-[0.15em] uppercase text-ink font-bold font-mono">
-        AvadaKeDevara Interactive 3D Stack Architecture
-      </span>
+  <!-- ========================================================================= -->
+  <!-- TIER 1: HERO / LIVE ANIMATION & INTERACTIVE CONTROLS                      -->
+  <!-- Same Frame: Dominates Viewport 1 with Animation + Controls Side-by-Side    -->
+  <!-- ========================================================================= -->
+  <section id="experience" class="relative min-h-[96vh] w-full flex flex-col justify-between items-center pt-20 sm:pt-24 pb-8 px-4 sm:px-8 lg:px-12 bg-gradient-to-b from-[#FAF9F6] via-warm-100/60 to-[#FAF9F6] overflow-hidden">
+    
+    <!-- Atmospheric Ambient Glows -->
+    <div class="glow-orb top-16 left-1/2 -translate-x-1/2 w-[750px] sm:w-[950px] h-[380px] bg-gradient-to-tr from-warm-300/35 via-amber-100/30 to-warm-200/30 rounded-full blur-3xl opacity-80 -z-10"></div>
+    <div class="glow-orb bottom-10 right-10 w-[450px] h-[300px] bg-warm-200/40 -z-10"></div>
+
+    <!-- Editorial Minimal Hero Header -->
+    <div class="text-center max-w-4xl mx-auto pt-2 sm:pt-4 z-10 select-none">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/90 border border-warm-300 text-ink text-[10px] sm:text-xs font-mono font-bold uppercase tracking-widest mb-2.5 shadow-2xs">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+        <span>✦ Interactive 3D Motion Lab</span>
+      </div>
+
+      <h1 class="text-ink text-3xl sm:text-5xl md:text-6xl font-normal leading-[1.08] tracking-tight font-serif">
+        3D Perspective <span class="italic text-warm-900">Review Carousel</span> &amp; Glare
+      </h1>
+
+      <p class="mt-2 text-xs sm:text-sm md:text-base text-ink-muted max-w-2xl mx-auto leading-relaxed">
+        Hardware-accelerated 3D spatial card stack with depth wings, cursor-tracked radial glare shine, and spring gesture momentum.
+      </p>
     </div>
 
-    <h1 class="text-ink text-4xl sm:text-6xl md:text-7xl font-normal leading-[1.08] tracking-tight max-w-4xl font-serif">
-      3D Perspective <span class="italic">Review Carousel</span> &amp; Dynamic Glare
-    </h1>
-
-    <p class="mt-4 text-xs sm:text-sm md:text-base text-ink-muted max-w-2xl mx-auto leading-relaxed">
-      A buttery-smooth, hardware-accelerated 3D spatial carousel with depth-angled side wings, cursor-tracked radial glare, responsive swipe gestures, and auto-play.
-    </p>
-  </header>
-
-  <!-- ========================================================================= -->
-  <!-- 2. Interactive 3D Perspective Carousel Stage                              -->
-  <!-- ========================================================================= -->
-  <section id="carousel-stage-section" class="relative py-12 sm:py-16 bg-gradient-to-b from-[#FAF9F6] via-warm-100 to-[#FAF9F6] border-y border-warm-300 overflow-hidden">
-    
-    <!-- Atmospheric Parallax Glow -->
-    <div class="glow-orb top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[450px] bg-gradient-to-tr from-warm-300/30 via-amber-100/25 to-warm-200/30 rounded-full blur-3xl opacity-75 -z-10"></div>
-
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
+    <!-- UNIFIED SAME-FRAME INTERACTIVE WORKBENCH (Animation + Controls Beside Each Other) -->
+    <div class="w-full my-auto py-4 relative z-20">
       
-      <!-- Editorial Header -->
-      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 text-xs font-bold uppercase tracking-wider mb-3.5 shadow-2xs font-mono">
-          <span>Real Families &bull; Real Progress</span>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center w-full">
+        
+        <!-- LEFT: 3D Perspective Carousel Stage (Dominates on desktop) -->
+        <div class="lg:col-span-9 flex flex-col items-center justify-center">
+          
+          <div 
+            id="carousel-viewport" 
+            class="perspective-stage relative w-full h-[380px] sm:h-[420px] md:h-[450px] flex items-center justify-center select-none overflow-x-clip"
+            onmouseenter="pauseCarousel()"
+            onmouseleave="resumeCarousel()"
+          >
+            <!-- 3D Layered Cards Container -->
+            <div id="cards-container" class="relative w-full h-full flex items-center justify-center">
+
+              <!-- Card 0: Vikram R. -->
+              <div id="card-0" onclick="cardClicked(0)" class="carousel-card absolute w-[94%] sm:w-[86%] md:w-[80%] max-w-[700px] rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
+                <div class="glare-shine" id="glare-0"></div>
+                
+                <!-- Top Header -->
+                <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
+                      <span>Exam Preparation</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span>Timed Simulation</span>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex text-amber-500 text-xs">★★★★★</div>
+                    <span class="font-mono text-xs font-bold text-ink-subtle">01 / 04</span>
+                  </div>
+                </div>
+
+                <!-- Quote Body -->
+                <div class="py-3 sm:py-4 flex-1 flex flex-col justify-center relative z-10">
+                  <blockquote class="font-serif italic text-base sm:text-lg md:text-[1.15rem] text-ink leading-relaxed">
+                    "The CBT simulator felt identical to the real testing environment. Practising with the ticking countdown timer, question palette, and negative marking rules dramatically improved my exam-day pacing and reduced nervousness."
+                  </blockquote>
+                </div>
+
+                <!-- Bottom Author -->
+                <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
+                  <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
+                      VR
+                    </div>
+                    <div>
+                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Vikram R.</h4>
+                      <p class="text-xs text-ink-muted">Competitive Exam Aspirant, Bengaluru</p>
+                    </div>
+                  </div>
+                  <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+                </div>
+              </div>
+
+              <!-- Card 1: James T. -->
+              <div id="card-1" onclick="cardClicked(1)" class="carousel-card absolute w-[94%] sm:w-[86%] md:w-[80%] max-w-[700px] rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
+                <div class="glare-shine" id="glare-1"></div>
+                
+                <!-- Top Header -->
+                <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
+                      <span>Parent Oversight</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span>Daily Practice</span>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex text-amber-500 text-xs">★★★★★</div>
+                    <span class="font-mono text-xs font-bold text-ink-subtle">02 / 04</span>
+                  </div>
+                </div>
+
+                <!-- Quote Body -->
+                <div class="py-3 sm:py-4 flex-1 flex flex-col justify-center relative z-10">
+                  <blockquote class="font-serif italic text-base sm:text-lg md:text-[1.15rem] text-ink leading-relaxed">
+                    "EduMagik provided complete transparency into our daughter's learning habits without constant micro-management. The parent dashboard pinpointed specific weak areas in algebraic fractions."
+                  </blockquote>
+                </div>
+
+                <!-- Bottom Author -->
+                <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
+                  <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
+                      JT
+                    </div>
+                    <div>
+                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">James T.</h4>
+                      <p class="text-xs text-ink-muted">Parent, Surrey</p>
+                    </div>
+                  </div>
+                  <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+                </div>
+              </div>
+
+              <!-- Card 2: Priya K. -->
+              <div id="card-2" onclick="cardClicked(2)" class="carousel-card absolute w-[94%] sm:w-[86%] md:w-[80%] max-w-[700px] rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
+                <div class="glare-shine" id="glare-2"></div>
+                
+                <!-- Top Header -->
+                <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
+                      <span>For Educators</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span>Topic Mastery</span>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex text-amber-500 text-xs">★★★★★</div>
+                    <span class="font-mono text-xs font-bold text-ink-subtle">03 / 04</span>
+                  </div>
+                </div>
+
+                <!-- Quote Body -->
+                <div class="py-3 sm:py-4 flex-1 flex flex-col justify-center relative z-10">
+                  <blockquote class="font-serif italic text-base sm:text-lg md:text-[1.15rem] text-ink leading-relaxed">
+                    "As both a teacher and a parent, I love the academic depth and secure environment. The walled student cohorts and 3-click assignment dispatch save hours of manual grading."
+                  </blockquote>
+                </div>
+
+                <!-- Bottom Author -->
+                <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
+                  <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
+                      PK
+                    </div>
+                    <div>
+                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Priya K.</h4>
+                      <p class="text-xs text-ink-muted">Educator &amp; Parent, Birmingham</p>
+                    </div>
+                  </div>
+                  <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+                </div>
+              </div>
+
+              <!-- Card 3: Sarah M. -->
+              <div id="card-3" onclick="cardClicked(3)" class="carousel-card absolute w-[94%] sm:w-[86%] md:w-[80%] max-w-[700px] rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
+                <div class="glare-shine" id="glare-3"></div>
+                
+                <!-- Top Header -->
+                <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
+                      <span>Parent Engagement</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span>Daily Routine</span>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex text-amber-500 text-xs">★★★★★</div>
+                    <span class="font-mono text-xs font-bold text-ink-subtle">04 / 04</span>
+                  </div>
+                </div>
+
+                <!-- Quote Body -->
+                <div class="py-3 sm:py-4 flex-1 flex flex-col justify-center relative z-10">
+                  <blockquote class="font-serif italic text-base sm:text-lg md:text-[1.15rem] text-ink leading-relaxed">
+                    "EduMagik made child's preparation fun. My child now asks to practice every evening without any friction, motivated by the streak counters and clear badges."
+                  </blockquote>
+                </div>
+
+                <!-- Bottom Author -->
+                <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
+                  <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
+                      SM
+                    </div>
+                    <div>
+                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Sarah M.</h4>
+                      <p class="text-xs text-ink-muted">Parent, London</p>
+                    </div>
+                  </div>
+                  <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Left & Right Floating Chevron Buttons (Positioned directly over wing cards) -->
+            <div class="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-full max-w-[860px] md:max-w-[920px] flex justify-between pointer-events-none z-40 px-3 sm:px-5">
+              <button
+                type="button"
+                onclick="prevCard()"
+                aria-label="Previous card"
+                class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 backdrop-blur-md border border-warm-300 text-ink shadow-[0_8px_30px_rgba(40,30,10,0.12)] flex items-center justify-center pointer-events-auto hover:bg-ink hover:text-white hover:border-ink hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button
+                type="button"
+                onclick="nextCard()"
+                aria-label="Next card"
+                class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 backdrop-blur-md border border-warm-300 text-ink shadow-[0_8px_30px_rgba(40,30,10,0.12)] flex items-center justify-center pointer-events-auto hover:bg-ink hover:text-white hover:border-ink hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Tactile Stage Interaction Cues -->
+          <div class="mt-3 flex flex-wrap items-center justify-center gap-2.5 text-[11px] font-mono text-ink-muted">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 border border-warm-300 shadow-2xs">
+              <span>✨</span>
+              <span>Hover for 3D tilt &amp; glare</span>
+            </span>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 border border-warm-300 shadow-2xs">
+              <span>⇄</span>
+              <span>Swipe or drag</span>
+            </span>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 border border-warm-300 shadow-2xs">
+              <span>👆</span>
+              <span>Click side wings</span>
+            </span>
+          </div>
+
         </div>
-        <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-ink leading-[1.15]">
-          Built for the people behind <span class="italic">every academic milestone.</span>
+
+        <!-- RIGHT: Interactive Control Cards (Positioned directly beside the animation on same frame) -->
+        <div class="lg:col-span-3 flex flex-col gap-3 w-full">
+          
+          <!-- Card 1: Playback & Step Track -->
+          <div class="p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-warm-300 shadow-sm flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between border-b border-warm-200 pb-2.5">
+              <span class="text-xs font-mono font-bold uppercase text-ink flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-ink"></span>
+                Playback &amp; Track
+              </span>
+              <span id="autoplay-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                Auto-Playing
+              </span>
+            </div>
+
+            <!-- Play/Pause and Step Buttons -->
+            <div class="flex items-center justify-center gap-2.5 py-0.5">
+              <button onclick="prevCard()" class="p-2.5 rounded-xl border border-warm-300 hover:bg-warm-100 text-ink transition-all active:scale-95 cursor-pointer" title="Previous Card">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button id="btn-toggle-autoplay" onclick="toggleAutoPlay()" class="px-4 py-2.5 rounded-xl bg-ink text-warm-100 border border-ink hover:bg-warm-900 font-mono text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 active:scale-95 shadow-xs cursor-pointer">
+                <span id="autoplay-btn-icon">⏸</span>
+                <span id="autoplay-btn-label">Pause</span>
+              </button>
+              <button onclick="nextCard()" class="p-2.5 rounded-xl border border-warm-300 hover:bg-warm-100 text-ink transition-all active:scale-95 cursor-pointer" title="Next Card">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+
+            <!-- Dot Scrubber -->
+            <div class="flex items-center justify-center gap-2 pt-2 border-t border-warm-100">
+              <button onclick="goToCard(0)" id="dot-0" class="h-2 rounded-full transition-all duration-300 w-7 bg-ink shadow-2xs cursor-pointer"></button>
+              <button onclick="goToCard(1)" id="dot-1" class="h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400 cursor-pointer"></button>
+              <button onclick="goToCard(2)" id="dot-2" class="h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400 cursor-pointer"></button>
+              <button onclick="goToCard(3)" id="dot-3" class="h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400 cursor-pointer"></button>
+            </div>
+          </div>
+
+          <!-- Card 2: 3D Depth Presets Switcher -->
+          <div class="p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-warm-300 shadow-sm flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between border-b border-warm-200 pb-2.5">
+              <span class="text-xs font-mono font-bold uppercase text-ink flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                3D Depth Presets
+              </span>
+              <span id="preset-active-label" class="text-[10px] font-mono text-ink-muted">Standard 10°</span>
+            </div>
+
+            <!-- Presets Buttons -->
+            <div class="grid grid-cols-3 gap-2">
+              <button id="preset-default" onclick="setPhysicsPreset('default')" class="preset-btn active py-2 px-1.5 rounded-xl border border-warm-300 text-center font-mono text-[11px] font-bold transition-all hover:border-ink cursor-pointer">
+                Default
+                <span class="block text-[9px] font-normal opacity-75">10° Balanced</span>
+              </button>
+              <button id="preset-cinematic" onclick="setPhysicsPreset('cinematic')" class="preset-btn py-2 px-1.5 rounded-xl border border-warm-300 text-center font-mono text-[11px] font-bold transition-all hover:border-ink cursor-pointer">
+                Cinematic
+                <span class="block text-[9px] font-normal opacity-75">18° Deep</span>
+              </button>
+              <button id="preset-subtle" onclick="setPhysicsPreset('subtle')" class="preset-btn py-2 px-1.5 rounded-xl border border-warm-300 text-center font-mono text-[11px] font-bold transition-all hover:border-ink cursor-pointer">
+                Subtle
+                <span class="block text-[9px] font-normal opacity-75">5° Gentle</span>
+              </button>
+            </div>
+
+            <div class="text-[10px] text-ink-muted font-mono flex items-center justify-between border-t border-warm-100 pt-2">
+              <span>Perspective: 1200px</span>
+              <span>Spring: 300 / 30</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Scroll Down Visual Invitation -->
+    <a href="#deconstruct" class="flex flex-col items-center gap-1 text-ink-muted hover:text-ink transition-colors pb-1">
+      <span class="text-[10px] font-mono uppercase tracking-widest font-bold">Visual Spatial Deconstructor</span>
+      <svg class="w-3.5 h-3.5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+    </a>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- TIER 2: VISUAL 3D DECONSTRUCTOR & SPATIAL ANATOMY (DECONSTRUCT)           -->
+  <!-- The Animation itself is the teaching mechanism!                           -->
+  <!-- Visually shows cards in state with dynamic badges, callouts, and physics  -->
+  <!-- ========================================================================= -->
+  <section id="deconstruct" class="relative py-16 sm:py-20 bg-gradient-to-b from-[#FAF9F6] via-warm-100 to-[#FAF9F6] border-y border-warm-300 overflow-hidden">
+    
+    <!-- Atmospheric Glow -->
+    <div class="glow-orb top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-warm-300/30 rounded-full blur-3xl -z-10"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-warm-100 border border-warm-300 text-ink text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider mb-3 shadow-2xs">
+          <span>02. Visual Spatial Deconstructor</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif text-ink font-normal tracking-tight">
+          How the 3D System <span class="italic text-warm-900">Behaves</span>
         </h2>
-        <p class="mt-3 text-xs sm:text-sm md:text-base text-ink-muted leading-relaxed">
-          Hover over the active center card to experience inertial 3D tilt &amp; dynamic radial glare. Swipe or click side cards to smoothly rotate the 3D carousel.
+        <p class="mt-2 text-xs sm:text-sm text-ink-muted">
+          Select any layer below to inspect its exact spatial transforms, visual depth cues, and physics live on the visual stage.
         </p>
+
+        <!-- Interactive Deconstructor State Tabs -->
+        <div class="mt-6 inline-flex flex-wrap items-center justify-center gap-1.5 p-1.5 bg-warm-200/80 rounded-2xl border border-warm-300 shadow-2xs">
+          <button id="dec-tab-overview" onclick="setDeconstructState('overview')" class="deconstruct-nav-btn active px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer">
+            ✦ Complete 3D Deck
+          </button>
+          <button id="dec-tab-center" onclick="setDeconstructState('center')" class="deconstruct-nav-btn px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold text-ink-muted hover:text-ink transition-all cursor-pointer">
+            01. Center Focus (diff=0)
+          </button>
+          <button id="dec-tab-wings" onclick="setDeconstructState('wings')" class="deconstruct-nav-btn px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold text-ink-muted hover:text-ink transition-all cursor-pointer">
+            02. Depth Wings (diff=±1)
+          </button>
+          <button id="dec-tab-queue" onclick="setDeconstructState('queue')" class="deconstruct-nav-btn px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold text-ink-muted hover:text-ink transition-all cursor-pointer">
+            03. Background Queue (diff=±2)
+          </button>
+          <button id="dec-tab-glare" onclick="setDeconstructState('glare')" class="deconstruct-nav-btn px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold text-ink-muted hover:text-ink transition-all cursor-pointer">
+            04. Dynamic Glare &amp; Tilt
+          </button>
+        </div>
       </div>
 
-      <!-- 3D Carousel Stage Wrapper -->
-      <div 
-        id="carousel-viewport" 
-        class="perspective-stage relative w-full h-[400px] sm:h-[400px] md:h-[430px] flex items-center justify-center select-none"
-        onmouseenter="pauseCarousel()"
-        onmouseleave="resumeCarousel()"
-      >
-        <div id="cards-container" class="relative w-full max-w-5xl h-full flex items-center justify-center">
+      <!-- Live Visual Deconstructor Simulator Stage -->
+      <div class="relative bg-white rounded-3xl border border-warm-300 p-6 sm:p-8 shadow-md overflow-hidden mb-8">
+        
+        <!-- Spatial Grid Background Pattern -->
+        <div class="absolute inset-0 bg-[radial-gradient(#EDE8DC_1px,transparent_1px)] [background-size:20px_20px] opacity-60 pointer-events-none"></div>
 
-          <!-- Card 0: Vikram R. -->
-          <div id="card-0" onclick="cardClicked(0)" class="carousel-card absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
-            <div class="glare-shine" id="glare-0"></div>
-            
-            <!-- Top Header -->
-            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
-                  <span>Exam Preparation</span>
-                </span>
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <span>Timed Simulation</span>
-                </span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="flex text-amber-500 text-xs">★★★★★</div>
-                <span class="font-mono text-xs font-bold text-ink-subtle">01 / 04</span>
-              </div>
+        <!-- Stage Header Info -->
+        <div class="relative flex items-center justify-between pb-4 mb-4 border-b border-warm-200 text-xs font-mono">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-ink inline-block"></span>
+            <span id="dec-stage-title" class="font-bold text-ink">Complete 3D Spatial Deck Overview</span>
+          </div>
+          <div class="flex items-center gap-2 text-ink-muted">
+            <span class="hidden sm:inline">Perspective:</span>
+            <span class="px-2 py-0.5 rounded bg-warm-100 border border-warm-300 font-bold text-ink">1200px</span>
+          </div>
+        </div>
+
+        <!-- 3D Deconstructor Canvas -->
+        <div class="deconstruct-perspective-stage relative w-full h-[280px] sm:h-[320px] flex items-center justify-center select-none overflow-visible">
+          
+          <!-- Left Wing Card (Virtual) -->
+          <div id="dec-card-left" class="deconstruct-card absolute w-[70%] sm:w-[50%] max-w-sm rounded-2xl p-5 border border-warm-300 bg-white/95 card-shadow flex flex-col justify-between select-none">
+            <div class="flex items-center justify-between pb-2 border-b border-warm-100 text-[10px] font-mono">
+              <span class="font-bold text-warm-800 uppercase">Left Wing (diff = -1)</span>
+              <span class="text-ink-subtle">z: 5</span>
             </div>
-
-            <!-- Quote Body -->
-            <div class="py-4 flex-1 flex flex-col justify-center relative z-10">
-              <blockquote class="font-serif italic text-sm sm:text-base md:text-[1.05rem] text-ink leading-relaxed">
-                "The CBT simulator felt identical to the real testing environment. Practising with the ticking countdown timer, question palette, and negative marking rules dramatically improved my exam-day pacing and reduced nervousness."
-              </blockquote>
-            </div>
-
-            <!-- Bottom Author -->
-            <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
-              <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
-                  VR
-                </div>
-                <div>
-                  <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Vikram R.</h4>
-                  <p class="text-xs text-ink-muted">Competitive Exam Aspirant, Bengaluru</p>
-                </div>
-              </div>
-              <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+            <p class="font-serif italic text-xs sm:text-sm text-ink py-3">"Topic mastery and structured cohorts save hours of grading..."</p>
+            <div class="text-[10px] text-ink-muted border-t border-warm-100 pt-1.5 flex justify-between">
+              <span>Priya K.</span>
+              <span class="text-emerald-700 font-bold">0.88x Scale</span>
             </div>
           </div>
 
-          <!-- Card 1: James T. -->
-          <div id="card-1" onclick="cardClicked(1)" class="carousel-card absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
-            <div class="glare-shine" id="glare-1"></div>
-            
-            <!-- Top Header -->
-            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
-                  <span>Parent Oversight</span>
-                </span>
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <span>Daily Practice</span>
-                </span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="flex text-amber-500 text-xs">★★★★★</div>
-                <span class="font-mono text-xs font-bold text-ink-subtle">02 / 04</span>
-              </div>
+          <!-- Background Queue Card (Virtual) -->
+          <div id="dec-card-queue" class="deconstruct-card absolute w-[65%] sm:w-[45%] max-w-xs rounded-2xl p-4 border border-warm-300 bg-white/70 card-shadow flex flex-col justify-between select-none opacity-0">
+            <div class="flex items-center justify-between pb-1 border-b border-warm-100 text-[9px] font-mono">
+              <span class="font-bold text-warm-700 uppercase">Queue (diff = 2)</span>
+              <span class="text-ink-subtle">z: 1</span>
             </div>
-
-            <!-- Quote Body -->
-            <div class="py-4 flex-1 flex flex-col justify-center relative z-10">
-              <blockquote class="font-serif italic text-sm sm:text-base md:text-[1.05rem] text-ink leading-relaxed">
-                "EduMagik provided complete transparency into our daughter's learning habits without constant micro-management. The parent dashboard pinpointed specific weak areas in algebraic fractions."
-              </blockquote>
-            </div>
-
-            <!-- Bottom Author -->
-            <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
-              <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
-                  JT
-                </div>
-                <div>
-                  <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">James T.</h4>
-                  <p class="text-xs text-ink-muted">Parent, Surrey</p>
-                </div>
-              </div>
-              <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+            <p class="font-serif italic text-[11px] text-ink py-2">"Waiting in background offstage queue..."</p>
+            <div class="text-[9px] text-ink-muted border-t border-warm-100 pt-1">
+              <span>Sarah M. &bull; 0.75x Scale</span>
             </div>
           </div>
 
-          <!-- Card 2: Priya K. -->
-          <div id="card-2" onclick="cardClicked(2)" class="carousel-card absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
-            <div class="glare-shine" id="glare-2"></div>
-            
-            <!-- Top Header -->
-            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
-                  <span>For Educators</span>
-                </span>
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <span>Topic Mastery</span>
-                </span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="flex text-amber-500 text-xs">★★★★★</div>
-                <span class="font-mono text-xs font-bold text-ink-subtle">03 / 04</span>
-              </div>
+          <!-- Right Wing Card (Virtual) -->
+          <div id="dec-card-right" class="deconstruct-card absolute w-[70%] sm:w-[50%] max-w-sm rounded-2xl p-5 border border-warm-300 bg-white/95 card-shadow flex flex-col justify-between select-none">
+            <div class="flex items-center justify-between pb-2 border-b border-warm-100 text-[10px] font-mono">
+              <span class="font-bold text-warm-800 uppercase">Right Wing (diff = +1)</span>
+              <span class="text-ink-subtle">z: 5</span>
             </div>
-
-            <!-- Quote Body -->
-            <div class="py-4 flex-1 flex flex-col justify-center relative z-10">
-              <blockquote class="font-serif italic text-sm sm:text-base md:text-[1.05rem] text-ink leading-relaxed">
-                "As both a teacher and a parent, I love the academic depth and secure environment. The walled student cohorts and 3-click assignment dispatch save hours of manual grading."
-              </blockquote>
-            </div>
-
-            <!-- Bottom Author -->
-            <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
-              <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
-                  PK
-                </div>
-                <div>
-                  <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Priya K.</h4>
-                  <p class="text-xs text-ink-muted">Educator &amp; Parent, Birmingham</p>
-                </div>
-              </div>
-              <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+            <p class="font-serif italic text-xs sm:text-sm text-ink py-3">"Complete transparency without constant micro-management..."</p>
+            <div class="text-[10px] text-ink-muted border-t border-warm-100 pt-1.5 flex justify-between">
+              <span>James T.</span>
+              <span class="text-emerald-700 font-bold">0.88x Scale</span>
             </div>
           </div>
 
-          <!-- Card 3: Sarah M. -->
-          <div id="card-3" onclick="cardClicked(3)" class="carousel-card absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
-            <div class="glare-shine" id="glare-3"></div>
-            
-            <!-- Top Header -->
-            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
-                  <span>Parent Engagement</span>
-                </span>
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <span>Daily Routine</span>
-                </span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="flex text-amber-500 text-xs">★★★★★</div>
-                <span class="font-mono text-xs font-bold text-ink-subtle">04 / 04</span>
-              </div>
+          <!-- Center Active Card (Virtual) -->
+          <div id="dec-card-center" class="deconstruct-card absolute w-[78%] sm:w-[55%] max-w-md rounded-2xl p-6 border border-warm-400 bg-white card-active-glow flex flex-col justify-between select-none z-10">
+            <div class="glare-shine opacity-80" id="dec-glare-sample"></div>
+            <div class="flex items-center justify-between pb-2.5 border-b border-warm-100 text-[11px] font-mono relative z-10">
+              <span class="font-bold text-ink uppercase bg-warm-100 px-2 py-0.5 rounded border border-warm-300">Center Focus (diff = 0)</span>
+              <span class="text-emerald-700 font-bold">z-index: 10</span>
             </div>
-
-            <!-- Quote Body -->
-            <div class="py-4 flex-1 flex flex-col justify-center relative z-10">
-              <blockquote class="font-serif italic text-sm sm:text-base md:text-[1.05rem] text-ink leading-relaxed">
-                "EduMagik made child's preparation fun. My child now asks to practice every evening without any friction, motivated by the streak counters and clear badges."
-              </blockquote>
-            </div>
-
-            <!-- Bottom Author -->
-            <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
-              <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
-                  SM
-                </div>
-                <div>
-                  <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Sarah M.</h4>
-                  <p class="text-xs text-ink-muted">Parent, London</p>
-                </div>
-              </div>
-              <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
+            <p class="font-serif italic text-sm sm:text-base text-ink py-4 relative z-10">"The CBT simulator felt identical to real testing environments. Practice timer reduced nervousness."</p>
+            <div class="text-xs text-ink-muted border-t border-warm-100 pt-2 flex justify-between items-center relative z-10">
+              <span class="font-semibold text-ink">Vikram R. (100% Opacity)</span>
+              <span class="text-amber-500 font-bold">1.00x Scale &bull; 0px Blur</span>
             </div>
           </div>
 
         </div>
 
-        <!-- Left & Right Chevron Navigation Buttons -->
-        <div class="absolute -inset-x-2 sm:-inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-40 px-2 sm:px-0">
-          <button
-            type="button"
-            onclick="prevCard()"
-            aria-label="Previous review"
-            class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-warm-300 text-ink shadow-[0_8px_30px_rgba(40,30,10,0.12)] flex items-center justify-center pointer-events-auto hover:bg-ink hover:text-white hover:border-ink hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
-          >
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-          <button
-            type="button"
-            onclick="nextCard()"
-            aria-label="Next review"
-            class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-warm-300 text-ink shadow-[0_8px_30px_rgba(40,30,10,0.12)] flex items-center justify-center pointer-events-auto hover:bg-ink hover:text-white hover:border-ink hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
-          >
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </button>
+        <!-- Live Visual Callout Bar (Connected directly to currently selected state) -->
+        <div id="dec-callouts-container" class="relative mt-6 pt-4 border-t border-warm-200 grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+          
+          <div class="p-3 rounded-xl bg-warm-100 border border-warm-300">
+            <span class="text-[10px] text-warm-700 uppercase block font-bold">X Translation</span>
+            <span id="callout-x" class="text-ink font-bold text-sm sm:text-base">0% Center</span>
+            <span id="callout-x-sub" class="text-[10px] text-ink-muted block mt-0.5">Aligned with stage center</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-warm-100 border border-warm-300">
+            <span class="text-[10px] text-warm-700 uppercase block font-bold">Scale &amp; Z-Index</span>
+            <span id="callout-scale" class="text-ink font-bold text-sm sm:text-base">1.00 &bull; z: 10</span>
+            <span id="callout-scale-sub" class="text-[10px] text-ink-muted block mt-0.5">Top composite layer</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-warm-100 border border-warm-300">
+            <span class="text-[10px] text-warm-700 uppercase block font-bold">rotateY 3D Tilt</span>
+            <span id="callout-rotate" class="text-ink font-bold text-sm sm:text-base">0.0° (Dynamic)</span>
+            <span id="callout-rotate-sub" class="text-[10px] text-ink-muted block mt-0.5">Flat + cursor tilt</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-warm-100 border border-warm-300">
+            <span class="text-[10px] text-warm-700 uppercase block font-bold">Opacity &amp; Blur</span>
+            <span id="callout-blur" class="text-ink font-bold text-sm sm:text-base">1.0 / 0px Blur</span>
+            <span id="callout-blur-sub" class="text-[10px] text-ink-muted block mt-0.5">Crisp, unblurred focus</span>
+          </div>
+
         </div>
 
       </div>
 
-      <!-- Dot Pill Track Indicators -->
-      <div class="mt-8 flex items-center justify-center gap-2 z-30">
-        <button onclick="goToCard(0)" id="dot-0" class="h-2 rounded-full transition-all duration-300 w-8 bg-ink shadow-2xs"></button>
-        <button onclick="goToCard(1)" id="dot-1" class="h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400"></button>
-        <button onclick="goToCard(2)" id="dot-2" class="h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400"></button>
-        <button onclick="goToCard(3)" id="dot-3" class="h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400"></button>
+      <!-- Real-Time Interactive Property Playground Sliders -->
+      <div class="bg-warm-100/80 rounded-2xl border border-warm-300 p-5 shadow-2xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-2 border-b border-warm-300/80">
+          <span class="text-xs font-mono font-bold uppercase text-ink flex items-center gap-1.5">
+            <span>⚙</span> Live 3D Parameter Playground (Real-Time Tweaker)
+          </span>
+          <button onclick="resetSliders()" class="text-[10px] font-mono font-bold text-warm-800 hover:text-ink underline self-start sm:self-auto cursor-pointer">
+            Reset to Defaults
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <!-- Slider 1: Wing Tilt -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs font-mono">
+              <span class="text-ink-muted">Wing Angle:</span>
+              <span id="val-tilt-slider" class="font-bold text-ink">10 deg</span>
+            </div>
+            <input type="range" id="slider-tilt" min="0" max="30" value="10" oninput="updateDeconstructSliders()" class="w-full cursor-ew-resize" />
+          </div>
+
+          <!-- Slider 2: Wing X Offset -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs font-mono">
+              <span class="text-ink-muted">Wing Spacing:</span>
+              <span id="val-spacing-slider" class="font-bold text-ink">52%</span>
+            </div>
+            <input type="range" id="slider-spacing" min="30" max="75" value="52" oninput="updateDeconstructSliders()" class="w-full cursor-ew-resize" />
+          </div>
+
+          <!-- Slider 3: Depth Blur -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs font-mono">
+              <span class="text-ink-muted">Wing Blur:</span>
+              <span id="val-blur-slider" class="font-bold text-ink">1.5 px</span>
+            </div>
+            <input type="range" id="slider-blur" min="0" max="6" step="0.5" value="1.5" oninput="updateDeconstructSliders()" class="w-full cursor-ew-resize" />
+          </div>
+        </div>
       </div>
 
     </div>
   </section>
 
+
   <!-- ========================================================================= -->
-  <!-- 3. DEVELOPER README & REACT CODE MIGRATION                                -->
+  <!-- TIER 3: IMPLEMENTATION & CODE PLAYGROUND (BUILD)                           -->
+  <!-- Clean, secondary, copyable React + Framer Motion and Vanilla JS + GSAP    -->
   <!-- ========================================================================= -->
-  <article id="readme-section" class="relative max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-20 bg-[#FAF9F6] border-t border-warm-300">
-    
-    <!-- Header -->
-    <div class="mb-14 pb-8 border-b border-warm-300">
-      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-warm-100 border border-warm-300 text-warm-800 text-xs font-mono font-bold uppercase tracking-wider mb-4 shadow-2xs">
-        <span>DEVELOPER DOCS &bull; AVADAKEDEVARA PRODUCTION COMPONENT</span>
-      </div>
-      <h2 class="text-3xl sm:text-5xl font-serif text-ink font-normal tracking-tight">
-        3D Perspective Review Stack Architecture &amp; <span class="italic">React Guide</span>
-      </h2>
-      <p class="mt-3 text-xs sm:text-sm md:text-base text-ink-muted leading-relaxed max-w-3xl">
-        This animation architecture combines CSS 3D perspective (<code class="font-mono text-xs bg-warm-200 px-1.5 py-0.5 rounded border border-warm-300 text-ink">perspective: 1200px</code>), 3-tier depth coordinates, dynamic cursor-tracked radial glare, spring transitions, and drag/touch gestures.
-      </p>
-    </div>
-
-    <!-- Section 1: Variant Calculator & 3D Mechanics -->
-    <section class="mb-14 space-y-4">
-      <h3 class="text-xl sm:text-2xl font-serif text-ink font-normal flex items-center gap-2">
-        <span class="text-warm-700 font-mono text-base font-bold">01.</span> Mathematical 3D Variant Matrix
-      </h3>
-
-      <div class="overflow-x-auto rounded-2xl border border-warm-300 shadow-xs bg-white">
-        <table class="w-full text-left text-xs font-mono">
-          <thead class="bg-warm-100 border-b border-warm-300 text-ink font-bold uppercase tracking-wider">
-            <tr>
-              <th class="p-3.5">Position Relative to Active</th>
-              <th class="p-3.5">X Translation</th>
-              <th class="p-3.5">Scale</th>
-              <th class="p-3.5">rotateY Tilt</th>
-              <th class="p-3.5">Z-Index</th>
-              <th class="p-3.5">Opacity / Blur</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-warm-200 text-ink-muted">
-            <tr class="bg-warm-50/60 font-semibold text-ink">
-              <td class="p-3.5 text-warm-800 font-bold">Center (Active, diff = 0)</td>
-              <td class="p-3.5 font-bold text-ink">0%</td>
-              <td class="p-3.5 font-bold text-ink">1.00</td>
-              <td class="p-3.5 font-bold text-ink">0 deg (+ mouse tilt)</td>
-              <td class="p-3.5 font-bold text-ink">10</td>
-              <td class="p-3.5 font-bold text-ink">1.0 / 0px</td>
-            </tr>
-            <tr>
-              <td class="p-3.5 font-semibold text-ink">Left Wing (diff = -1 or N-1)</td>
-              <td class="p-3.5 text-warm-800 font-bold">-52%</td>
-              <td class="p-3.5 text-warm-800 font-bold">0.88</td>
-              <td class="p-3.5 text-warm-800 font-bold">+10 deg</td>
-              <td class="p-3.5 text-warm-800 font-bold">5</td>
-              <td class="p-3.5">0.65 / 1.5px blur</td>
-            </tr>
-            <tr>
-              <td class="p-3.5 font-semibold text-ink">Right Wing (diff = +1)</td>
-              <td class="p-3.5 text-warm-800 font-bold">+52%</td>
-              <td class="p-3.5 text-warm-800 font-bold">0.88</td>
-              <td class="p-3.5 text-warm-800 font-bold">-10 deg</td>
-              <td class="p-3.5 text-warm-800 font-bold">5</td>
-              <td class="p-3.5">0.65 / 1.5px blur</td>
-            </tr>
-            <tr>
-              <td class="p-3.5 font-semibold text-ink">Background Queue</td>
-              <td class="p-3.5">&plusmn; 85%</td>
-              <td class="p-3.5">0.75</td>
-              <td class="p-3.5">0 deg</td>
-              <td class="p-3.5">1</td>
-              <td class="p-3.5">0.0 / 4px blur</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Section 2: Production Code Snippets -->
-    <section class="mb-14 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h3 class="text-xl sm:text-2xl font-serif text-ink font-normal flex items-center gap-2">
-          <span class="text-warm-700 font-mono text-base font-bold">02.</span> Production Component Code
-        </h3>
+  <section id="build" class="relative py-16 sm:py-20 bg-[#FAF9F6] border-b border-warm-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 pb-6 border-b border-warm-300">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-100 border border-warm-300 text-ink text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider mb-2 shadow-2xs">
+            <span>03. Production Component Implementation</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-serif text-ink font-normal tracking-tight">
+            React &amp; <span class="italic text-warm-900">Framer Motion</span> Code
+          </h2>
+        </div>
         
-        <!-- Tab Selectors -->
+        <!-- Tab Selector -->
         <div class="flex items-center gap-1.5 p-1 bg-warm-200 rounded-full border border-warm-300 self-start sm:self-auto shadow-2xs">
-          <button id="btn-tab-react" onclick="switchTab('react')" class="tab-btn active px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-all">
+          <button id="btn-tab-react" onclick="switchTab('react')" class="tab-btn active px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-all cursor-pointer">
             React + Framer Motion
           </button>
-          <button id="btn-tab-vanilla" onclick="switchTab('vanilla')" class="tab-btn px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink transition-all">
+          <button id="btn-tab-vanilla" onclick="switchTab('vanilla')" class="tab-btn px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink transition-all cursor-pointer">
             Vanilla HTML + JS (GSAP)
           </button>
         </div>
       </div>
 
-      <!-- React / Next.js Tab Content -->
-      <div id="tab-react-content" class="space-y-2">
-        <div class="flex justify-between items-center px-1">
-          <span class="text-xs font-semibold text-ink-muted font-mono">GlobalReviewsStack.tsx (From AvadaKeDevara Frontend)</span>
-          <button onclick="copyCode('react-code', this)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-warm-300 hover:bg-ink hover:text-white text-ink text-xs font-mono font-bold tracking-wider uppercase transition-all shadow-xs">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-            <span>Copy React Code</span>
-          </button>
+      <!-- Quick 3-Step Integration Summary -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div class="p-4 rounded-2xl bg-white border border-warm-300 shadow-2xs flex items-start gap-3">
+          <div class="w-7 h-7 rounded-full bg-warm-200 border border-warm-400/40 text-ink font-bold font-mono text-xs flex items-center justify-center shrink-0">1</div>
+          <div>
+            <h4 class="font-bold text-xs font-mono text-ink uppercase">Install Dependencies</h4>
+            <p class="text-xs text-ink-muted mt-0.5 font-mono">framer-motion lucide-react</p>
+          </div>
         </div>
 
-        <div class="relative rounded-2xl bg-warm-900 border border-warm-800 p-5 text-warm-100 font-mono text-xs overflow-x-auto leading-relaxed max-h-[520px] shadow-xl">
+        <div class="p-4 rounded-2xl bg-white border border-warm-300 shadow-2xs flex items-start gap-3">
+          <div class="w-7 h-7 rounded-full bg-warm-200 border border-warm-400/40 text-ink font-bold font-mono text-xs flex items-center justify-center shrink-0">2</div>
+          <div>
+            <h4 class="font-bold text-xs font-mono text-ink uppercase">Copy Component</h4>
+            <p class="text-xs text-ink-muted mt-0.5">Drop in <code class="font-mono text-[11px] bg-warm-100 px-1 py-0.5 rounded border border-warm-300">GlobalReviewsStack.tsx</code></p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-white border border-warm-300 shadow-2xs flex items-start gap-3">
+          <div class="w-7 h-7 rounded-full bg-warm-200 border border-warm-400/40 text-ink font-bold font-mono text-xs flex items-center justify-center shrink-0">3</div>
+          <div>
+            <h4 class="font-bold text-xs font-mono text-ink uppercase">Pass Testimonials Data</h4>
+            <p class="text-xs text-ink-muted mt-0.5">Array of reviews with avatars &amp; roles</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- React Tab Content -->
+      <div id="tab-react-content" class="space-y-3">
+        <div class="flex justify-between items-center px-1">
+          <span class="text-xs font-semibold text-ink-muted font-mono">GlobalReviewsStack.tsx (From AvadaKeDevara Frontend)</span>
+          <div class="flex items-center gap-2">
+            <button onclick="toggleCodeHeight('react-code-wrapper')" class="text-xs font-mono text-ink-muted hover:text-ink underline px-2 py-1 cursor-pointer">
+              Toggle View
+            </button>
+            <button onclick="copyCode('react-code', this)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-warm-300 hover:bg-ink hover:text-white text-ink text-xs font-mono font-bold tracking-wider uppercase transition-all shadow-xs cursor-pointer">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span>Copy React Code</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="react-code-wrapper" class="relative rounded-2xl bg-warm-900 border border-warm-800 p-5 text-warm-100 font-mono text-xs overflow-x-auto leading-relaxed max-h-[480px] shadow-xl">
 <pre id="react-code"><code>import React, { useState, useEffect, useRef } from "react";
 import {
   motion,
@@ -541,7 +840,7 @@ import {
   useMotionValue,
   useTransform,
 } from "framer-motion";
-import { Star, ChevronLeft, ChevronRight, Quote, CheckCircle2, Sparkles } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Testimonial {
   id: string;
@@ -590,20 +889,21 @@ export const GlobalReviewsStack: React.FC&lt;{ testimonials: Testimonial[] }&gt;
     else if (offset.x &gt; 50) handlePrev();
   };
 
+  // 3D Spatial Variant Matrix Calculator
   const getVariants = (index: number) => {
     const diff = (index - currentIndex + total) % total;
     if (diff === 0) {
       return { x: "0%", scale: 1, zIndex: 10, opacity: 1, filter: "blur(0px)", rotateY: 0 };
     } else if (diff === total - 1 || diff === -1) {
-      return { x: "-52%", scale: 0.88, zIndex: 5, opacity: 0.6, filter: "blur(2px)", rotateY: 10 };
+      return { x: "-52%", scale: 0.88, zIndex: 5, opacity: 0.65, filter: "blur(1.5px)", rotateY: 10 };
     } else if (diff === 1) {
-      return { x: "52%", scale: 0.88, zIndex: 5, opacity: 0.6, filter: "blur(2px)", rotateY: -10 };
+      return { x: "52%", scale: 0.88, zIndex: 5, opacity: 0.65, filter: "blur(1.5px)", rotateY: -10 };
     } else {
       return { x: diff &gt; 1 && diff &lt; total / 2 ? "85%" : "-85%", scale: 0.75, zIndex: 1, opacity: 0, filter: "blur(4px)", rotateY: 0 };
     }
   };
 
-  // 3D Tilt & Radial Glare Motion Values
+  // Inertial 3D Tilt & Radial Glare Motion Values
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useTransform(y, [-100, 100], [5, -5]);
@@ -638,7 +938,7 @@ export const GlobalReviewsStack: React.FC&lt;{ testimonials: Testimonial[] }&gt;
             return (
               &lt;motion.div
                 key={t.id}
-                className="absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 md:p-8 shadow-2xl border border-border/90 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer"
+                className="absolute w-[88%] sm:w-[76%] md:w-[62%] max-w-xl rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-200 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer"
                 animate={getVariants(idx)}
                 style={isCenter ? { rotateX, rotateY } : {}}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -656,28 +956,29 @@ export const GlobalReviewsStack: React.FC&lt;{ testimonials: Testimonial[] }&gt;
                   &lt;motion.div
                     className="absolute inset-0 z-20 pointer-events-none opacity-0 hover:opacity-100 transition-opacity rounded-3xl"
                     style={{
-                      background: "radial-gradient(circle at center, rgba(59,130,246,0.15) 0%, rgba(255,255,255,0) 65%)",
+                      background: "radial-gradient(circle at center, rgba(222,219,200,0.5) 0%, rgba(255,255,255,0) 65%)",
                       x: glareX,
                       y: glareY,
                     }}
                   /&gt;
                 )}
 
-                &lt;div className="flex items-center justify-between pb-3 border-b border-border/50"&gt;
-                  &lt;span className="text-xs font-bold uppercase text-primary"&gt;{t.category}&lt;/span&gt;
+                &lt;div className="flex items-center justify-between pb-3 border-b border-slate-100"&gt;
+                  &lt;span className="text-xs font-bold uppercase text-amber-700 font-mono"&gt;{t.category}&lt;/span&gt;
                   &lt;span className="text-xs font-mono text-slate-400"&gt;0{idx + 1}/0{total}&lt;/span&gt;
                 &lt;/div&gt;
 
                 &lt;p className="font-serif italic text-sm md:text-base text-slate-800 my-4"&gt;"{t.text}"&lt;/p&gt;
 
-                &lt;div className="flex items-center justify-between pt-3 border-t border-border/50"&gt;
+                &lt;div className="flex items-center justify-between pt-3 border-t border-slate-100"&gt;
                   &lt;div className="flex items-center gap-3"&gt;
-                    &lt;div className="w-10 h-10 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center"&gt;{t.initials}&lt;/div&gt;
+                    &lt;div className="w-10 h-10 rounded-full bg-slate-100 font-bold flex items-center justify-center text-slate-800"&gt;{t.initials}&lt;/div&gt;
                     &lt;div&gt;
                       &lt;h4 className="font-bold text-sm text-slate-900"&gt;{t.name}&lt;/h4&gt;
                       &lt;p className="text-xs text-slate-500"&gt;{t.role}&lt;/p&gt;
                     &lt;/div&gt;
                   &lt;/div&gt;
+                  &lt;div className="flex text-amber-500 text-xs"&gt;★★★★★&lt;/div&gt;
                 &lt;/div&gt;
               &lt;/motion.div&gt;
             );
@@ -685,10 +986,10 @@ export const GlobalReviewsStack: React.FC&lt;{ testimonials: Testimonial[] }&gt;
         &lt;/AnimatePresence&gt;
       &lt;/div&gt;
 
-      &lt;button onClick={handlePrev} className="absolute left-2 w-12 h-12 rounded-full bg-white border shadow-lg flex items-center justify-center z-40"&gt;
+      &lt;button onClick={handlePrev} className="absolute left-2 w-12 h-12 rounded-full bg-white border shadow-lg flex items-center justify-center z-40 cursor-pointer"&gt;
         &lt;ChevronLeft className="w-6 h-6" /&gt;
       &lt;/button&gt;
-      &lt;button onClick={handleNext} className="absolute right-2 w-12 h-12 rounded-full bg-white border shadow-lg flex items-center justify-center z-40"&gt;
+      &lt;button onClick={handleNext} className="absolute right-2 w-12 h-12 rounded-full bg-white border shadow-lg flex items-center justify-center z-40 cursor-pointer"&gt;
         &lt;ChevronRight className="w-6 h-6" /&gt;
       &lt;/button&gt;
     &lt;/div&gt;
@@ -698,16 +999,21 @@ export const GlobalReviewsStack: React.FC&lt;{ testimonials: Testimonial[] }&gt;
       </div>
 
       <!-- Vanilla HTML + JS Tab Content -->
-      <div id="tab-vanilla-content" class="hidden space-y-2">
+      <div id="tab-vanilla-content" class="hidden space-y-3">
         <div class="flex justify-between items-center px-1">
           <span class="text-xs font-semibold text-ink-muted font-mono">Vanilla JavaScript + GSAP 3D Matrix &amp; Smooth Inertia</span>
-          <button onclick="copyCode('vanilla-code', this)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-warm-300 hover:bg-ink hover:text-white text-ink text-xs font-mono font-bold tracking-wider uppercase transition-all shadow-xs">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-            <span>Copy Vanilla JS</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="toggleCodeHeight('vanilla-code-wrapper')" class="text-xs font-mono text-ink-muted hover:text-ink underline px-2 py-1 cursor-pointer">
+              Toggle View
+            </button>
+            <button onclick="copyCode('vanilla-code', this)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-warm-300 hover:bg-ink hover:text-white text-ink text-xs font-mono font-bold tracking-wider uppercase transition-all shadow-xs cursor-pointer">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span>Copy Vanilla JS</span>
+            </button>
+          </div>
         </div>
 
-        <div class="relative rounded-2xl bg-warm-900 border border-warm-800 p-5 text-warm-100 font-mono text-xs overflow-x-auto leading-relaxed max-h-[520px] shadow-xl">
+        <div id="vanilla-code-wrapper" class="relative rounded-2xl bg-warm-900 border border-warm-800 p-5 text-warm-100 font-mono text-xs overflow-x-auto leading-relaxed max-h-[480px] shadow-xl">
 <pre id="vanilla-code"><code>// Include GSAP:
 // &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"&gt;&lt;/script&gt;
 
@@ -741,7 +1047,7 @@ function renderCarousel(animate = true) {
       target = {
         xPercent: -52,
         scale: 0.88,
-        rotateY: 12,
+        rotateY: 10,
         rotateX: 0,
         opacity: 0.65,
         zIndex: 5,
@@ -756,7 +1062,7 @@ function renderCarousel(animate = true) {
       target = {
         xPercent: 52,
         scale: 0.88,
-        rotateY: -12,
+        rotateY: -10,
         rotateX: 0,
         opacity: 0.65,
         zIndex: 5,
@@ -789,17 +1095,164 @@ function renderCarousel(animate = true) {
 }</code></pre>
         </div>
       </div>
-    </section>
 
-    <!-- Footer of Readme -->
-    <div class="pt-8 border-t border-warm-300 text-center text-xs text-ink-muted font-mono flex flex-col sm:flex-row items-center justify-between gap-3">
-      <span>AvadaKeDevara Review Stack Motion Component</span>
-      <span>MIT License &bull; Free for Personal &amp; Commercial Use</span>
     </div>
-  </article>
+  </section>
+
 
   <!-- ========================================================================= -->
-  <!-- Toast Notification Container                                              -->
+  <!-- TIER 4: TECHNICAL REFERENCE & SPECIFICATION MATRIX (REFERENCE)            -->
+  <!-- Math matrix, exact parameters, responsive timing, performance notes       -->
+  <!-- ========================================================================= -->
+  <section id="reference" class="relative py-16 sm:py-20 bg-[#FAF9F6] border-b border-warm-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="mb-10 pb-6 border-b border-warm-300">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-100 border border-warm-300 text-ink text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider mb-2 shadow-2xs">
+          <span>04. Technical Specification &amp; Mathematics</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif text-ink font-normal tracking-tight">
+          Spatial Variant Matrix &amp; <span class="italic text-warm-900">Engineering Specs</span>
+        </h2>
+        <p class="mt-2 text-xs sm:text-sm text-ink-muted leading-relaxed">
+          Complete mathematical coordinate mapping, transition curves, touch inertia formulas, and production GPU performance criteria.
+        </p>
+      </div>
+
+      <!-- 1. Mathematical 3D Variant Matrix Table -->
+      <div class="space-y-3 mb-12">
+        <h3 class="text-lg font-serif text-ink font-bold flex items-center gap-2">
+          <span class="text-warm-700 font-mono text-sm font-bold">4.1</span> 3D Spatial Variant Matrix
+        </h3>
+
+        <div class="overflow-x-auto rounded-2xl border border-warm-300 shadow-xs bg-white">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-warm-100 border-b border-warm-300 text-ink font-bold uppercase tracking-wider">
+              <tr>
+                <th class="p-3.5">Layer Relative Index</th>
+                <th class="p-3.5">X Translation</th>
+                <th class="p-3.5">Scale</th>
+                <th class="p-3.5">rotateY Tilt</th>
+                <th class="p-3.5">Z-Index</th>
+                <th class="p-3.5">Opacity / Blur</th>
+                <th class="p-3.5">Interactive Features</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-warm-200 text-ink-muted">
+              <tr class="bg-warm-50/60 font-semibold text-ink">
+                <td class="p-3.5 text-warm-800 font-bold">Center (Active, diff = 0)</td>
+                <td class="p-3.5 font-bold text-ink">0%</td>
+                <td class="p-3.5 font-bold text-ink">1.00</td>
+                <td class="p-3.5 font-bold text-ink">0 deg (+ mouse tilt)</td>
+                <td class="p-3.5 font-bold text-ink">10</td>
+                <td class="p-3.5 font-bold text-ink">1.0 / 0px</td>
+                <td class="p-3.5 text-emerald-700 font-bold">Dynamic Glare + Drag</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-semibold text-ink">Left Wing (diff = -1 or N-1)</td>
+                <td class="p-3.5 text-warm-800 font-bold">-52%</td>
+                <td class="p-3.5 text-warm-800 font-bold">0.88</td>
+                <td class="p-3.5 text-warm-800 font-bold">+10 deg</td>
+                <td class="p-3.5 text-warm-800 font-bold">5</td>
+                <td class="p-3.5">0.65 / 1.5px blur</td>
+                <td class="p-3.5 text-ink-muted">Click to Cycle Prev</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-semibold text-ink">Right Wing (diff = +1)</td>
+                <td class="p-3.5 text-warm-800 font-bold">+52%</td>
+                <td class="p-3.5 text-warm-800 font-bold">0.88</td>
+                <td class="p-3.5 text-warm-800 font-bold">-10 deg</td>
+                <td class="p-3.5 text-warm-800 font-bold">5</td>
+                <td class="p-3.5">0.65 / 1.5px blur</td>
+                <td class="p-3.5 text-ink-muted">Click to Cycle Next</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-semibold text-ink">Background Queue</td>
+                <td class="p-3.5">&plusmn; 85%</td>
+                <td class="p-3.5">0.75</td>
+                <td class="p-3.5">0 deg</td>
+                <td class="p-3.5">1</td>
+                <td class="p-3.5">0.0 / 4px blur</td>
+                <td class="p-3.5 text-ink-subtle">Offstage Buffer</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. Technical Physics & Performance Specs Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+        
+        <!-- Physics & Timing Specs -->
+        <div class="p-6 rounded-2xl bg-white border border-warm-300 shadow-2xs space-y-3">
+          <h4 class="font-serif text-base font-bold text-ink">Physics &amp; Transition Timing</h4>
+          <ul class="text-xs font-mono space-y-2 text-ink-muted">
+            <li class="flex justify-between border-b border-warm-100 pb-1.5">
+              <span>Spring Stiffness / Damping:</span>
+              <span class="font-bold text-ink">300 / 30</span>
+            </li>
+            <li class="flex justify-between border-b border-warm-100 pb-1.5">
+              <span>GSAP Easing Equivalent:</span>
+              <span class="font-bold text-ink">power3.out (0.7s)</span>
+            </li>
+            <li class="flex justify-between border-b border-warm-100 pb-1.5">
+              <span>Auto-Play Interval:</span>
+              <span class="font-bold text-ink">4500ms (Auto-pause on hover)</span>
+            </li>
+            <li class="flex justify-between border-b border-warm-100 pb-1.5">
+              <span>Drag / Swipe Threshold:</span>
+              <span class="font-bold text-ink">&gt; 50px delta X</span>
+            </li>
+            <li class="flex justify-between">
+              <span>Mouse Inertial Tilt Max:</span>
+              <span class="font-bold text-ink">&plusmn; 7.0 deg (Spring lag 0.35s)</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Production Performance Checklist -->
+        <div class="p-6 rounded-2xl bg-white border border-warm-300 shadow-2xs space-y-3">
+          <h4 class="font-serif text-base font-bold text-ink">Performance &amp; Accessibility</h4>
+          <ul class="text-xs font-mono space-y-2 text-ink-muted">
+            <li class="flex justify-between border-b border-warm-100 pb-1.5">
+              <span>GPU Composite Layer:</span>
+              <span class="font-bold text-emerald-700">transform-style: preserve-3d</span>
+            </li>
+            <li class="flex justify-between border-b border-warm-100 pb-1.5">
+              <span>Hardware Hinting:</span>
+              <span class="font-bold text-ink">will-change: transform, opacity</span>
+            </li>
+            <li class="flex justify-between border-b border-warm-100 pb-1.5">
+              <span>Touch Action:</span>
+              <span class="font-bold text-ink">pan-y (Prevents scroll lock)</span>
+            </li>
+            <li class="flex justify-between border-b border-warm-100 pb-1.5">
+              <span>Reduced Motion:</span>
+              <span class="font-bold text-ink">Auto-disables tilt on preference</span>
+            </li>
+            <li class="flex justify-between">
+              <span>Responsive Breakpoint:</span>
+              <span class="font-bold text-ink">Mobile: w-[88%] | Desktop: w-[68%]</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="pt-8 border-t border-warm-300 text-center text-xs text-ink-muted font-mono flex flex-col sm:flex-row items-center justify-between gap-3">
+        <span>AvadaKeDevara Review Stack Motion Architecture</span>
+        <a href="index.html" class="hover:text-ink underline">Back to Animations Lab Hub</a>
+        <span>MIT License &bull; Free for Commercial Use</span>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- TOAST NOTIFICATION                                                        -->
   <!-- ========================================================================= -->
   <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-ink border border-warm-800 text-warm-100 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-mono">
     <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
@@ -808,16 +1261,26 @@ function renderCarousel(animate = true) {
     <span id="toast-text">Code copied to clipboard!</span>
   </div>
 
+
   <!-- ========================================================================= -->
-  <!-- Ultra-Smooth GSAP 3D Matrix & Inertial Glare Engine                        -->
+  <!-- JAVASCRIPT ANIMATION & INTERACTIVITY ENGINES                              -->
   <!-- ========================================================================= -->
   <script>
+    // Global Carousel State
     let activeIdx = 0;
     const totalCards = 4;
     let autoPlayInterval = null;
-    let isPaused = false;
+    let isAutoPlayPaused = false;
 
-    // Smooth Hardware-Accelerated 3D Carousel Transition using GSAP
+    // Physics Settings State
+    let currentTiltAngle = 10;
+    let currentWingSpacing = 38;
+    let currentWingBlur = 1.5;
+    let currentWingScale = 0.88;
+
+    // =========================================================================
+    // 1. CAROUSEL RENDERING ENGINE (GSAP 60 FPS)
+    // =========================================================================
     function renderCarousel(animate = true) {
       for (let i = 0; i < totalCards; i++) {
         const card = document.getElementById(`card-${i}`);
@@ -842,47 +1305,41 @@ function renderCarousel(animate = true) {
             ease: "power3.out",
             overwrite: "auto",
           };
-          if (dot) {
-            dot.className = "h-2 rounded-full transition-all duration-300 w-8 bg-ink shadow-2xs";
-          }
+          if (dot) dot.className = "h-2 rounded-full transition-all duration-300 w-8 bg-ink shadow-2xs cursor-pointer";
         } else if (diff === totalCards - 1 || diff === -1) {
           // Left Wing
           target = {
-            xPercent: -52,
-            scale: 0.88,
-            rotateY: 12,
+            xPercent: -currentWingSpacing,
+            scale: currentWingScale,
+            rotateY: currentTiltAngle,
             rotateX: 0,
             opacity: 0.65,
             zIndex: 5,
-            filter: "blur(1.5px) brightness(0.98)",
+            filter: `blur(${currentWingBlur}px) brightness(0.98)`,
             duration: animate ? 0.7 : 0,
             ease: "power3.out",
             overwrite: "auto",
           };
           if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
-          if (dot) {
-            dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400";
-          }
+          if (dot) dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400 cursor-pointer";
         } else if (diff === 1) {
           // Right Wing
           target = {
-            xPercent: 52,
-            scale: 0.88,
-            rotateY: -12,
+            xPercent: currentWingSpacing,
+            scale: currentWingScale,
+            rotateY: -currentTiltAngle,
             rotateX: 0,
             opacity: 0.65,
             zIndex: 5,
-            filter: "blur(1.5px) brightness(0.98)",
+            filter: `blur(${currentWingBlur}px) brightness(0.98)`,
             duration: animate ? 0.7 : 0,
             ease: "power3.out",
             overwrite: "auto",
           };
           if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
-          if (dot) {
-            dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400";
-          }
+          if (dot) dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400 cursor-pointer";
         } else {
-          // Background queue
+          // Background Queue
           const xP = (diff > 1 && diff < totalCards / 2) ? 85 : -85;
           target = {
             xPercent: xP,
@@ -897,9 +1354,7 @@ function renderCarousel(animate = true) {
             overwrite: "auto",
           };
           if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
-          if (dot) {
-            dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400";
-          }
+          if (dot) dot.className = "h-2 rounded-full transition-all duration-300 w-2 bg-warm-300 hover:bg-warm-400 cursor-pointer";
         }
 
         gsap.to(card, target);
@@ -928,26 +1383,90 @@ function renderCarousel(animate = true) {
       if (diff === totalCards - 1) prevCard();
     }
 
+    // =========================================================================
+    // 2. AUTOPLAY & PLAYBACK CONTROLLER
+    // =========================================================================
     function startAutoPlay() {
       if (autoPlayInterval) clearInterval(autoPlayInterval);
       autoPlayInterval = setInterval(() => {
-        if (!isPaused) {
+        if (!isAutoPlayPaused) {
           nextCard();
         }
       }, 4500);
     }
 
     function pauseCarousel() {
-      isPaused = true;
+      isAutoPlayPaused = true;
     }
 
     function resumeCarousel() {
-      isPaused = false;
+      isAutoPlayPaused = false;
     }
 
-    // Buttery Smooth Inertial 3D Cursor Tilt & Glare Tracking using GSAP
-    let isHoveringCenter = false;
+    function toggleAutoPlay() {
+      isAutoPlayPaused = !isAutoPlayPaused;
+      const btnIcon = document.getElementById("autoplay-btn-icon");
+      const btnLabel = document.getElementById("autoplay-btn-label");
+      const badge = document.getElementById("autoplay-status-badge");
 
+      if (isAutoPlayPaused) {
+        if (btnIcon) btnIcon.innerText = "▶";
+        if (btnLabel) btnLabel.innerText = "Play";
+        if (badge) {
+          badge.className = "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1";
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> Paused`;
+        }
+      } else {
+        if (btnIcon) btnIcon.innerText = "⏸";
+        if (btnLabel) btnLabel.innerText = "Pause";
+        if (badge) {
+          badge.className = "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1";
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> Auto-Playing`;
+        }
+      }
+    }
+
+    // =========================================================================
+    // 3. 3D PHYSICS PRESETS
+    // =========================================================================
+    function setPhysicsPreset(preset) {
+      const btnDef = document.getElementById("preset-default");
+      const btnCin = document.getElementById("preset-cinematic");
+      const btnSub = document.getElementById("preset-subtle");
+      const activeLabel = document.getElementById("preset-active-label");
+
+      if (btnDef) btnDef.classList.remove("active");
+      if (btnCin) btnCin.classList.remove("active");
+      if (btnSub) btnSub.classList.remove("active");
+
+      if (preset === 'cinematic') {
+        if (btnCin) btnCin.classList.add("active");
+        currentTiltAngle = 18;
+        currentWingSpacing = 56;
+        currentWingBlur = 2.5;
+        currentWingScale = 0.84;
+        if (activeLabel) activeLabel.innerText = "Cinematic 18°";
+      } else if (preset === 'subtle') {
+        if (btnSub) btnSub.classList.add("active");
+        currentTiltAngle = 5;
+        currentWingSpacing = 48;
+        currentWingBlur = 0.8;
+        currentWingScale = 0.92;
+        if (activeLabel) activeLabel.innerText = "Subtle 5°";
+      } else {
+        if (btnDef) btnDef.classList.add("active");
+        currentTiltAngle = 10;
+        currentWingSpacing = 52;
+        currentWingBlur = 1.5;
+        currentWingScale = 0.88;
+        if (activeLabel) activeLabel.innerText = "Standard 10°";
+      }
+
+      renderCarousel(true);
+    }
+
+    // Inertial Glare & Tilt Sensor Tracking
+    let isHoveringCenter = false;
     function initSmoothGlareTilt() {
       const stage = document.getElementById("carousel-viewport");
       if (!stage) return;
@@ -971,19 +1490,22 @@ function renderCarousel(animate = true) {
           const dx = (e.clientX - cx) / (rect.width / 2);
           const dy = (e.clientY - cy) / (rect.height / 2);
 
+          const rotX = -dy * 7;
+          const rotY = dx * 7;
+
           // Smooth spring damping on cursor tilt
           gsap.to(activeCard, {
-            rotateX: -dy * 7,
-            rotateY: dx * 7,
+            rotateX: rotX,
+            rotateY: rotY,
             duration: 0.35,
             ease: "power2.out",
             overwrite: "auto",
           });
 
           if (glare) {
-            const px = ((e.clientX - rect.left) / rect.width) * 100;
-            const py = ((e.clientY - rect.top) / rect.height) * 100;
-            glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(222, 219, 200, 0.45) 0%, rgba(255, 255, 255, 0) 65%)`;
+            const px = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+            const py = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+            glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(222, 219, 200, 0.5) 0%, rgba(255, 255, 255, 0) 65%)`;
             gsap.to(glare, { opacity: 1, duration: 0.25, overwrite: "auto" });
           }
         } else {
@@ -1018,7 +1540,7 @@ function renderCarousel(animate = true) {
       });
     }
 
-    // Touch / Swipe support for mobile with inertia
+    // Touch Swipe Gestures
     let touchStartX = 0;
     let touchEndX = 0;
     function initTouchSupport() {
@@ -1033,16 +1555,184 @@ function renderCarousel(animate = true) {
       stage.addEventListener("touchend", (e) => {
         touchEndX = e.changedTouches[0].screenX;
         const diff = touchEndX - touchStartX;
-        if (diff < -45) {
-          nextCard();
-        } else if (diff > 45) {
-          prevCard();
-        }
+        if (diff < -45) nextCard();
+        else if (diff > 45) prevCard();
         resumeCarousel();
       }, { passive: true });
     }
 
-    // Code Tab Switcher
+
+    // =========================================================================
+    // 4. VISUAL SPATIAL DECONSTRUCTOR ENGINE
+    // =========================================================================
+    let currentDeconstructState = 'overview';
+
+    function setDeconstructState(state) {
+      currentDeconstructState = state;
+
+      // Update Nav buttons
+      ['overview', 'center', 'wings', 'queue', 'glare'].forEach(s => {
+        const btn = document.getElementById(`dec-tab-${s}`);
+        if (btn) {
+          if (s === state) {
+            btn.classList.add("active");
+            btn.classList.remove("text-ink-muted");
+          } else {
+            btn.classList.remove("active");
+            btn.classList.add("text-ink-muted");
+          }
+        }
+      });
+
+      const titleEl = document.getElementById("dec-stage-title");
+      const cardCenter = document.getElementById("dec-card-center");
+      const cardLeft = document.getElementById("dec-card-left");
+      const cardRight = document.getElementById("dec-card-right");
+      const cardQueue = document.getElementById("dec-card-queue");
+      const sampleGlare = document.getElementById("dec-glare-sample");
+
+      const calloutX = document.getElementById("callout-x");
+      const calloutXSub = document.getElementById("callout-x-sub");
+      const calloutScale = document.getElementById("callout-scale");
+      const calloutScaleSub = document.getElementById("callout-scale-sub");
+      const calloutRotate = document.getElementById("callout-rotate");
+      const calloutRotateSub = document.getElementById("callout-rotate-sub");
+      const calloutBlur = document.getElementById("callout-blur");
+      const calloutBlurSub = document.getElementById("callout-blur-sub");
+
+      if (state === 'center') {
+        if (titleEl) titleEl.innerText = "01. Center Focus (diff = 0) — Active Hero Layer";
+        gsap.to(cardCenter, { xPercent: 0, scale: 1.05, rotateY: 0, opacity: 1, zIndex: 10, filter: "blur(0px)", duration: 0.6, ease: "power2.out" });
+        gsap.to(cardLeft, { xPercent: -60, scale: 0.8, rotateY: 20, opacity: 0.25, zIndex: 2, filter: "blur(4px)", duration: 0.6 });
+        gsap.to(cardRight, { xPercent: 60, scale: 0.8, rotateY: -20, opacity: 0.25, zIndex: 2, filter: "blur(4px)", duration: 0.6 });
+        gsap.to(cardQueue, { opacity: 0, duration: 0.4 });
+        if (sampleGlare) gsap.to(sampleGlare, { opacity: 0.9, duration: 0.3 });
+
+        if (calloutX) calloutX.innerText = "0% (Aligned Center)";
+        if (calloutXSub) calloutXSub.innerText = "Prime reading focus in viewport";
+        if (calloutScale) calloutScale.innerText = "1.00 (100% Size)";
+        if (calloutScaleSub) calloutScaleSub.innerText = "Top layer zIndex: 10";
+        if (calloutRotate) calloutRotate.innerText = "0.0° Flat + Mouse Tilt";
+        if (calloutRotateSub) calloutRotateSub.innerText = "Tracks cursor +/-7°";
+        if (calloutBlur) calloutBlur.innerText = "1.0 / 0px Blur";
+        if (calloutBlurSub) calloutBlurSub.innerText = "Crisp, fully legible text";
+
+      } else if (state === 'wings') {
+        if (titleEl) titleEl.innerText = "02. Depth Wings (diff = ±1) — Symmetrical 3D Flanks";
+        gsap.to(cardCenter, { xPercent: 0, scale: 0.92, rotateY: 0, opacity: 0.4, zIndex: 5, filter: "blur(2px)", duration: 0.6 });
+        gsap.to(cardLeft, { xPercent: -52, scale: 0.92, rotateY: 14, opacity: 1, zIndex: 10, filter: "blur(0px)", duration: 0.6, ease: "power2.out" });
+        gsap.to(cardRight, { xPercent: 52, scale: 0.92, rotateY: -14, opacity: 1, zIndex: 10, filter: "blur(0px)", duration: 0.6, ease: "power2.out" });
+        gsap.to(cardQueue, { opacity: 0, duration: 0.4 });
+        if (sampleGlare) gsap.to(sampleGlare, { opacity: 0, duration: 0.2 });
+
+        if (calloutX) calloutX.innerText = "±52% Lateral Flanks";
+        if (calloutXSub) calloutXSub.innerText = "Offset precisely creates visual stage";
+        if (calloutScale) calloutScale.innerText = "0.88 (Tiered Scale)";
+        if (calloutScaleSub) calloutScaleSub.innerText = "Middle composite layer zIndex: 5";
+        if (calloutRotate) calloutRotate.innerText = "±10° Inward Tilt";
+        if (calloutRotateSub) calloutRotateSub.innerText = "Rotates around Y-axis in 3D";
+        if (calloutBlur) calloutBlur.innerText = "0.65 / 1.5px Blur";
+        if (calloutBlurSub) calloutBlurSub.innerText = "Soft peripheral depth perception";
+
+      } else if (state === 'queue') {
+        if (titleEl) titleEl.innerText = "03. Background Queue (diff = ±2) — Offstage Standby Buffer";
+        gsap.to(cardCenter, { xPercent: -20, scale: 0.8, opacity: 0.2, zIndex: 2, filter: "blur(3px)", duration: 0.6 });
+        gsap.to(cardLeft, { xPercent: -65, scale: 0.75, opacity: 0.2, zIndex: 1, filter: "blur(4px)", duration: 0.6 });
+        gsap.to(cardRight, { xPercent: 65, scale: 0.75, opacity: 0.2, zIndex: 1, filter: "blur(4px)", duration: 0.6 });
+        gsap.to(cardQueue, { xPercent: 0, scale: 0.88, rotateY: 0, opacity: 1, zIndex: 10, filter: "blur(0px)", duration: 0.6, ease: "power2.out" });
+        if (sampleGlare) gsap.to(sampleGlare, { opacity: 0, duration: 0.2 });
+
+        if (calloutX) calloutX.innerText = "±85% Offstage Standby";
+        if (calloutXSub) calloutXSub.innerText = "Pre-rendered for zero layout shift";
+        if (calloutScale) calloutScale.innerText = "0.75 (Background Scale)";
+        if (calloutScaleSub) calloutScaleSub.innerText = "Base composite layer zIndex: 1";
+        if (calloutRotate) calloutRotate.innerText = "0.0° Neutral Facing";
+        if (calloutRotateSub) calloutRotateSub.innerText = "Pre-aligned for incoming cycle";
+        if (calloutBlur) calloutBlur.innerText = "0.0 Opacity / 4px Blur";
+        if (calloutBlurSub) calloutBlurSub.innerText = "Hidden from visitor view until rotated";
+
+      } else if (state === 'glare') {
+        if (titleEl) titleEl.innerText = "04. Dynamic Glare & Tilt — Inertial Cursor Raytracing";
+        gsap.to(cardCenter, { xPercent: 0, scale: 1.05, rotateY: 8, rotateX: -6, opacity: 1, zIndex: 10, filter: "blur(0px)", duration: 0.6, ease: "power2.out" });
+        gsap.to(cardLeft, { xPercent: -54, scale: 0.85, rotateY: 12, opacity: 0.3, zIndex: 3, filter: "blur(3px)", duration: 0.6 });
+        gsap.to(cardRight, { xPercent: 54, scale: 0.85, rotateY: -12, opacity: 0.3, zIndex: 3, filter: "blur(3px)", duration: 0.6 });
+        gsap.to(cardQueue, { opacity: 0, duration: 0.4 });
+        if (sampleGlare) {
+          sampleGlare.style.background = "radial-gradient(circle at 35% 35%, rgba(222, 219, 200, 0.7) 0%, rgba(255, 255, 255, 0) 65%)";
+          gsap.to(sampleGlare, { opacity: 1, duration: 0.3 });
+        }
+
+        if (calloutX) calloutX.innerText = "Inverse Light Vector";
+        if (calloutXSub) calloutXSub.innerText = "glareX = Transform(dx, [-100, 100])";
+        if (calloutScale) calloutScale.innerText = "1.00 Active Matrix";
+        if (calloutScaleSub) calloutScaleSub.innerText = "Radial sheen mix-blend: overlay";
+        if (calloutRotate) calloutRotate.innerText = "rotateX: -dy*7, rotateY: dx*7";
+        if (calloutRotateSub) calloutRotateSub.innerText = "Realistic 3D physical card tilt";
+        if (calloutBlur) calloutBlur.innerText = "Tactile Studio Light";
+        if (calloutBlurSub) calloutBlurSub.innerText = "High-end glassmorphism reflection";
+
+      } else {
+        // Overview Default
+        if (titleEl) titleEl.innerText = "Complete 3D Spatial Deck Overview";
+        gsap.to(cardCenter, { xPercent: 0, scale: 1, rotateY: 0, opacity: 1, zIndex: 10, filter: "blur(0px)", duration: 0.6 });
+        gsap.to(cardLeft, { xPercent: -currentWingSpacing, scale: currentWingScale, rotateY: currentTiltAngle, opacity: 0.65, zIndex: 5, filter: `blur(${currentWingBlur}px)`, duration: 0.6 });
+        gsap.to(cardRight, { xPercent: currentWingSpacing, scale: currentWingScale, rotateY: -currentTiltAngle, opacity: 0.65, zIndex: 5, filter: `blur(${currentWingBlur}px)`, duration: 0.6 });
+        gsap.to(cardQueue, { xPercent: 0, opacity: 0, duration: 0.4 });
+        if (sampleGlare) gsap.to(sampleGlare, { opacity: 0, duration: 0.2 });
+
+        if (calloutX) calloutX.innerText = "0% vs ±52%";
+        if (calloutXSub) calloutXSub.innerText = "Center aligned & side wings";
+        if (calloutScale) calloutScale.innerText = "1.00 vs 0.88";
+        if (calloutScaleSub) calloutScaleSub.innerText = "3-Tiered z-index hierarchy (10/5/1)";
+        if (calloutRotate) calloutRotate.innerText = "0° vs ±10° Tilt";
+        if (calloutRotateSub) calloutRotateSub.innerText = "CSS perspective: 1200px";
+        if (calloutBlur) calloutBlur.innerText = "0px vs 1.5px Blur";
+        if (calloutBlurSub) calloutBlurSub.innerText = "Directs focus to active card";
+      }
+    }
+
+    function updateDeconstructSliders() {
+      const sTilt = document.getElementById("slider-tilt");
+      const sSpacing = document.getElementById("slider-spacing");
+      const sBlur = document.getElementById("slider-blur");
+
+      const valTilt = document.getElementById("val-tilt-slider");
+      const valSpacing = document.getElementById("val-spacing-slider");
+      const valBlur = document.getElementById("val-blur-slider");
+
+      if (sTilt && valTilt) {
+        currentTiltAngle = parseFloat(sTilt.value);
+        valTilt.innerText = `${currentTiltAngle} deg`;
+      }
+      if (sSpacing && valSpacing) {
+        currentWingSpacing = parseFloat(sSpacing.value);
+        valSpacing.innerText = `${currentWingSpacing}%`;
+      }
+      if (sBlur && valBlur) {
+        currentWingBlur = parseFloat(sBlur.value);
+        valBlur.innerText = `${currentWingBlur} px`;
+      }
+
+      setDeconstructState(currentDeconstructState);
+      renderCarousel(true);
+    }
+
+    function resetSliders() {
+      const sTilt = document.getElementById("slider-tilt");
+      const sSpacing = document.getElementById("slider-spacing");
+      const sBlur = document.getElementById("slider-blur");
+
+      if (sTilt) sTilt.value = 10;
+      if (sSpacing) sSpacing.value = 52;
+      if (sBlur) sBlur.value = 1.5;
+
+      updateDeconstructSliders();
+    }
+
+
+    // =========================================================================
+    // 5. CODE TABS, COPY TO CLIPBOARD & TOAST
+    // =========================================================================
     function switchTab(tab) {
       const btnReact = document.getElementById("btn-tab-react");
       const btnVanilla = document.getElementById("btn-tab-vanilla");
@@ -1066,13 +1756,24 @@ function renderCarousel(animate = true) {
       }
     }
 
-    // Copy to Clipboard with Toast
+    function toggleCodeHeight(wrapperId) {
+      const wrapper = document.getElementById(wrapperId);
+      if (!wrapper) return;
+      if (wrapper.classList.contains("max-h-[480px]")) {
+        wrapper.classList.remove("max-h-[480px]");
+        wrapper.classList.add("max-h-none");
+      } else {
+        wrapper.classList.add("max-h-[480px]");
+        wrapper.classList.remove("max-h-none");
+      }
+    }
+
     function copyCode(elementId, btnElement) {
       const el = document.getElementById(elementId);
       if (!el) return;
 
       navigator.clipboard.writeText(el.innerText).then(() => {
-        showToast("Copied to clipboard!");
+        showToast("Code copied to clipboard!");
         if (btnElement) {
           btnElement.classList.add("bg-ink", "text-white", "border-ink");
           setTimeout(() => {
@@ -1099,12 +1800,15 @@ function renderCarousel(animate = true) {
       }, 2500);
     }
 
-    // Initialize all engines on DOM load
+    // =========================================================================
+    // INITIALIZATION ON DOM READY
+    // =========================================================================
     document.addEventListener("DOMContentLoaded", () => {
       renderCarousel(false);
       initSmoothGlareTilt();
       initTouchSupport();
       startAutoPlay();
+      setDeconstructState('overview');
     });
   </script>
 </body>
