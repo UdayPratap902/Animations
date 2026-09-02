@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GSAP 3D ScrollTrigger Card Deck Animation - Interactive Demo & Developer Guide</title>
+  <meta name="description" content="A silky smooth, hardware-accelerated 3D card deck stacking animation powered by GSAP ScrollTrigger. Includes full React / Next.js and Vanilla JS code." />
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            primary: {
+              DEFAULT: '#4f46e5',
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 3D Perspective Stage & Card Layering */
+    .perspective-stage {
+      perspective: 1200px;
+      perspective-origin: 50% 50%;
+    }
+
+    .review-stack-card {
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      will-change: transform, opacity;
+    }
+
+    .card-shadow {
+      box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.04), 0 25px 60px -15px rgba(30, 58, 138, 0.15);
+    }
+
+    /* Ambient atmospheric glow orb */
+    .glow-orb {
+      filter: blur(80px);
+      border-radius: 9999px;
+      pointer-events: none;
+      position: absolute;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f8fafc;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Code block tabs active indicator */
+    .tab-btn.active {
+      background-color: #4f46e5;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+  </style>
+
+  <!-- GSAP & ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body class="bg-white text-slate-900 font-sans antialiased overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+  <!-- ========================================== -->
+  <!-- Top Navigation & Jump Anchors              -->
+  <!-- ========================================== -->
+  <nav class="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 sm:px-8 flex items-center justify-between transition-all">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-indigo-500/20">
+        ✨
+      </div>
+      <div>
+        <span class="font-bold text-sm sm:text-base text-slate-900 tracking-tight">GSAP 3D Stack</span>
+        <span class="hidden sm:inline-block ml-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">Interactive Demo</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2.5 sm:gap-3">
+      <a href="#live-demo" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
+        Live Demo
+      </a>
+      <a href="#readme-section" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary text-white hover:bg-primary/90 shadow-sm transition-all hover:scale-105 flex items-center gap-1.5">
+        <span>📖</span>
+        <span>Developer Guide &amp; Code</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 1. Hero Intro Section                      -->
+  <!-- ========================================== -->
+  <header id="live-demo" class="relative min-h-[60vh] flex flex-col items-center justify-center text-center px-4 bg-gradient-to-b from-slate-50 via-indigo-50/25 to-white overflow-hidden pt-12 pb-6">
+    <div class="glow-orb top-8 left-1/2 -translate-x-1/2 w-[650px] h-[320px] bg-indigo-200/40 -z-10"></div>
+    
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider mb-6 shadow-xs">
+      <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <span>ScrollTrigger 3D Pinned Animation Showcase</span>
+    </div>
+
+    <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-slate-900 max-w-3xl leading-[1.15]">
+      3D Interactive Card Deck Animation
+    </h1>
+    <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+      A high-performance, pin-scrubbed 3D spatial card stack built with GSAP and Tailwind CSS. Scroll down to test the interactive scrubbing, then copy the ready-to-use code below.
+    </p>
+
+    <div class="mt-8 flex flex-col items-center gap-2 text-slate-400 animate-bounce cursor-pointer" onclick="document.getElementById('reviews-stack').scrollIntoView({behavior: 'smooth'})">
+      <span class="text-xs font-semibold uppercase tracking-widest text-primary">Scroll Down to Scrub Stack</span>
+      <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      </svg>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 2. Pinned 3D Review Stack Section          -->
+  <!-- ========================================== -->
+  <section id="reviews-stack" class="relative min-h-screen flex flex-col justify-between overflow-hidden bg-gradient-to-b from-white via-indigo-50/20 to-white py-12 sm:py-16">
+    
+    <!-- Background Parallax Atmospheric Washes -->
+    <div class="absolute inset-0 pointer-events-none -z-10 overflow-hidden" aria-hidden="true">
+      <div id="parallax-glow" class="glow-orb top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] sm:w-[1000px] h-[550px] bg-gradient-to-tr from-primary/15 via-sky-200/30 to-indigo-500/15 rounded-full blur-3xl opacity-80"></div>
+    </div>
+
+    <!-- Editorial Header (Pinned with stage) -->
+    <div class="relative max-w-3xl mx-auto px-4 text-center z-20 select-none pt-4 sm:pt-6">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs sm:text-sm font-bold uppercase tracking-wider mb-3.5 shadow-2xs">
+        <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        </svg>
+        <span>Demo Testimonials &bull; Feature Showcase</span>
+      </div>
+
+      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-slate-900 mb-3 leading-tight">
+        Trusted by engineering teams building modern web apps.
+      </h2>
+
+      <p class="font-sans text-sm sm:text-base text-slate-600 max-w-xl mx-auto mb-6 sm:mb-10">
+        Discover how developers leverage hardware-accelerated animations to delight users and create unforgettable first impressions.
+      </p>
+    </div>
+
+    <!-- Center 3D Stack Stage -->
+    <div id="stack-stage" class="relative flex-1 flex items-center justify-center my-4 sm:my-6 px-4 w-full perspective-stage">
+      <div class="relative w-full max-w-[760px] min-h-[380px] sm:min-h-[340px] md:min-h-[320px] flex items-center justify-center">
+
+        <!-- ================= CARD 1: Alex Rivera ================= -->
+        <div class="review-stack-card absolute inset-0 flex items-center justify-center">
+          <div class="w-full max-w-[720px] rounded-[1.5rem] sm:rounded-[2.25rem] border border-slate-200/90 bg-white px-5 py-6 sm:px-10 sm:py-12 md:px-12 md:py-14 card-shadow flex flex-col justify-between relative select-none">
+            <!-- Top Row: Badge + Index -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 mb-3 sm:mb-5">
+              <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-wider font-sans shrink-0">
+                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
+                <span>Demo Review &bull; 3D Perspective</span>
+              </div>
+              <span class="font-sans text-[11px] sm:text-sm font-bold text-slate-400 tracking-widest uppercase ml-auto sm:ml-0 tabular-nums">
+                01 / 03
+              </span>
+            </div>
+
+            <!-- Quote Content -->
+            <div class="relative mb-4 sm:mb-6">
+              <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary/20 fill-primary/10 mb-2 sm:mb-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 3.5-1.5 5.5-4 6.5V21zm14 0c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 3.5-1.5 5.5-4 6.5V21z"/>
+              </svg>
+              <blockquote class="font-serif text-base sm:text-xl md:text-[1.35rem] italic text-slate-800 leading-[1.4] font-normal tracking-tight">
+                "The 3D perspective layering and smooth scrub give our landing page an editorial feel that immediately wows visitors. It performs at a steady 60 FPS even on mobile."
+              </blockquote>
+            </div>
+
+            <!-- Bottom Row: Author + Rating -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-3 sm:pt-5 border-t border-slate-100">
+              <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-indigo-500/20 via-primary/10 to-indigo-500/5 border border-primary/30 text-primary font-serif font-bold text-sm sm:text-base shrink-0">
+                  AR
+                </div>
+                <div>
+                  <h4 class="font-serif font-bold text-base sm:text-lg text-slate-900 tracking-tight leading-snug">
+                    Alex Rivera
+                  </h4>
+                  <p class="font-sans text-xs text-slate-500 font-medium">
+                    Lead Frontend Engineer &bull; San Francisco
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1">
+                  <!-- 5 Stars -->
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                </div>
+                <div class="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Verified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= CARD 2: Sophia Chen ================= -->
+        <div class="review-stack-card absolute inset-0 flex items-center justify-center">
+          <div class="w-full max-w-[720px] rounded-[1.5rem] sm:rounded-[2.25rem] border border-slate-200/90 bg-white px-5 py-6 sm:px-10 sm:py-12 md:px-12 md:py-14 card-shadow flex flex-col justify-between relative select-none">
+            <!-- Top Row: Badge + Index -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 mb-3 sm:mb-5">
+              <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-wider font-sans shrink-0">
+                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
+                <span>Demo Review &bull; Scroll Pinning</span>
+              </div>
+              <span class="font-sans text-[11px] sm:text-sm font-bold text-slate-400 tracking-widest uppercase ml-auto sm:ml-0 tabular-nums">
+                02 / 03
+              </span>
+            </div>
+
+            <!-- Quote Content -->
+            <div class="relative mb-4 sm:mb-6">
+              <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary/20 fill-primary/10 mb-2 sm:mb-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 3.5-1.5 5.5-4 6.5V21zm14 0c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 3.5-1.5 5.5-4 6.5V21z"/>
+              </svg>
+              <blockquote class="font-serif text-base sm:text-xl md:text-[1.35rem] italic text-slate-800 leading-[1.4] font-normal tracking-tight">
+                "Integrating this with Next.js and Tailwind was effortless. The scroll distance formula and step timeline give total control over timing and depth layering."
+              </blockquote>
+            </div>
+
+            <!-- Bottom Row: Author + Rating -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-3 sm:pt-5 border-t border-slate-100">
+              <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-indigo-500/20 via-primary/10 to-indigo-500/5 border border-primary/30 text-primary font-serif font-bold text-sm sm:text-base shrink-0">
+                  SC
+                </div>
+                <div>
+                  <h4 class="font-serif font-bold text-base sm:text-lg text-slate-900 tracking-tight leading-snug">
+                    Sophia Chen
+                  </h4>
+                  <p class="font-sans text-xs text-slate-500 font-medium">
+                    Motion &amp; Design Systems Lead &bull; Toronto
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1">
+                  <!-- 5 Stars -->
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                </div>
+                <div class="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Verified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= CARD 3: Marcus Vance ================= -->
+        <div class="review-stack-card absolute inset-0 flex items-center justify-center">
+          <div class="w-full max-w-[720px] rounded-[1.5rem] sm:rounded-[2.25rem] border border-slate-200/90 bg-white px-5 py-6 sm:px-10 sm:py-12 md:px-12 md:py-14 card-shadow flex flex-col justify-between relative select-none">
+            <!-- Top Row: Badge + Index -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 mb-3 sm:mb-5">
+              <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-wider font-sans shrink-0">
+                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
+                <span>Demo Review &bull; Accessibility &amp; Quality</span>
+              </div>
+              <span class="font-sans text-[11px] sm:text-sm font-bold text-slate-400 tracking-widest uppercase ml-auto sm:ml-0 tabular-nums">
+                03 / 03
+              </span>
+            </div>
+
+            <!-- Quote Content -->
+            <div class="relative mb-4 sm:mb-6">
+              <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary/20 fill-primary/10 mb-2 sm:mb-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 3.5-1.5 5.5-4 6.5V21zm14 0c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 3.5-1.5 5.5-4 6.5V21z"/>
+              </svg>
+              <blockquote class="font-serif text-base sm:text-xl md:text-[1.35rem] italic text-slate-800 leading-[1.4] font-normal tracking-tight">
+                "Clean code, zero layout shift, and robust prefers-reduced-motion support. Perfect reference implementation for interactive component libraries."
+              </blockquote>
+            </div>
+
+            <!-- Bottom Row: Author + Rating -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-3 sm:pt-5 border-t border-slate-100">
+              <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-indigo-500/20 via-primary/10 to-indigo-500/5 border border-primary/30 text-primary font-serif font-bold text-sm sm:text-base shrink-0">
+                  MV
+                </div>
+                <div>
+                  <h4 class="font-serif font-bold text-base sm:text-lg text-slate-900 tracking-tight leading-snug">
+                    Marcus Vance
+                  </h4>
+                  <p class="font-sans text-xs text-slate-500 font-medium">
+                    VP of Product Engineering &bull; London
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1">
+                  <!-- 5 Stars -->
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                </div>
+                <div class="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Verified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Progress / Indicator Bar -->
+    <div class="relative z-20 flex justify-center pb-2 select-none">
+      <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100/90 backdrop-blur border border-slate-200 text-xs font-mono text-slate-600 shadow-2xs">
+        <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+        <span>Scroll down to explore documentation &amp; copy code</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 3. COMPREHENSIVE DEVELOPER GUIDE, CODE REPO & SYSTEM PROMPTS               -->
+  <!-- ========================================================================= -->
+  <article id="readme-section" class="relative max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-20 bg-white border-t border-slate-200">
+    
+    <!-- Header -->
+    <div class="mb-14 pb-8 border-b border-slate-200">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-mono font-semibold mb-4">
+        <span>DEVELOPER DOCS &bull; READY TO COPY</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+        GSAP 3D ScrollTrigger Card Deck Architecture &amp; Implementation Guide
+      </h2>
+      <p class="mt-3 text-base sm:text-lg text-slate-600 leading-relaxed">
+        Use this complete reference, mathematical parameters, and production-ready snippets (React / Next.js / TypeScript / Vanilla JS) to drop this exact animation into any web application or AI prompt.
+      </p>
+    </div>
+
+    <!-- Section 1: Architecture Breakdown -->
+    <section class="mb-12 space-y-4">
+      <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+        <span class="text-primary">01.</span> Core Animation Mechanics
+      </h3>
+      <p class="text-slate-600 leading-relaxed">
+        The animation creates a tactile 3D card deck landing on top of previous reviews as the user scrolls. Rather than standard sliding or carousel cards, it uses real 3D spatial perspective (<code class="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded text-indigo-600">perspective: 1200px</code>) with scroll scrubbing and section pinning.
+      </p>
+      
+      <div class="grid sm:grid-cols-2 gap-4 mt-6">
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+          <h4 class="font-bold text-sm text-slate-900">1. Initial Card Positioning (t = 0)</h4>
+          <ul class="text-xs text-slate-600 space-y-1 list-disc pl-4 font-mono">
+            <li><strong>Card 0:</strong> y: 0, rotateX: 0deg, scale: 1, zIndex: 1</li>
+            <li><strong>Cards 1..N:</strong> y: +650px (mobile +480px), rotateX: 38deg (mobile 28deg), scale: 0.92, zIndex: i + 1</li>
+          </ul>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+          <h4 class="font-bold text-sm text-slate-900">2. Scrub Step Timeline (i = 1..N)</h4>
+          <ul class="text-xs text-slate-600 space-y-1 list-disc pl-4 font-mono">
+            <li><strong>Previous Cards:</strong> scale: 1 - depthDiff * 0.04, y: -depthDiff * 18px</li>
+            <li><strong>Incoming Card:</strong> y: 0, rotateX: 0deg, scale: 1, opacity: 1 (duration: 1)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Mathematical Parameters -->
+    <section class="mb-12 space-y-4">
+      <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+        <span class="text-primary">02.</span> Exact Configuration Formulas
+      </h3>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-xs">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 font-semibold">
+            <tr>
+              <th class="p-3">Parameter</th>
+              <th class="p-3">Desktop (&ge; 768px)</th>
+              <th class="p-3">Mobile (&lt; 768px)</th>
+              <th class="p-3">Formula / Purpose</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-600">
+            <tr>
+              <td class="p-3 font-semibold text-slate-800">Initial Y-Offset</td>
+              <td class="p-3 text-indigo-600 font-bold">650px</td>
+              <td class="p-3 text-indigo-600 font-bold">480px</td>
+              <td class="p-3">Keeps incoming card offscreen below stage</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-semibold text-slate-800">Initial Tilt Angle</td>
+              <td class="p-3 text-indigo-600 font-bold">38 deg</td>
+              <td class="p-3 text-indigo-600 font-bold">28 deg</td>
+              <td class="p-3"><code class="bg-slate-100 px-1 py-0.5 rounded">rotateX</code> tilt in 3D space</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-semibold text-slate-800">Scroll Distance Per Card</td>
+              <td class="p-3 text-indigo-600 font-bold">900px</td>
+              <td class="p-3 text-indigo-600 font-bold">700px</td>
+              <td class="p-3"><code class="bg-slate-100 px-1 py-0.5 rounded">totalScroll = (N - 1) * distPerCard</code></td>
+            </tr>
+            <tr>
+              <td class="p-3 font-semibold text-slate-800">Tiered Deck Offset</td>
+              <td class="p-3 text-indigo-600 font-bold">-18px * depthDiff</td>
+              <td class="p-3 text-indigo-600 font-bold">-12px * depthDiff</td>
+              <td class="p-3">Upward shift revealing deck top tabs</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-semibold text-slate-800">Tiered Deck Scale</td>
+              <td class="p-3 text-indigo-600 font-bold">1 - (0.04 * depthDiff)</td>
+              <td class="p-3 text-indigo-600 font-bold">1 - (0.04 * depthDiff)</td>
+              <td class="p-3">Subtle scale-down for background deck cards</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-semibold text-slate-800">Scrub Smoothness</td>
+              <td class="p-3 text-indigo-600 font-bold">1.2</td>
+              <td class="p-3 text-indigo-600 font-bold">1.2</td>
+              <td class="p-3">GSAP scrub lag for smooth inertia</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 3: AI Agent System Prompt Directive -->
+    <section class="mb-12 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <span class="text-primary">03.</span> Ready-to-Use Prompt for Any AI Coding Agent
+        </h3>
+        <button onclick="copyCode('prompt-code', this)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold hover:bg-indigo-100 transition-all">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <span>Copy Prompt</span>
+        </button>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed">
+        Pass the exact directive below to ChatGPT, Claude, Cursor, or Antigravity to replicate this animation in any framework:
+      </p>
+
+      <div class="relative rounded-2xl bg-slate-900 p-5 text-slate-200 font-mono text-xs overflow-x-auto shadow-lg">
+        <div class="text-emerald-400 font-semibold mb-2">// Copy-Paste System Prompt for AI Assistant</div>
+<pre id="prompt-code"><code>"Please implement a GSAP ScrollTrigger 3D Card Stack review section.
+Key requirements:
+1. Container has perspective: 1200px and pins to the top of viewport for the duration: (totalCards - 1) * 900px (desktop) / 700px (mobile).
+2. Card 0 starts active on stage at y: 0, rotateX: 0, scale: 1, zIndex: 1.
+3. Cards 1..N start below viewport with y: 650 (mobile 480), rotateX: 38deg (mobile 28deg), scale: 0.92, with ascending zIndex (zIndex = i + 1).
+4. On GSAP scrub timeline:
+   - When card i ascends to y: 0 and rotateX: 0, all previous cards (prev < i) scale down to (1 - depthDiff * 0.04) and shift upward to (-depthDiff * 18px).
+   - Higher z-index ensures incoming cards land ON TOP of older cards in the deck.
+5. Provide a responsive, accessible fallback when prefers-reduced-motion is true.
+6. Support ambient parallax gradient glow in the background."</code></pre>
+      </div>
+    </section>
+
+    <!-- Section 4: Multi-Language Code Implementations -->
+    <section class="mb-12 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <span class="text-primary">04.</span> Production Code Snippets
+        </h3>
+        
+        <!-- Tab Selectors -->
+        <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200 self-start sm:self-auto">
+          <button id="btn-tab-react" onclick="switchTab('react')" class="tab-btn active px-3 py-1 rounded-lg text-xs font-semibold transition-all">
+            React / Next.js
+          </button>
+          <button id="btn-tab-vanilla" onclick="switchTab('vanilla')" class="tab-btn px-3 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all">
+            Vanilla HTML + JS
+          </button>
+        </div>
+      </div>
+
+      <!-- React / Next.js Tab Content -->
+      <div id="tab-react-content" class="space-y-2">
+        <div class="flex justify-between items-center px-1">
+          <span class="text-xs font-semibold text-slate-500 font-mono">ReviewsStack.tsx (React + TypeScript + @gsap/react + Tailwind)</span>
+          <button onclick="copyCode('react-code', this)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold hover:bg-indigo-100 transition-all">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy React Code</span>
+          </button>
+        </div>
+
+        <div class="relative rounded-2xl bg-slate-900 p-5 text-slate-200 font-mono text-xs overflow-x-auto leading-relaxed max-h-[500px] shadow-lg">
+<pre id="react-code"><code>import React, { useRef, useState, useEffect } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  text: string;
+  initials: string;
+  rating: number;
+}
+
+const TESTIMONIALS: Testimonial[] = [
+  {
+    id: "alex-r",
+    name: "Alex Rivera",
+    role: "Lead Frontend Engineer • San Francisco",
+    text: "The 3D perspective layering and smooth scrub give our landing page an editorial feel that immediately wows visitors. It performs at a steady 60 FPS even on mobile.",
+    initials: "AR",
+    rating: 5,
+  },
+  {
+    id: "sophia-c",
+    name: "Sophia Chen",
+    role: "Motion & Design Systems Lead • Toronto",
+    text: "Integrating this with Next.js and Tailwind was effortless. The scroll distance formula and step timeline give total control over timing and depth layering.",
+    initials: "SC",
+    rating: 5,
+  },
+  {
+    id: "marcus-v",
+    name: "Marcus Vance",
+    role: "VP of Product Engineering • London",
+    text: "Clean code, zero layout shift, and robust prefers-reduced-motion support. Perfect reference implementation for interactive component libraries.",
+    initials: "MV",
+    rating: 5,
+  },
+];
+
+export const ReviewsStack: React.FC = () => {
+  const containerRef = useRef&lt;HTMLElement&gt;(null);
+  const [isReducedMotion, setIsReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const checkMotion = () => {
+      setIsReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    };
+    checkMotion();
+    window.addEventListener("resize", checkMotion);
+    return () => window.removeEventListener("resize", checkMotion);
+  }, []);
+
+  useGSAP(
+    () => {
+      if (typeof window === "undefined" || isReducedMotion) return;
+
+      const isMobile = window.innerWidth &lt; 768;
+      const cardEls = gsap.utils.toArray&lt;HTMLElement&gt;(".review-stack-card");
+      const totalCards = cardEls.length;
+      if (totalCards === 0) return;
+
+      // 1. Set initial 3D transform state
+      gsap.set(cardEls[0], {
+        transformOrigin: "50% 0%",
+        y: 0,
+        rotateX: 0,
+        scale: 1,
+        opacity: 1,
+        zIndex: 1,
+      });
+
+      const initialYOffset = isMobile ? 480 : 650;
+      const initialTiltAngle = isMobile ? 28 : 38;
+
+      for (let i = 1; i &lt; totalCards; i++) {
+        gsap.set(cardEls[i], {
+          transformOrigin: "50% 0%",
+          y: initialYOffset,
+          rotateX: initialTiltAngle,
+          scale: 0.92,
+          opacity: 1,
+          zIndex: i + 1,
+        });
+      }
+
+      // 2. Setup pinned scrub timeline
+      const scrollDistancePerCard = isMobile ? 700 : 900;
+      const totalScrollDistance = (totalCards - 1) * scrollDistancePerCard;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: () => "top top",
+          end: () => `+=${totalScrollDistance}`,
+          pin: true,
+          pinSpacing: true,
+          scrub: 1.2,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      // 3. Sequentially build stack steps
+      for (let i = 1; i &lt; totalCards; i++) {
+        const incomingCard = cardEls[i];
+        const stepLabel = `step-${i}`;
+
+        for (let prev = 0; prev &lt; i; prev++) {
+          const depthDiff = i - prev;
+          tl.to(
+            cardEls[prev],
+            {
+              scale: 1 - depthDiff * 0.04,
+              y: -depthDiff * (isMobile ? 12 : 18),
+              ease: "none",
+              duration: 1,
+            },
+            stepLabel
+          );
+        }
+
+        tl.to(
+          incomingCard,
+          {
+            y: 0,
+            rotateX: 0,
+            scale: 1,
+            opacity: 1,
+            ease: "none",
+            duration: 1,
+          },
+          stepLabel
+        );
+      }
+    },
+    { scope: containerRef, dependencies: [isReducedMotion] }
+  );
+
+  return (
+    &lt;section
+      ref={containerRef}
+      className="relative min-h-screen flex flex-col justify-between overflow-hidden bg-gradient-to-b from-white via-indigo-50/20 to-white py-12 sm:py-16"
+    &gt;
+      {/* Header */}
+      &lt;div className="relative max-w-3xl mx-auto px-4 text-center z-20"&gt;
+        &lt;h2 className="font-serif text-3xl sm:text-5xl font-medium tracking-tight text-slate-900"&gt;
+          Trusted by engineering teams building modern web apps.
+        &lt;/h2&gt;
+      &lt;/div&gt;
+
+      {/* 3D Stage */}
+      &lt;div
+        className="relative flex-1 flex items-center justify-center my-6 px-4 w-full"
+        style={{ perspective: "1200px", perspectiveOrigin: "50% 50%" }}
+      &gt;
+        &lt;div className="relative w-full max-w-[760px] min-h-[340px] flex items-center justify-center"&gt;
+          {TESTIMONIALS.map((t, idx) =&gt; (
+            &lt;div key={t.id} className="review-stack-card absolute inset-0 flex items-center justify-center"&gt;
+              &lt;div className="w-full max-w-[720px] rounded-3xl border border-slate-200 bg-white p-8 sm:p-12 shadow-2xl flex flex-col justify-between"&gt;
+                &lt;div className="flex items-center justify-between mb-4"&gt;
+                  &lt;span className="text-xs font-bold uppercase tracking-wider text-indigo-600"&gt;Verified Showcase&lt;/span&gt;
+                  &lt;span className="text-xs font-mono text-slate-400"&gt;0{idx + 1} / 0{TESTIMONIALS.length}&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;p className="font-serif italic text-lg sm:text-xl text-slate-800 mb-6"&gt;"{t.text}"&lt;/p&gt;
+                &lt;div className="flex items-center justify-between pt-4 border-t border-slate-100"&gt;
+                  &lt;div className="flex items-center gap-3"&gt;
+                    &lt;div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center"&gt;{t.initials}&lt;/div&gt;
+                    &lt;div&gt;
+                      &lt;h4 className="font-bold text-sm text-slate-900"&gt;{t.name}&lt;/h4&gt;
+                      &lt;p className="text-xs text-slate-500"&gt;{t.role}&lt;/p&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  );
+};
+export default ReviewsStack;</code></pre>
+        </div>
+      </div>
+
+      <!-- Vanilla HTML + JS Tab Content -->
+      <div id="tab-vanilla-content" class="hidden space-y-2">
+        <div class="flex justify-between items-center px-1">
+          <span class="text-xs font-semibold text-slate-500 font-mono">Vanilla JavaScript + GSAP ScrollTrigger Script</span>
+          <button onclick="copyCode('vanilla-code', this)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold hover:bg-indigo-100 transition-all">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy Vanilla JS</span>
+          </button>
+        </div>
+
+        <div class="relative rounded-2xl bg-slate-900 p-5 text-slate-200 font-mono text-xs overflow-x-auto leading-relaxed max-h-[500px] shadow-lg">
+<pre id="vanilla-code"><code>// Include GSAP and ScrollTrigger CDN:
+// &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"&gt;&lt;/script&gt;
+// &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"&gt;&lt;/script&gt;
+
+document.addEventListener("DOMContentLoaded", () => {
+  gsap.registerPlugin(ScrollTrigger);
+
+  const isMobile = window.innerWidth &lt; 768;
+  const container = document.getElementById("reviews-stack");
+  const cardEls = gsap.utils.toArray(".review-stack-card");
+  const totalCards = cardEls.length;
+
+  if (!container || totalCards === 0) return;
+
+  // 1. Initial 3D Setup
+  gsap.set(cardEls[0], {
+    transformOrigin: "50% 0%",
+    y: 0,
+    rotateX: 0,
+    scale: 1,
+    opacity: 1,
+    zIndex: 1,
+    willChange: "transform",
+  });
+
+  const initialYOffset = isMobile ? 480 : 650;
+  const initialTiltAngle = isMobile ? 28 : 38;
+
+  for (let i = 1; i &lt; totalCards; i++) {
+    gsap.set(cardEls[i], {
+      transformOrigin: "50% 0%",
+      y: initialYOffset,
+      rotateX: initialTiltAngle,
+      scale: 0.92,
+      opacity: 1,
+      zIndex: i + 1,
+      willChange: "transform",
+    });
+  }
+
+  // 2. Timeline with Pinning & Scrub
+  const scrollDistancePerCard = isMobile ? 700 : 900;
+  const totalScrollDistance = (totalCards - 1) * scrollDistancePerCard;
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: container,
+      start: () => "top top",
+      end: () => `+=${totalScrollDistance}`,
+      pin: true,
+      pinSpacing: true,
+      scrub: 1.2,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+    },
+  });
+
+  // 3. Sequential Card Landings
+  for (let i = 1; i &lt; totalCards; i++) {
+    const incomingCard = cardEls[i];
+    const stepLabel = `step-${i}`;
+
+    for (let prev = 0; prev &lt; i; prev++) {
+      const depthDiff = i - prev;
+      tl.to(
+        cardEls[prev],
+        {
+          scale: 1 - depthDiff * 0.04,
+          y: -depthDiff * (isMobile ? 12 : 18),
+          ease: "none",
+          duration: 1,
+        },
+        stepLabel
+      );
+    }
+
+    tl.to(
+      incomingCard,
+      {
+        y: 0,
+        rotateX: 0,
+        scale: 1,
+        opacity: 1,
+        ease: "none",
+        duration: 1,
+      },
+      stepLabel
+    );
+  }
+
+  ScrollTrigger.refresh();
+});</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer of Readme -->
+    <div class="pt-8 border-t border-slate-200 text-center text-xs text-slate-500 font-mono flex flex-col sm:flex-row items-center justify-between gap-3">
+      <span>Open Source Developer Animation Showcase</span>
+      <span>MIT License &bull; Free for Personal &amp; Commercial Use</span>
+    </div>
+  </article>
+
+  <!-- ========================================== -->
+  <!-- Toast Notification Container               -->
+  <!-- ========================================== -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs font-mono">
+    <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>
+    <span id="toast-text">Code copied to clipboard!</span>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- Interactive Scripts & GSAP Engine          -->
+  <!-- ========================================== -->
+  <script>
+    // Tab Switcher
+    function switchTab(tab) {
+      const btnReact = document.getElementById("btn-tab-react");
+      const btnVanilla = document.getElementById("btn-tab-vanilla");
+      const contentReact = document.getElementById("tab-react-content");
+      const contentVanilla = document.getElementById("tab-vanilla-content");
+
+      if (tab === 'react') {
+        btnReact.classList.add("active");
+        btnReact.classList.remove("text-slate-600");
+        btnVanilla.classList.remove("active");
+        btnVanilla.classList.add("text-slate-600");
+        contentReact.classList.remove("hidden");
+        contentVanilla.classList.add("hidden");
+      } else {
+        btnVanilla.classList.add("active");
+        btnVanilla.classList.remove("text-slate-600");
+        btnReact.classList.remove("active");
+        btnReact.classList.add("text-slate-600");
+        contentVanilla.classList.remove("hidden");
+        contentReact.classList.add("hidden");
+      }
+    }
+
+    // Copy to Clipboard with Toast
+    function copyCode(elementId, btnElement) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      navigator.clipboard.writeText(el.innerText).then(() => {
+        showToast("Copied to clipboard!");
+        if (btnElement) {
+          const originalText = btnElement.innerHTML;
+          btnElement.classList.add("bg-emerald-50", "border-emerald-300", "text-emerald-700");
+          setTimeout(() => {
+            btnElement.classList.remove("bg-emerald-50", "border-emerald-300", "text-emerald-700");
+          }, 1800);
+        }
+      }).catch(err => {
+        showToast("Failed to copy code");
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const toastText = document.getElementById("toast-text");
+      if (!toast || !toastText) return;
+      
+      toastText.innerText = message;
+      toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+        toast.classList.remove("translate-y-0", "opacity-100");
+      }, 2500);
+    }
+
+    // GSAP ScrollTrigger Animation
+    document.addEventListener("DOMContentLoaded", () => {
+      gsap.registerPlugin(ScrollTrigger);
+
+      const isMobile = window.innerWidth < 768;
+      const container = document.getElementById("reviews-stack");
+      const cardEls = gsap.utils.toArray(".review-stack-card");
+      const totalCards = cardEls.length;
+
+      if (!container || totalCards === 0) return;
+
+      // 1. Initial 3D Setup
+      gsap.set(cardEls[0], {
+        transformOrigin: "50% 0%",
+        y: 0,
+        rotateX: 0,
+        scale: 1,
+        opacity: 1,
+        zIndex: 1,
+        willChange: "transform",
+      });
+
+      const initialYOffset = isMobile ? 480 : 650;
+      const initialTiltAngle = isMobile ? 28 : 38;
+
+      for (let i = 1; i < totalCards; i++) {
+        gsap.set(cardEls[i], {
+          transformOrigin: "50% 0%",
+          y: initialYOffset,
+          rotateX: initialTiltAngle,
+          scale: 0.92,
+          opacity: 1,
+          zIndex: i + 1,
+          willChange: "transform",
+        });
+      }
+
+      // 2. Parallax floating glow background effect
+      const glowElem = document.getElementById("parallax-glow");
+      if (glowElem) {
+        gsap.to(glowElem, {
+          y: -120,
+          scale: 1.15,
+          opacity: 0.9,
+          ease: "none",
+          scrollTrigger: {
+            trigger: container,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+          },
+        });
+      }
+
+      // 3. Pin the section and drive smooth card landings with scroll scrub
+      const scrollDistancePerCard = isMobile ? 700 : 900;
+      const totalScrollDistance = (totalCards - 1) * scrollDistancePerCard;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: () => "top top",
+          end: () => `+=${totalScrollDistance}`,
+          pin: true,
+          pinSpacing: true,
+          scrub: 1.2,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          refreshPriority: 1,
+        },
+      });
+
+      // 4. Sequentially bring each card up to land on top of the stack
+      for (let i = 1; i < totalCards; i++) {
+        const incomingCard = cardEls[i];
+        const stepLabel = `step-${i}`;
+
+        for (let prev = 0; prev < i; prev++) {
+          const prevCard = cardEls[prev];
+          const depthDiff = i - prev;
+          tl.to(
+            prevCard,
+            {
+              scale: 1 - depthDiff * 0.04,
+              y: -depthDiff * (isMobile ? 12 : 18),
+              ease: "none",
+              duration: 1,
+            },
+            stepLabel
+          );
+        }
+
+        tl.to(
+          incomingCard,
+          {
+            y: 0,
+            rotateX: 0,
+            scale: 1,
+            opacity: 1,
+            ease: "none",
+            duration: 1,
+          },
+          stepLabel
+        );
+      }
+
+      ScrollTrigger.refresh();
+    });
+  </script>
+</body>
+</html>
