@@ -1,54 +1,65 @@
-# GSAP 3D ScrollTrigger Card Deck Animation 🚀
+# 🎨 Animations Lab - Web Animations & Motion Gallery
 
-A buttery-smooth, hardware-accelerated **3D spatial card deck stacking animation** powered by **GSAP ScrollTrigger** and **Tailwind CSS**.
+Welcome to **Animations Lab**, a curated open-source collection of high-performance, drop-in web animations and interactive UI components. Built for modern frontends using **GSAP**, **ScrollTrigger**, **Tailwind CSS**, and **Canvas/3D transforms**.
 
-As the user scrolls, each incoming card ascends from below the viewport with realistic 3D perspective tilt (`rotateX: 38deg`) and seamlessly flattens to land on top of the stacked deck. Previous cards in the deck automatically scale down and offset upward to form an elegant tiered stack.
-
----
-
-## ✨ Features
-
-- 🎮 **Tactile 3D Perspective**: True CSS 3D space (`perspective: 1200px`) with hardware-accelerated transforms (`will-change: transform`).
-- 📌 **Pin & Scrub Timeline**: Viewport pins cleanly while scroll progress scrubs through card arrivals.
-- 📱 **Adaptive Breakpoints**: Dynamic mobile calibration (smaller tilt angles, adjusted vertical offsets, responsive padding).
-- ⚛️ **React & Next.js Ready**: Includes modern `@gsap/react` hook implementation (`useGSAP`).
-- 🌐 **Vanilla HTML / JS Included**: Works immediately with simple script tags via GSAP CDN.
-- ♿ **Accessibility First**: Respects `prefers-reduced-motion: reduce`.
-- 📋 **One-Click Copying**: Copy AI prompt directives, React components, and HTML snippets with one click.
+Each animation includes an interactive mini-window preview, full-page standalone demo, mathematical formulas, and production-ready snippets for **React**, **Next.js**, and **Vanilla JavaScript**.
 
 ---
 
-## 📸 Demo Preview
+## 🌟 Animations Catalog
 
-Open `index.html` or `uk-reviews-stack-animation.html` directly in your browser or serve locally with any static web server:
+| Preview | Animation Name | Tech Stack | Status | Links |
+|:---:|:---|:---|:---:|:---|
+| 🎴 | **GSAP 3D Card Deck Stack**<br><sub>Hardware-accelerated 3D scroll scrub with tiered depth scaling</sub> | `GSAP 3.12`<br>`ScrollTrigger`<br>`Tailwind CSS` | 🟢 **Full Demo Ready** | [Live Page](gsap-3d-card-stack.html) • [Code & Prompt](#-featured-gsap-3d-card-stack) |
+| 🧲 | **Magnetic Fluid Glow & Mesh**<br><sub>Spring physics mouse cursor tracker with chromatic glow</sub> | `Canvas API`<br>`Spring Physics`<br>`Vanilla JS` | 🟡 Interactive Preview | [Gallery Hub](index.html) |
+| ✍️ | **Kinetic Staggered Text Reveal**<br><sub>Per-word kinetic stagger with clip-path masks</sub> | `GSAP Timeline`<br>`Clip Path`<br>`SplitText` | 🟡 Interactive Preview | [Gallery Hub](index.html) |
+| 💎 | **Multi-Layer 3D Parallax Tilt**<br><sub>Gyro/cursor-reactive card tilting with specular shine</sub> | `CSS 3D`<br>`Perspective`<br>`Gyroscope` | 🟡 Interactive Preview | [Gallery Hub](index.html) |
+
+---
+
+## 🚀 Quick Start & Local Preview
+
+Clone the repository and open `index.html` in your browser, or start a local static server:
 
 ```bash
-# Using Python
+# Clone the repo
+git clone https://github.com/UdayPratap902/Animations.git
+cd Animations
+
+# Serve locally (choose any):
+# Using Python:
 python -m http.server 3000
 
-# Using Node / npx
+# Using Node / npx:
 npx serve .
 ```
 
+- **Gallery Hub**: [`index.html`](index.html) (browse all animation cards with mini-window previews)
+- **3D Card Deck Full Demo**: [`gsap-3d-card-stack.html`](gsap-3d-card-stack.html)
+
 ---
 
-## 🧮 Mathematical Parameters & Formulas
+## 🎴 Featured: GSAP 3D ScrollTrigger Card Deck
+
+A tactile 3D card deck landing on top of previous cards as the user scrolls. Uses real CSS 3D perspective (`perspective: 1200px`) with scroll scrubbing and section pinning.
+
+### Mathematical Parameters & Formulas
 
 | Parameter | Desktop (`≥ 768px`) | Mobile (`< 768px`) | Purpose / Formula |
 |:---|:---:|:---:|:---|
 | **Perspective** | `1200px` | `1200px` | Container 3D depth perception |
-| **Initial Y-Offset** | `650px` | `480px` | Holds cards offstage below viewport |
+| **Initial Y-Offset** | `650px` | `480px` | Holds incoming cards offstage below viewport |
 | **Initial Tilt Angle** | `38deg` | `28deg` | `rotateX` forward tilt in 3D space |
 | **Scroll Distance** | `900px` | `700px` | `totalScroll = (N - 1) * distPerCard` |
-| **Deck Y-Offset** | `-18px * depthDiff` | `-12px * depthDiff` | Upward shift showing stacked card edges |
+| **Deck Y-Offset** | `-18px * depthDiff` | `-12px * depthDiff` | Upward shift showing stacked card top edges |
 | **Deck Scale** | `1 - (0.04 * depthDiff)` | `1 - (0.04 * depthDiff)` | Layered background depth scaling |
-| **Scrub Inertia** | `1.2` | `1.2` | GSAP scroll scrub lag for smooth feel |
+| **Scrub Inertia** | `1.2` | `1.2` | GSAP scroll scrub lag for smooth inertia |
 
 ---
 
-## 🤖 AI Agent System Prompt
+### 🤖 AI Agent System Prompt (Copy-Paste)
 
-Want to drop this into an existing project using AI (ChatGPT, Claude, Cursor, Antigravity)? Copy this prompt:
+To replicate the 3D card stack in any codebase using AI assistants (ChatGPT, Claude, Cursor, Antigravity):
 
 ```markdown
 Please implement a GSAP ScrollTrigger 3D Card Stack review section.
@@ -65,7 +76,7 @@ Key requirements:
 
 ---
 
-## ⚛️ React / Next.js Implementation
+### ⚛️ React / Next.js Component Code
 
 ```tsx
 import React, { useRef, useState, useEffect } from "react";
@@ -98,7 +109,7 @@ export const ReviewsStack: React.FC = () => {
       const totalCards = cardEls.length;
       if (totalCards === 0) return;
 
-      // 1. Initial State
+      // 1. Set initial 3D transform states
       gsap.set(cardEls[0], {
         transformOrigin: "50% 0%",
         y: 0,
@@ -122,7 +133,7 @@ export const ReviewsStack: React.FC = () => {
         });
       }
 
-      // 2. Timeline
+      // 2. Setup pinned scrub timeline
       const scrollDistancePerCard = isMobile ? 700 : 900;
       const totalScrollDistance = (totalCards - 1) * scrollDistancePerCard;
 
@@ -139,7 +150,7 @@ export const ReviewsStack: React.FC = () => {
         },
       });
 
-      // 3. Step timeline
+      // 3. Sequentially build stack steps
       for (let i = 1; i < totalCards; i++) {
         const incomingCard = cardEls[i];
         const stepLabel = `step-${i}`;
@@ -177,9 +188,8 @@ export const ReviewsStack: React.FC = () => {
 
   return (
     <section ref={containerRef} className="relative min-h-screen flex flex-col justify-between overflow-hidden bg-white py-16">
-      {/* Cards Stage with perspective */}
       <div className="relative flex-1 flex items-center justify-center px-4 w-full" style={{ perspective: "1200px" }}>
-        {/* Your cards mapped here */}
+        {/* Render your cards here */}
       </div>
     </section>
   );
@@ -188,6 +198,15 @@ export const ReviewsStack: React.FC = () => {
 
 ---
 
+## 🛠️ Adding New Animations to this Repo
+
+1. Create a dedicated HTML/JS file for the new animation (e.g. `gsap-fluid-magnetic.html`).
+2. Include the top navigation bar with `← Gallery Hub` linking to `index.html`.
+3. Add a new card in `index.html` featuring the mini-window interactive preview.
+4. Update the catalog table in `README.md`.
+
+---
+
 ## 📜 License
 
-MIT License — Feel free to use and adapt this in personal and commercial projects!
+MIT License &bull; Free for personal and commercial use!
