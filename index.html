@@ -183,24 +183,24 @@
   <!-- ========================================================================= -->
   <!-- Floating Pill Navbar (General Entrance Navigation)                         -->
   <!-- ========================================================================= -->
-  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[94%] sm:w-auto max-w-[1200px] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/85 backdrop-blur-md px-5 sm:px-7 py-2.5 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-between sm:gap-8">
-    <div class="flex items-center gap-2.5">
-      <div class="w-7 h-7 rounded-full bg-warm-200 border border-warm-400/50 text-ink flex items-center justify-center font-bold text-xs shadow-2xs">
+  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-auto max-w-[calc(100vw-2rem)] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/90 backdrop-blur-md px-4 sm:px-6 py-2 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-center gap-3 sm:gap-6 whitespace-nowrap">
+    <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+      <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-warm-200 border border-warm-400/50 text-ink flex items-center justify-center font-bold text-xs shadow-2xs">
         ✨
       </div>
       <span class="font-bold text-xs sm:text-sm tracking-wider uppercase text-ink">Animations<span class="text-warm-700 font-normal">Lab</span></span>
     </div>
 
-    <div class="flex items-center gap-2 sm:gap-3">
-      <a href="#gallery" class="text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
+    <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+      <a href="#gallery" class="text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-2.5 sm:px-3 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
         Gallery
       </a>
-      <a href="https://github.com/UdayPratap902/Animations" target="_blank" rel="noopener noreferrer" class="text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink-muted hover:text-ink transition-all flex items-center gap-1.5 shadow-2xs">
+      <a href="https://github.com/UdayPratap902/Animations" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink-muted hover:text-ink transition-all items-center gap-1.5 shadow-2xs">
         <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         <span>GitHub</span>
       </a>
-      <a href="#gallery" class="text-[10px] sm:text-xs font-bold tracking-widest uppercase border px-4 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] flex items-center gap-1.5">
-        <span>Explore Collection</span>
+      <a href="#gallery" class="text-[10px] sm:text-xs font-bold tracking-widest uppercase border px-3 sm:px-4 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] flex items-center gap-1.5">
+        <span>Explore</span>
         <span>↓</span>
       </a>
     </div>
@@ -218,7 +218,7 @@
         <span class="relative inline-flex rounded-full h-2 w-2 bg-warm-700"></span>
       </span>
       <span class="text-[10px] sm:text-xs tracking-[0.15em] uppercase text-ink font-bold font-mono">
-        Curated Web Motion &bull; Interactive Components
+        Curated Web Motion &bull; 3 Production Components
       </span>
     </div>
 
@@ -449,16 +449,16 @@
           <div id="m-c-0" onclick="clickMiniCarousel(0)" class="mini-carousel-card absolute w-[86%] sm:w-[75%] max-w-[440px] rounded-2xl bg-white text-ink p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 cursor-pointer overflow-hidden">
             <div class="glare-shine" id="m-glare-0"></div>
             <div class="flex items-center justify-between text-[10px] font-bold mb-2 relative z-10">
-              <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono">Exam Preparation</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono">Interactive Motion</span>
               <span class="text-ink-subtle font-mono">01 / 03</span>
             </div>
             <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3 relative z-10">
-              "The CBT simulator felt identical to the real testing environment. Practising with the ticking timer improved my pacing by 24%."
+              "The cursor-tracked specular glare tilt creates depth that immediately wows visitors."
             </p>
             <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2 relative z-10">
               <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">VR</div>
-                <span class="font-semibold text-ink">Vikram R.</span>
+                <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">AR</div>
+                <span class="font-semibold text-ink">Alex Rivera</span>
               </div>
               <span class="text-amber-500 text-xs">★★★★★</span>
             </div>
@@ -468,16 +468,16 @@
           <div id="m-c-1" onclick="clickMiniCarousel(1)" class="mini-carousel-card absolute w-[86%] sm:w-[75%] max-w-[440px] rounded-2xl bg-white text-ink p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 cursor-pointer overflow-hidden">
             <div class="glare-shine" id="m-glare-1"></div>
             <div class="flex items-center justify-between text-[10px] font-bold mb-2 relative z-10">
-              <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono">Parent Oversight</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono">Spatial 3D Wings</span>
               <span class="text-ink-subtle font-mono">02 / 03</span>
             </div>
             <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3 relative z-10">
-              "EduMagik provided complete transparency into our daughter's learning habits without constant micro-management."
+              "The depth-tiered side wings and perspective transforms run at a locked 60 FPS."
             </p>
             <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2 relative z-10">
               <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">JT</div>
-                <span class="font-semibold text-ink">James T.</span>
+                <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">ER</div>
+                <span class="font-semibold text-ink">Elena Rostova</span>
               </div>
               <span class="text-amber-500 text-xs">★★★★★</span>
             </div>
@@ -487,16 +487,16 @@
           <div id="m-c-2" onclick="clickMiniCarousel(2)" class="mini-carousel-card absolute w-[86%] sm:w-[75%] max-w-[440px] rounded-2xl bg-white text-ink p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 cursor-pointer overflow-hidden">
             <div class="glare-shine" id="m-glare-2"></div>
             <div class="flex items-center justify-between text-[10px] font-bold mb-2 relative z-10">
-              <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono">For Educators</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono">Dynamic Glare</span>
               <span class="text-ink-subtle font-mono">03 / 03</span>
             </div>
             <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3 relative z-10">
-              "As both a teacher and a parent, I love the academic depth. The walled student cohorts save hours of manual grading."
+              "Realistic radial lighting calculations make the cards feel physical and tactile."
             </p>
             <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2 relative z-10">
               <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">PK</div>
-                <span class="font-semibold text-ink">Priya K.</span>
+                <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">MV</div>
+                <span class="font-semibold text-ink">Marcus Vance</span>
               </div>
               <span class="text-amber-500 text-xs">★★★★★</span>
             </div>
@@ -547,6 +547,159 @@
             <span>Docs &amp; Code</span>
           </a>
           <a href="interactive-3d-review-stack.html" class="py-2.5 px-5 rounded-full bg-ink hover:bg-warm-900 text-warm-100 hover:text-white font-bold text-xs transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] hover:scale-105 flex items-center gap-1.5 tracking-wider uppercase">
+            <span>Open Full Demo</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ========================================================================= -->
+    <!-- CARD 03: GSAP ScrollTrigger Horizontal Multi-Panel Showcase                -->
+    <!-- ========================================================================= -->
+    <article class="warm-card rounded-3xl p-6 sm:p-9 relative overflow-hidden">
+      
+      <!-- Top Meta Info -->
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            Full Demo &amp; Code Ready
+          </span>
+          <span class="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-mono text-ink-muted border border-warm-300 bg-warm-100">
+            Horizontal Pinning &bull; GSAP ScrollTrigger &bull; GPU scaleX
+          </span>
+        </div>
+        <span class="text-xs font-mono text-ink-subtle uppercase tracking-widest font-bold">03 / Collection</span>
+      </div>
+
+      <!-- Title & Description -->
+      <div class="mb-6">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-serif text-ink font-normal tracking-tight">
+          GSAP ScrollTrigger <span class="italic">Horizontal Multi-Panel Showcase</span>
+        </h2>
+        <p class="mt-2.5 text-xs sm:text-sm text-ink-muted leading-relaxed max-w-2xl">
+          A scroll-pinned horizontal gliding showcase across standalone full-width panels. Each panel features a distinct background theme with clear visual transitions, zero-reflow GPU scaleX progress tracking, and tactile scrub inertia.
+        </p>
+      </div>
+
+      <!-- Interactive Mini-Window Preview Stage (GSAP Horizontal Glide) -->
+      <div id="mini-video-container" class="relative bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-2xl border border-warm-300 p-5 overflow-hidden flex flex-col justify-between select-none mb-6 shadow-inner">
+        
+        <!-- Mini Header Bar -->
+        <div class="flex items-center justify-between text-xs font-mono text-ink-muted pb-3 border-b border-warm-300/80">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+            <span class="ml-2 text-ink font-sans text-xs font-medium flex items-center gap-1.5">
+              <span>Pinned Horizontal Glide Engine</span>
+            </span>
+          </div>
+          <div class="flex items-center gap-2 text-xs font-mono text-ink font-bold">
+            <span id="mini-video-step-text" class="px-2 py-0.5 rounded-md bg-warm-200 border border-warm-300 text-ink">Panel 01 Active (0%)</span>
+          </div>
+        </div>
+
+        <!-- Mini Pinned Simulation Stage with Persistent Top Bar -->
+        <div class="my-4 bg-white/80 rounded-xl border border-warm-300 overflow-hidden flex flex-col shadow-xs">
+          <!-- Mini Persistent Header -->
+          <div class="px-3.5 py-1.5 border-b border-warm-200 bg-white flex items-center justify-between text-[11px] font-mono">
+            <span class="font-bold text-ink flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+              Showcase Hub
+            </span>
+            <div class="flex items-center gap-2">
+              <span id="m-panel-num" class="font-bold text-ink">01</span>
+              <div class="w-20 h-1 bg-warm-200 rounded-full overflow-hidden relative">
+                <div id="m-panel-progress" class="absolute left-0 top-0 h-full w-full bg-ink origin-left" style="transform: scaleX(0.25);"></div>
+              </div>
+              <span class="text-ink-subtle">04</span>
+            </div>
+          </div>
+
+          <!-- Mini Sliding Viewport across 4 standalone panels -->
+          <div class="relative w-full h-[140px] overflow-hidden">
+            <div id="m-video-track" class="flex h-full w-[400%]" style="will-change: transform;">
+              
+              <!-- Mini Panel 1 (Light Sky Blue) -->
+              <div class="w-1/4 h-full bg-[#E0F2FE] text-sky-950 flex flex-col items-center justify-center p-3 text-center select-none border-r border-sky-200">
+                <span class="font-mono text-[9px] uppercase font-bold text-sky-800 bg-sky-200/80 px-2 py-0.5 rounded-full mb-1">01 &bull; Pinning</span>
+                <span class="font-mono font-black text-xl sm:text-2xl tracking-wider text-sky-950">PANEL 01</span>
+                <span class="text-[10px] font-medium text-sky-800">Spatial Viewport Pin</span>
+              </div>
+
+              <!-- Mini Panel 2 (Light Amber Cream) -->
+              <div class="w-1/4 h-full bg-[#FEF3C7] text-amber-950 flex flex-col items-center justify-center p-3 text-center select-none border-r border-amber-200">
+                <span class="font-mono text-[9px] uppercase font-bold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full mb-1">02 &bull; Inertia</span>
+                <span class="font-mono font-black text-xl sm:text-2xl tracking-wider text-amber-950">PANEL 02</span>
+                <span class="text-[10px] font-medium text-amber-800">Tactile Momentum</span>
+              </div>
+
+              <!-- Mini Panel 3 (Light Mint Sage) -->
+              <div class="w-1/4 h-full bg-[#D1FAE5] text-emerald-950 flex flex-col items-center justify-center p-3 text-center select-none border-r border-emerald-200">
+                <span class="font-mono text-[9px] uppercase font-bold text-emerald-800 bg-emerald-200/80 px-2 py-0.5 rounded-full mb-1">03 &bull; Progress</span>
+                <span class="font-mono font-black text-xl sm:text-2xl tracking-wider text-emerald-950">PANEL 03</span>
+                <span class="text-[10px] font-medium text-emerald-800">GPU scaleX Metrics</span>
+              </div>
+
+              <!-- Mini Panel 4 (Light Lavender Violet) -->
+              <div class="w-1/4 h-full bg-[#EDE9FE] text-violet-950 flex flex-col items-center justify-center p-3 text-center select-none">
+                <span class="font-mono text-[9px] uppercase font-bold text-violet-800 bg-violet-200/80 px-2 py-0.5 rounded-full mb-1">04 &bull; Modular</span>
+                <span class="font-mono font-black text-xl sm:text-2xl tracking-wider text-violet-950">PANEL 04</span>
+                <span class="text-[10px] font-medium text-violet-800">Adaptive Geometry</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Scrub Controls Bar -->
+        <div class="pt-3 border-t border-warm-300/80 flex flex-col gap-3">
+          <div class="flex items-center gap-3 w-full">
+            <span class="text-[10px] font-mono text-ink-muted shrink-0">Scrub:</span>
+            <input type="range" id="mini-video-range" min="0" max="1" step="0.001" value="0" class="w-full cursor-ew-resize" />
+            <button id="toggle-v-autoplay-btn" onclick="toggleMiniVideoAutoPlay()" class="shrink-0 px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-[10px] font-mono font-bold text-ink transition-colors flex items-center gap-1 shadow-2xs">
+              <span id="v-autoplay-icon">▶</span>
+              <span id="v-autoplay-label">Auto</span>
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-ink-muted font-mono text-[10px] hidden sm:inline">Jump to Panel:</span>
+            <div class="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end">
+              <button onclick="scrubMiniVideoTo(0)" id="v-step-btn-0" class="v-step-btn px-2.5 py-1 rounded-full bg-ink text-white border border-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
+                P01
+              </button>
+              <button onclick="scrubMiniVideoTo(0.333)" id="v-step-btn-1" class="v-step-btn px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
+                P02
+              </button>
+              <button onclick="scrubMiniVideoTo(0.666)" id="v-step-btn-2" class="v-step-btn px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
+                P03
+              </button>
+              <button onclick="scrubMiniVideoTo(1.0)" id="v-step-btn-3" class="v-step-btn px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
+                P04
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech Stack & Action Links -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+        <div class="flex flex-wrap gap-2 text-xs font-mono">
+          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">GSAP 3.12</span>
+          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">ScrollTrigger</span>
+          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">Tailwind CSS</span>
+          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink-muted border border-warm-300">React / Next.js</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <a href="gsap-horizontal-video-showcase.html#specs" class="py-2.5 px-4 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 text-ink font-semibold text-xs transition-colors flex items-center gap-1.5 tracking-wider uppercase">
+            <span>📖</span>
+            <span>Docs &amp; Code</span>
+          </a>
+          <a href="gsap-horizontal-video-showcase.html" class="py-2.5 px-5 rounded-full bg-ink hover:bg-warm-900 text-warm-100 hover:text-white font-bold text-xs transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] hover:scale-105 flex items-center gap-1.5 tracking-wider uppercase">
             <span>Open Full Demo</span>
             <span>↗</span>
           </a>
@@ -913,11 +1066,121 @@
       startMiniCarouselAutoPlay();
     }
 
+    // -------------------------------------------------------------------------
+    // Engine 3: GSAP Horizontal Video Showcase Simulator (4 Standalone Panels)
+    // -------------------------------------------------------------------------
+    let miniVideoTL;
+    let isVideoAutoPlaying = true;
+    let videoAutoTween = null;
+
+    function initMiniVideoShowcase() {
+      const track = document.getElementById("m-video-track");
+      const bar = document.getElementById("m-panel-progress");
+      const rangeInput = document.getElementById("mini-video-range");
+
+      if (!track || !bar) return;
+
+      // Track moves by -75% across total width 400% (4 panels)
+      gsap.set(track, { xPercent: 0 });
+      gsap.set(bar, { scaleX: 0.25, transformOrigin: "left center" });
+
+      miniVideoTL = gsap.timeline({ paused: true, onUpdate: updateMiniVideoUI });
+      miniVideoTL.to(track, { xPercent: -75, ease: "none", duration: 1 }, 0);
+      miniVideoTL.to(bar, { scaleX: 1, ease: "none", duration: 1 }, 0);
+
+      if (rangeInput) {
+        rangeInput.addEventListener("input", (e) => {
+          stopMiniVideoAutoPlay();
+          miniVideoTL.progress(parseFloat(e.target.value));
+        });
+      }
+
+      startMiniVideoAutoPlay();
+    }
+
+    function updateMiniVideoUI() {
+      const p = miniVideoTL ? miniVideoTL.progress() : 0;
+      const rangeInput = document.getElementById("mini-video-range");
+      const stepText = document.getElementById("mini-video-step-text");
+      const numLabel = document.getElementById("m-panel-num");
+
+      if (rangeInput) rangeInput.value = p;
+
+      const pct = Math.round(p * 100);
+      let activeIdx = 0;
+      if (p < 0.25) {
+        activeIdx = 0;
+        if (stepText) stepText.innerText = `Panel 01 Active (${pct}%)`;
+        if (numLabel) numLabel.innerText = "01";
+      } else if (p < 0.58) {
+        activeIdx = 1;
+        if (stepText) stepText.innerText = `Panel 02 Active (${pct}%)`;
+        if (numLabel) numLabel.innerText = "02";
+      } else if (p < 0.85) {
+        activeIdx = 2;
+        if (stepText) stepText.innerText = `Panel 03 Active (${pct}%)`;
+        if (numLabel) numLabel.innerText = "03";
+      } else {
+        activeIdx = 3;
+        if (stepText) stepText.innerText = `Panel 04 Active (${pct}%)`;
+        if (numLabel) numLabel.innerText = "04";
+      }
+
+      [0, 1, 2, 3].forEach((idx) => {
+        const btn = document.getElementById(`v-step-btn-${idx}`);
+        if (!btn) return;
+        if (idx === activeIdx) {
+          btn.classList.add("bg-ink", "text-white", "border-ink");
+          btn.classList.remove("bg-white", "text-ink", "border-warm-300");
+        } else {
+          btn.classList.remove("bg-ink", "text-white", "border-ink");
+          btn.classList.add("bg-white", "text-ink", "border-warm-300");
+        }
+      });
+    }
+
+    function scrubMiniVideoTo(targetP) {
+      stopMiniVideoAutoPlay();
+      if (!miniVideoTL) return;
+      gsap.to(miniVideoTL, { progress: targetP, duration: 0.75, ease: "power2.out" });
+    }
+
+    function startMiniVideoAutoPlay() {
+      if (!miniVideoTL) return;
+      isVideoAutoPlaying = true;
+      updateMiniVideoAutoBtn();
+      videoAutoTween = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 1.2 });
+      videoAutoTween.to(miniVideoTL, { progress: 1, duration: 5.2, ease: "power1.inOut" });
+    }
+
+    function stopMiniVideoAutoPlay() {
+      if (videoAutoTween) { videoAutoTween.kill(); videoAutoTween = null; }
+      isVideoAutoPlaying = false;
+      updateMiniVideoAutoBtn();
+    }
+
+    function toggleMiniVideoAutoPlay() {
+      if (isVideoAutoPlaying) stopMiniVideoAutoPlay();
+      else {
+        if (miniVideoTL && miniVideoTL.progress() >= 0.98) miniVideoTL.progress(0);
+        startMiniVideoAutoPlay();
+      }
+    }
+
+    function updateMiniVideoAutoBtn() {
+      const icon = document.getElementById("v-autoplay-icon");
+      const label = document.getElementById("v-autoplay-label");
+      if (!icon || !label) return;
+      if (isVideoAutoPlaying) { icon.innerText = "⏸"; label.innerText = "Pause"; }
+      else { icon.innerText = "▶"; label.innerText = "Auto"; }
+    }
+
     // Initialize all engines on DOM ready
     document.addEventListener("DOMContentLoaded", () => {
       initGSAPDeck();
       renderMiniCarousel(false);
       initMiniCarouselListeners();
+      initMiniVideoShowcase();
     });
   </script>
 </body>

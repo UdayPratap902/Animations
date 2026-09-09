@@ -197,8 +197,8 @@
   <!-- ========================================================================= -->
   <!-- FLOATING NAVIGATION BAR                                                   -->
   <!-- ========================================================================= -->
-  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[94%] sm:w-auto max-w-[1200px] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/90 backdrop-blur-md px-4 sm:px-6 py-2 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-between sm:gap-6">
-    <div class="flex items-center gap-2.5 sm:gap-3">
+  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-auto max-w-[calc(100vw-2rem)] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/90 backdrop-blur-md px-4 sm:px-6 py-2 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-center gap-3 sm:gap-6 whitespace-nowrap">
+    <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
       <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-[10px] sm:text-xs font-semibold tracking-wider uppercase transition-colors shadow-2xs">
         <span>←</span>
         <span>Gallery</span>
@@ -211,14 +211,14 @@
     </div>
 
     <!-- Quick Jump Links -->
-    <div class="hidden md:flex items-center gap-1 bg-warm-200/70 p-1 rounded-full border border-warm-300 text-xs font-mono">
+    <div class="hidden lg:flex items-center gap-1 bg-warm-200/70 p-1 rounded-full border border-warm-300 text-xs font-mono shrink-0">
       <a href="#experience" class="px-3 py-1 rounded-full hover:bg-white text-ink font-medium transition-all">01. Live Stage</a>
       <a href="#deconstruct" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">02. Deconstruct</a>
       <a href="#build" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">03. Code</a>
       <a href="#reference" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">04. Specs</a>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 shrink-0">
       <a href="#build" class="text-[10px] sm:text-xs font-bold tracking-wider uppercase border px-3.5 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-xs flex items-center gap-1">
         <span>&lt;/&gt;</span>
         <span>Get Code</span>
@@ -270,7 +270,7 @@
             <!-- 3D Layered Cards Container -->
             <div id="cards-container" class="relative w-full h-full flex items-center justify-center">
 
-              <!-- Card 0: Vikram R. -->
+              <!-- Card 0: Alex Rivera -->
               <div id="card-0" onclick="cardClicked(0)" class="carousel-card absolute w-[94%] sm:w-[86%] md:w-[80%] max-w-[700px] rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
                 <div class="glare-shine" id="glare-0"></div>
                 
@@ -278,10 +278,10 @@
                 <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
                   <div class="flex items-center gap-2">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
-                      <span>Exam Preparation</span>
+                      <span>Interactive Motion</span>
                     </span>
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <span>Timed Simulation</span>
+                      <span>Fluid Physics</span>
                     </span>
                   </div>
                   <div class="flex items-center gap-2">
@@ -293,7 +293,7 @@
                 <!-- Quote Body -->
                 <div class="py-3 sm:py-4 flex-1 flex flex-col justify-center relative z-10">
                   <blockquote class="font-serif italic text-base sm:text-lg md:text-[1.15rem] text-ink leading-relaxed">
-                    "The CBT simulator felt identical to the real testing environment. Practising with the ticking countdown timer, question palette, and negative marking rules dramatically improved my exam-day pacing and reduced nervousness."
+                    "The cursor-tracked specular glare tilt creates depth that immediately wows visitors. It feels responsive, tactile, and alive across every interaction."
                   </blockquote>
                 </div>
 
@@ -301,18 +301,18 @@
                 <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
                   <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
-                      VR
+                      AR
                     </div>
                     <div>
-                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Vikram R.</h4>
-                      <p class="text-xs text-ink-muted">Competitive Exam Aspirant, Bengaluru</p>
+                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Alex Rivera</h4>
+                      <p class="text-xs text-ink-muted">Product Designer, San Francisco</p>
                     </div>
                   </div>
                   <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
                 </div>
               </div>
 
-              <!-- Card 1: James T. -->
+              <!-- Card 1: Elena Rostova -->
               <div id="card-1" onclick="cardClicked(1)" class="carousel-card absolute w-[94%] sm:w-[86%] md:w-[80%] max-w-[700px] rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
                 <div class="glare-shine" id="glare-1"></div>
                 
@@ -320,10 +320,10 @@
                 <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
                   <div class="flex items-center gap-2">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
-                      <span>Parent Oversight</span>
+                      <span>Spatial 3D Wings</span>
                     </span>
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <span>Daily Practice</span>
+                      <span>Zero Latency</span>
                     </span>
                   </div>
                   <div class="flex items-center gap-2">
@@ -335,7 +335,7 @@
                 <!-- Quote Body -->
                 <div class="py-3 sm:py-4 flex-1 flex flex-col justify-center relative z-10">
                   <blockquote class="font-serif italic text-base sm:text-lg md:text-[1.15rem] text-ink leading-relaxed">
-                    "EduMagik provided complete transparency into our daughter's learning habits without constant micro-management. The parent dashboard pinpointed specific weak areas in algebraic fractions."
+                    "The depth-tiered side wings and smooth perspective transformations perform at a locked 60 FPS across desktop and touch screens."
                   </blockquote>
                 </div>
 
@@ -343,18 +343,18 @@
                 <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
                   <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
-                      JT
+                      ER
                     </div>
                     <div>
-                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">James T.</h4>
-                      <p class="text-xs text-ink-muted">Parent, Surrey</p>
+                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Elena Rostova</h4>
+                      <p class="text-xs text-ink-muted">Lead UI Engineer, London</p>
                     </div>
                   </div>
                   <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
                 </div>
               </div>
 
-              <!-- Card 2: Priya K. -->
+              <!-- Card 2: Marcus Vance -->
               <div id="card-2" onclick="cardClicked(2)" class="carousel-card absolute w-[94%] sm:w-[86%] md:w-[80%] max-w-[700px] rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
                 <div class="glare-shine" id="glare-2"></div>
                 
@@ -362,10 +362,10 @@
                 <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
                   <div class="flex items-center gap-2">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
-                      <span>For Educators</span>
+                      <span>Dynamic Glare</span>
                     </span>
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <span>Topic Mastery</span>
+                      <span>Specular Lighting</span>
                     </span>
                   </div>
                   <div class="flex items-center gap-2">
@@ -377,7 +377,7 @@
                 <!-- Quote Body -->
                 <div class="py-3 sm:py-4 flex-1 flex flex-col justify-center relative z-10">
                   <blockquote class="font-serif italic text-base sm:text-lg md:text-[1.15rem] text-ink leading-relaxed">
-                    "As both a teacher and a parent, I love the academic depth and secure environment. The walled student cohorts and 3-click assignment dispatch save hours of manual grading."
+                    "Realistic radial lighting calculations make the cards feel like physical glass. It is easily our most engaging interactive landing component."
                   </blockquote>
                 </div>
 
@@ -385,18 +385,18 @@
                 <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
                   <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
-                      PK
+                      MV
                     </div>
                     <div>
-                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Priya K.</h4>
-                      <p class="text-xs text-ink-muted">Educator &amp; Parent, Birmingham</p>
+                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Marcus Vance</h4>
+                      <p class="text-xs text-ink-muted">Creative Director, Berlin</p>
                     </div>
                   </div>
                   <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
                 </div>
               </div>
 
-              <!-- Card 3: Sarah M. -->
+              <!-- Card 3: Sarah Chen -->
               <div id="card-3" onclick="cardClicked(3)" class="carousel-card absolute w-[94%] sm:w-[86%] md:w-[80%] max-w-[700px] rounded-3xl p-6 sm:p-7 md:p-8 card-shadow border border-warm-300 bg-white/95 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer">
                 <div class="glare-shine" id="glare-3"></div>
                 
@@ -404,10 +404,10 @@
                 <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3.5 border-b border-warm-100 relative z-10">
                   <div class="flex items-center gap-2">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-warm-100 text-warm-800 border border-warm-300 font-mono">
-                      <span>Parent Engagement</span>
+                      <span>Ergonomic Gestures</span>
                     </span>
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <span>Daily Routine</span>
+                      <span>Touch Physics</span>
                     </span>
                   </div>
                   <div class="flex items-center gap-2">
@@ -419,7 +419,7 @@
                 <!-- Quote Body -->
                 <div class="py-3 sm:py-4 flex-1 flex flex-col justify-center relative z-10">
                   <blockquote class="font-serif italic text-base sm:text-lg md:text-[1.15rem] text-ink leading-relaxed">
-                    "EduMagik made child's preparation fun. My child now asks to practice every evening without any friction, motivated by the streak counters and clear badges."
+                    "Natural touch swiping and drag inertia make mobile navigation effortless. Users explore the stack with pure intuitive delight."
                   </blockquote>
                 </div>
 
@@ -427,11 +427,11 @@
                 <div class="flex items-center justify-between gap-2 pt-3.5 border-t border-warm-100 relative z-10">
                   <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-200 text-ink font-serif font-bold text-sm border border-warm-400/40">
-                      SM
+                      SC
                     </div>
                     <div>
-                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Sarah M.</h4>
-                      <p class="text-xs text-ink-muted">Parent, London</p>
+                      <h4 class="font-serif text-sm sm:text-base font-bold text-ink leading-tight">Sarah Chen</h4>
+                      <p class="text-xs text-ink-muted">Frontend Architect, New York</p>
                     </div>
                   </div>
                   <span class="text-xs text-emerald-700 font-semibold font-mono hidden sm:inline">&bull; Verified</span>
@@ -661,9 +661,9 @@
               <span class="font-bold text-warm-800 uppercase">Right Wing (diff = +1)</span>
               <span class="text-ink-subtle">z: 5</span>
             </div>
-            <p class="font-serif italic text-xs sm:text-sm text-ink py-3">"Complete transparency without constant micro-management..."</p>
+            <p class="font-serif italic text-xs sm:text-sm text-ink py-3">"Smooth perspective transformations perform at a locked 60 FPS..."</p>
             <div class="text-[10px] text-ink-muted border-t border-warm-100 pt-1.5 flex justify-between">
-              <span>James T.</span>
+              <span>Elena Rostova</span>
               <span class="text-emerald-700 font-bold">0.88x Scale</span>
             </div>
           </div>
@@ -675,9 +675,9 @@
               <span class="font-bold text-ink uppercase bg-warm-100 px-2 py-0.5 rounded border border-warm-300">Center Focus (diff = 0)</span>
               <span class="text-emerald-700 font-bold">z-index: 10</span>
             </div>
-            <p class="font-serif italic text-sm sm:text-base text-ink py-4 relative z-10">"The CBT simulator felt identical to real testing environments. Practice timer reduced nervousness."</p>
+            <p class="font-serif italic text-sm sm:text-base text-ink py-4 relative z-10">"The cursor-tracked specular glare tilt creates depth that immediately wows visitors. Responsive and tactile."</p>
             <div class="text-xs text-ink-muted border-t border-warm-100 pt-2 flex justify-between items-center relative z-10">
-              <span class="font-semibold text-ink">Vikram R. (100% Opacity)</span>
+              <span class="font-semibold text-ink">Alex Rivera (100% Opacity)</span>
               <span class="text-amber-500 font-bold">1.00x Scale &bull; 0px Blur</span>
             </div>
           </div>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GSAP ScrollTrigger Horizontal Multi-Panel Showcase — Animations Lab</title>
+  <meta name="description" content="Production horizontal pinned scroll showcase with hardware-accelerated GSAP ScrollTrigger, zero-reflow GPU scaleX progress tracking, standalone panels, and in-page modal player." />
+
+  <!-- Google Fonts: Instrument Serif + Almarai + Plus Jakarta Sans + Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Fira+Code:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Almarai', '"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            warm: {
+              50: '#FDFCFB',
+              100: '#FAF9F6',
+              200: '#F4F1EA',
+              300: '#EDE8DC',
+              400: '#DEDBC8',
+              500: '#C8C4AB',
+              600: '#A49F83',
+              700: '#757159',
+              800: '#474435',
+              900: '#1C1B15',
+            },
+            ink: {
+              DEFAULT: '#141413',
+              muted: '#6C6A63',
+              subtle: '#9E9B91',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP CDN + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root {
+      --bg-warm: #FAF9F6;
+      --foreground: #141413;
+    }
+
+    body {
+      background-color: #FAF9F6;
+      color: #141413;
+      font-family: 'Almarai', 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Subtle warm noise texture overlay */
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.07;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    /* Card styling */
+    .showcase-card {
+      background: #FFFFFF;
+      border: 1px solid #EDE8DC;
+      box-shadow: 0 8px 30px -4px rgba(30, 24, 12, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .showcase-card:hover {
+      border-color: #DEDBC8;
+      box-shadow: 0 20px 40px -10px rgba(30, 24, 12, 0.12), 0 0 0 1px rgba(222, 219, 200, 0.6);
+      transform: translateY(-3px);
+    }
+
+    /* Code block tabs active indicator */
+    .tab-btn.active {
+      background-color: #141413;
+      color: #FAF9F6;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(20, 20, 19, 0.2);
+    }
+
+    /* Custom range slider */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #EDE8DC;
+      border-radius: 9999px;
+      height: 6px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #141413;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAF9F6;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #DEDBC8;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C8C4AB;
+    }
+
+    /* Modal transition */
+    #yt-modal {
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    #yt-modal.hidden-modal {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    #yt-modal.visible-modal {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body class="bg-[#FAF9F6] text-ink font-sans antialiased overflow-x-hidden selection:bg-warm-400 selection:text-ink">
+
+  <!-- Noise Texture -->
+  <div class="noise-overlay"></div>
+
+  <!-- ========================================================================= -->
+  <!-- FLOATING NAVIGATION BAR (Auto-width, zero text truncation)                -->
+  <!-- ========================================================================= -->
+  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-auto max-w-[calc(100vw-2rem)] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/90 backdrop-blur-md px-4 sm:px-6 py-2 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-center gap-3 sm:gap-6 whitespace-nowrap">
+    <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+      <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-[10px] sm:text-xs font-semibold tracking-wider uppercase transition-colors shadow-2xs">
+        <span>←</span>
+        <span>Gallery Hub</span>
+      </a>
+      <div class="h-3.5 w-[1px] bg-warm-300 hidden sm:block"></div>
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+        <span class="font-bold text-xs sm:text-sm tracking-wide uppercase text-ink font-mono">Horizontal Scroll <span class="text-warm-700 font-normal">Showcase</span></span>
+      </div>
+    </div>
+
+    <!-- Quick Jump Links (Visible on desktop) -->
+    <div class="hidden lg:flex items-center gap-1 bg-warm-200/70 p-1 rounded-full border border-warm-300 text-xs font-mono shrink-0">
+      <a href="#experience" class="px-3 py-1 rounded-full hover:bg-white text-ink font-medium transition-all">01. Live Stage</a>
+      <a href="#architecture" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">02. Architecture</a>
+      <a href="#code" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">03. Code</a>
+      <a href="#specs" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">04. Specs</a>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <a href="#code" class="text-[10px] sm:text-xs font-bold tracking-wider uppercase border px-3.5 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-xs flex items-center gap-1">
+        <span>&lt;/&gt;</span>
+        <span>Get Code</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- INTRO HEADER                                                              -->
+  <!-- ========================================================================= -->
+  <header class="pt-28 pb-6 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/90 border border-warm-300 text-ink text-[10px] sm:text-xs font-mono font-bold uppercase tracking-widest mb-3 shadow-2xs">
+      <span class="text-red-600">▶</span>
+      <span>Interactive Motion Lab &bull; 4 Standalone Panels</span>
+    </div>
+
+    <h1 class="text-ink text-3xl sm:text-5xl md:text-6xl font-normal leading-[1.08] tracking-tight font-serif">
+      GSAP ScrollTrigger <span class="italic text-ink">Horizontal Showcase</span>
+    </h1>
+
+    <p class="mt-3.5 text-xs sm:text-sm md:text-base text-ink-muted max-w-2xl mx-auto leading-relaxed">
+      A scroll-pinned horizontal gliding showcase across standalone full-width panels. Each panel features a distinct background theme with clear visual transitions, zero-reflow GPU progress tracking, and tactile scrub inertia.
+    </p>
+
+    <!-- Interactive Stage Controls Bar -->
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-mono">
+      <div class="flex items-center gap-1.5 sm:gap-2 bg-white px-3 py-1.5 rounded-full border border-warm-300 shadow-2xs">
+        <span class="text-ink-muted text-[11px]">Jump:</span>
+        <button onclick="jumpToPanel(1)" id="ctrl-p1" class="ctrl-btn px-2.5 py-1 rounded-full bg-ink text-white font-bold transition-all text-[10px]">P01</button>
+        <button onclick="jumpToPanel(2)" id="ctrl-p2" class="ctrl-btn px-2.5 py-1 rounded-full bg-warm-100 hover:bg-warm-200 text-ink font-bold transition-all text-[10px]">P02</button>
+        <button onclick="jumpToPanel(3)" id="ctrl-p3" class="ctrl-btn px-2.5 py-1 rounded-full bg-warm-100 hover:bg-warm-200 text-ink font-bold transition-all text-[10px]">P03</button>
+        <button onclick="jumpToPanel(4)" id="ctrl-p4" class="ctrl-btn px-2.5 py-1 rounded-full bg-warm-100 hover:bg-warm-200 text-ink font-bold transition-all text-[10px]">P04</button>
+      </div>
+
+      <button onclick="toggleScrollSimAutoplay()" id="sim-autoplay-btn" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-warm-100 border border-warm-300 text-ink font-bold transition-colors shadow-2xs text-[11px]">
+        <span id="sim-play-icon">▶</span>
+        <span id="sim-play-text">Auto-Glides</span>
+      </button>
+
+      <button onclick="toggleLayoutMode()" id="layout-toggle-btn" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-warm-100 border border-warm-300 text-ink font-semibold transition-colors shadow-2xs text-[11px]">
+        <span>📱</span>
+        <span id="layout-mode-text">Test Mobile Stack (&lt;768px)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- TIER 1: LIVE PINNED HORIZONTAL EXPERIENCE (4 STANDALONE PANELS)            -->
+  <!-- ========================================================================= -->
+  <div class="relative w-full max-w-[1500px] mx-auto px-2 sm:px-4 lg:px-6 my-4">
+    
+    <!-- Outer Card Frame for the Live Showcase -->
+    <div class="rounded-3xl border border-warm-300/80 bg-white/60 shadow-[0_12px_40px_rgba(40,30,10,0.06)] overflow-hidden">
+
+      <!-- ===================================================================== -->
+      <!-- SECTION CONTAINER: This is the GSAP pin trigger element               -->
+      <!-- No overflow-hidden on this element to prevent stacking context bug     -->
+      <!-- ===================================================================== -->
+      <section
+        id="experience"
+        aria-label="Horizontal panel showcase stage"
+        class="relative z-10 bg-background flex flex-col"
+        style="min-height: 520px; max-height: 560px;"
+      >
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- STATIC PERSISTENT TOP BAR: Stays fixed during horizontal scrolling  -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <div class="flex-shrink-0 flex items-center justify-between pt-3 pb-2 px-6 sm:px-10 w-full z-10 border-b border-warm-200/80 bg-white/80 backdrop-blur-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+            <span class="font-sans text-xs font-bold uppercase tracking-widest text-ink">
+              Multi-Panel Showcase Hub
+            </span>
+            <span class="hidden sm:inline-block px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-mono font-bold">
+              60 FPS Scrub
+            </span>
+          </div>
+
+          <!-- Single persistent progress indicator (4 Panels) -->
+          <div class="flex items-center gap-3">
+            <span id="panel-label" class="font-mono text-xs font-bold tabular-nums text-ink bg-warm-200 px-2 py-0.5 rounded border border-warm-300">
+              01
+            </span>
+            <div class="w-24 sm:w-36 h-1.5 bg-warm-300/80 rounded-full relative overflow-hidden">
+              <div
+                id="progress-bar-fill"
+                class="absolute left-0 top-0 h-full w-full bg-ink origin-left rounded-full"
+                style="transform: scaleX(0.25);"
+              ></div>
+            </div>
+            <span class="font-mono text-xs font-medium tabular-nums text-ink-muted">
+              04
+            </span>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- SCROLLING TRACK CONTAINER: clips track x-overflow cleanly            -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <div id="track-wrapper" class="flex-1 min-h-0 w-full overflow-hidden relative">
+          <div
+            id="horizontal-track"
+            class="flex h-full w-[400%]"
+            style="will-change: transform; backface-visibility: hidden;"
+          >
+            <!-- PANEL 1: Viewport Pinning (Light Sky Blue) -->
+            <div class="w-1/4 flex-shrink-0 flex flex-col items-center justify-center h-full bg-[#E0F2FE] px-6 text-center select-none transition-colors border-r border-sky-200/80" aria-label="Panel 1: Viewport Pinning">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-200/80 border border-sky-300/80 text-sky-900 text-xs font-mono font-bold tracking-widest uppercase mb-4 shadow-2xs">
+                <span>✦</span>
+                <span>01 &bull; Viewport Pinning</span>
+              </div>
+              <h2 class="text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tight text-sky-950 mb-3">PANEL 01</h2>
+              <p class="font-serif text-lg sm:text-2xl text-sky-900 font-medium mb-2">Spatial Viewport Pinning</p>
+              <p class="text-xs sm:text-sm text-sky-700/90 font-sans max-w-md mx-auto leading-relaxed">ScrollTrigger locks the stage in place while scroll scrub translates the continuous horizontal track with hardware acceleration.</p>
+            </div>
+
+            <!-- PANEL 2: Inertial Momentum (Light Warm Amber Cream) -->
+            <div class="w-1/4 flex-shrink-0 flex flex-col items-center justify-center h-full bg-[#FEF3C7] px-6 text-center select-none transition-colors border-r border-amber-200/80" aria-label="Panel 2: Inertial Momentum">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-200/80 border border-amber-300/80 text-amber-900 text-xs font-mono font-bold tracking-widest uppercase mb-4 shadow-2xs">
+                <span>✦</span>
+                <span>02 &bull; Inertial Scrub</span>
+              </div>
+              <h2 class="text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tight text-amber-950 mb-3">PANEL 02</h2>
+              <p class="font-serif text-lg sm:text-2xl text-amber-900 font-medium mb-2">Tactile Momentum &amp; Damping</p>
+              <p class="text-xs sm:text-sm text-amber-700/90 font-sans max-w-md mx-auto leading-relaxed">Weighted scrub smoothing absorbs discrete mouse wheel notches into smooth, cinematic motion at 60 FPS.</p>
+            </div>
+
+            <!-- PANEL 3: Transform Metrics (Light Mint Sage Green) -->
+            <div class="w-1/4 flex-shrink-0 flex flex-col items-center justify-center h-full bg-[#D1FAE5] px-6 text-center select-none transition-colors border-r border-emerald-200/80" aria-label="Panel 3: Transform Metrics">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-200/80 border border-emerald-300/80 text-emerald-900 text-xs font-mono font-bold tracking-widest uppercase mb-4 shadow-2xs">
+                <span>✦</span>
+                <span>03 &bull; GPU Progress</span>
+              </div>
+              <h2 class="text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tight text-emerald-950 mb-3">PANEL 03</h2>
+              <p class="font-serif text-lg sm:text-2xl text-emerald-900 font-medium mb-2">Zero-Reflow scaleX Metrics</p>
+              <p class="text-xs sm:text-sm text-emerald-700/90 font-sans max-w-md mx-auto leading-relaxed">Hardware-composited scaleX transform drives progress bar updates without triggering layout recalculations or paint cycles.</p>
+            </div>
+
+            <!-- PANEL 4: Viewport Geometry (Light Lavender Violet) -->
+            <div class="w-1/4 flex-shrink-0 flex flex-col items-center justify-center h-full bg-[#EDE9FE] px-6 text-center select-none transition-colors" aria-label="Panel 4: Viewport Geometry">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-200/80 border border-violet-300/80 text-violet-900 text-xs font-mono font-bold tracking-widest uppercase mb-4 shadow-2xs">
+                <span>✦</span>
+                <span>04 &bull; Modular Flow</span>
+              </div>
+              <h2 class="text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tight text-violet-950 mb-3">PANEL 04</h2>
+              <p class="font-serif text-lg sm:text-2xl text-violet-900 font-medium mb-2">Adaptive Viewport Geometry</p>
+              <p class="text-xs sm:text-sm text-violet-700/90 font-sans max-w-md mx-auto leading-relaxed">Clean 100vw modular panels adapt responsively across viewports with mathematical precision.</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+
+
+  <!-- ========================================================================= -->
+  <!-- TIER 2: ARCHITECTURE & MATHEMATICAL GEOMETRY DECONSTRUCTOR                -->
+  <!-- ========================================================================= -->
+  <section id="architecture" class="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-14">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-200 border border-warm-300 text-ink text-[10px] sm:text-xs font-mono font-bold uppercase tracking-widest mb-3">
+        <span>📐 Mathematical Layout Engine</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-normal font-serif text-ink tracking-tight">
+        Standalone <span class="italic">Panel Architecture</span> &amp; Safe Pinning
+      </h2>
+      <p class="mt-3 text-xs sm:text-sm text-ink-muted leading-relaxed">
+        Each section acts as a full standalone panel with its own dedicated layout, translated across a continuous horizontal track with hardware acceleration.
+      </p>
+    </div>
+
+    <!-- Mathematical Formula Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <!-- Formula 1 -->
+      <div class="bg-white rounded-2xl border border-warm-300 p-6 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-[10px] font-mono font-bold text-warm-700 uppercase tracking-wider block mb-1">01. Panel Width</span>
+          <h3 class="font-serif text-lg font-bold text-ink mb-2">100% Viewport Span</h3>
+          <p class="text-xs text-ink-muted leading-relaxed mb-4">
+            Each section spans exactly 100vw, ensuring complete visual focus without horizontal cramped multi-column splits:
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-warm-100 border border-warm-200 font-mono text-xs text-ink">
+          <code>width: 100vw (or 1/N of track)</code>
+        </div>
+      </div>
+
+      <!-- Formula 2 -->
+      <div class="bg-white rounded-2xl border border-warm-300 p-6 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-[10px] font-mono font-bold text-warm-700 uppercase tracking-wider block mb-1">02. Travel Distance</span>
+          <h3 class="font-serif text-lg font-bold text-ink mb-2">Scroll Distance</h3>
+          <p class="text-xs text-ink-muted leading-relaxed mb-4">
+            Total horizontal travel distance equals total track width minus one viewport width:
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-warm-100 border border-warm-200 font-mono text-xs text-ink">
+          <code>(N - 1) * 100vw = 300vw</code>
+        </div>
+      </div>
+
+      <!-- Formula 3 -->
+      <div class="bg-white rounded-2xl border border-warm-300 p-6 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-[10px] font-mono font-bold text-warm-700 uppercase tracking-wider block mb-1">03. Progress Metric</span>
+          <h3 class="font-serif text-lg font-bold text-ink mb-2">GPU scaleX</h3>
+          <p class="text-xs text-ink-muted leading-relaxed mb-4">
+            Progress bar transforms smoothly from 1/N to 1.0 via GPU composite without any DOM reflow:
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-warm-100 border border-warm-200 font-mono text-xs text-ink">
+          <code>scaleX: 0.25 → 1.0</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Critical Architectural Rule Alert -->
+    <div class="bg-warm-100 border-l-4 border-ink rounded-2xl p-6 sm:p-8 shadow-sm">
+      <div class="flex items-start gap-4">
+        <span class="text-2xl">⚠️</span>
+        <div class="space-y-2">
+          <h4 class="font-serif text-lg font-bold text-ink">Critical Pinning Rule: No overflow-hidden on Pin Trigger</h4>
+          <p class="text-xs sm:text-sm text-ink-muted leading-relaxed">
+            Applying <code class="bg-warm-200 border border-warm-300 px-1.5 py-0.5 rounded text-ink font-mono text-xs">overflow: hidden</code> directly to the ScrollTrigger pin trigger container creates a new CSS stacking context that corrupts <code class="font-mono text-xs text-ink">getBoundingClientRect()</code> coordinate calculations for all downstream sections on the page. In this architecture, horizontal clipping is safely isolated to the child track wrapper, allowing GSAP pin measurements to remain mathematically pure.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TIER 3: PRODUCTION CODE & INTEGRATION GUIDE                               -->
+  <!-- ========================================================================= -->
+  <section id="code" class="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-200 border border-warm-300 text-ink text-[10px] sm:text-xs font-mono font-bold uppercase tracking-widest mb-3">
+        <span>&lt;/&gt; Drop-in Implementation</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-normal font-serif text-ink tracking-tight">
+        Production <span class="italic">React &amp; Vanilla</span> Code
+      </h2>
+      <p class="mt-3 text-xs sm:text-sm text-ink-muted leading-relaxed">
+        Select your framework below to copy the fully typed, battle-tested implementation with clean ScrollTrigger lifecycle teardown.
+      </p>
+    </div>
+
+    <!-- Code Card Container -->
+    <div class="rounded-3xl border border-warm-300 bg-[#141413] text-warm-100 shadow-xl overflow-hidden">
+      <!-- Tabs Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-warm-800 bg-warm-900/60">
+        <div class="flex items-center gap-2 font-mono text-xs">
+          <button onclick="switchCodeTab('react')" id="tab-react" class="tab-btn active px-3.5 py-1.5 rounded-full text-warm-300 transition-all">
+            React + @gsap/react
+          </button>
+          <button onclick="switchCodeTab('vanilla')" id="tab-vanilla" class="tab-btn px-3.5 py-1.5 rounded-full text-warm-400 hover:text-white transition-all">
+            Vanilla JS + GSAP
+          </button>
+        </div>
+        <button onclick="copyActiveCode()" id="copy-btn" class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-800 hover:bg-warm-700 text-warm-200 text-xs font-mono transition-colors">
+          <span>📋</span>
+          <span id="copy-text">Copy Code</span>
+        </button>
+      </div>
+
+      <!-- Code Pre Elements -->
+      <div class="p-6 overflow-x-auto font-mono text-xs sm:text-[13px] leading-relaxed max-h-[550px]">
+        <!-- React Code -->
+        <pre id="code-react" class="text-warm-200"><code><span class="text-amber-400">import</span> React, { useRef } <span class="text-amber-400">from</span> <span class="text-emerald-300">"react"</span>;
+<span class="text-amber-400">import</span> gsap <span class="text-amber-400">from</span> <span class="text-emerald-300">"gsap"</span>;
+<span class="text-amber-400">import</span> { ScrollTrigger } <span class="text-amber-400">from</span> <span class="text-emerald-300">"gsap/ScrollTrigger"</span>;
+<span class="text-amber-400">import</span> { useGSAP } <span class="text-amber-400">from</span> <span class="text-emerald-300">"@gsap/react"</span>;
+
+<span class="text-amber-400">if</span> (<span class="text-blue-300">typeof</span> window !== <span class="text-emerald-300">"undefined"</span>) {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+<span class="text-amber-400">export const</span> <span class="text-yellow-300">HorizontalShowcase</span> = () => {
+  <span class="text-amber-400">const</span> containerRef = useRef&lt;HTMLElement&gt;(<span class="text-red-400">null</span>);
+  <span class="text-amber-400">const</span> trackRef = useRef&lt;HTMLDivElement&gt;(<span class="text-red-400">null</span>);
+  <span class="text-amber-400">const</span> progressBarRef = useRef&lt;HTMLDivElement&gt;(<span class="text-red-400">null</span>);
+  <span class="text-amber-400">const</span> labelRef = useRef&lt;HTMLSpanElement&gt;(<span class="text-red-400">null</span>);
+
+  useGSAP(() =&gt; {
+    <span class="text-amber-400">if</span> (window.innerWidth &lt; 768) <span class="text-amber-400">return</span>;
+    <span class="text-amber-400">const</span> container = containerRef.current;
+    <span class="text-amber-400">const</span> track = trackRef.current;
+    <span class="text-amber-400">if</span> (!container || !track) <span class="text-amber-400">return</span>;
+
+    <span class="text-amber-400">const</span> getDist = () =&gt; track.scrollWidth - window.innerWidth;
+
+    <span class="text-amber-400">const</span> tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: container,
+        start: <span class="text-emerald-300">"top top"</span>,
+        end: () =&gt; <span class="text-emerald-300">`+=${getDist()}`</span>,
+        scrub: <span class="text-purple-400">1</span>,
+        pin: <span class="text-purple-400">true</span>,
+        pinSpacing: <span class="text-purple-400">true</span>,
+        anticipatePin: <span class="text-purple-400">1</span>,
+        invalidateOnRefresh: <span class="text-purple-400">true</span>,
+      },
+    });
+
+    tl.fromTo(track, { x: 0 }, { x: () =&gt; -getDist(), ease: <span class="text-emerald-300">"none"</span>, force3D: <span class="text-purple-400">true</span> }, 0);
+
+    <span class="text-amber-400">if</span> (progressBarRef.current) {
+      tl.fromTo(progressBarRef.current, 
+        { scaleX: 0.25, transformOrigin: <span class="text-emerald-300">"left center"</span> }, 
+        { scaleX: 1, ease: <span class="text-emerald-300">"none"</span>, force3D: <span class="text-purple-400">true</span> }, 0);
+    }
+  }, { scope: containerRef });
+
+  <span class="text-amber-400">return</span> (
+    &lt;<span class="text-blue-400">section</span> ref={containerRef} className=<span class="text-emerald-300">"relative bg-background flex flex-col"</span>&gt;
+      &lt;<span class="text-blue-400">div</span> className=<span class="text-emerald-300">"flex-1 overflow-hidden"</span>&gt;
+        &lt;<span class="text-blue-400">div</span> ref={trackRef} className=<span class="text-emerald-300">"flex h-full w-[400%]"</span>&gt;
+          {<span class="text-ink-subtle">/* Standalone Panels 1 to 4 */</span>}
+        &lt;/<span class="text-blue-400">div</span>&gt;
+      &lt;/<span class="text-blue-400">div</span>&gt;
+    &lt;/<span class="text-blue-400">section</span>&gt;
+  );
+};</code></pre>
+
+        <!-- Vanilla JS Code -->
+        <pre id="code-vanilla" class="text-warm-200 hidden"><code><span class="text-ink-subtle">// Standalone Vanilla JS + GSAP Implementation</span>
+gsap.registerPlugin(ScrollTrigger);
+
+<span class="text-amber-400">const</span> container = document.querySelector(<span class="text-emerald-300">"#showcase"</span>);
+<span class="text-amber-400">const</span> track = document.querySelector(<span class="text-emerald-300">"#horizontal-track"</span>);
+<span class="text-amber-400">const</span> bar = document.querySelector(<span class="text-emerald-300">"#progress-bar"</span>);
+<span class="text-amber-400">const</span> label = document.querySelector(<span class="text-emerald-300">"#panel-label"</span>);
+
+<span class="text-amber-400">function</span> <span class="text-yellow-300">initHorizontalScroll</span>() {
+  <span class="text-amber-400">if</span> (window.innerWidth &lt; 768) <span class="text-amber-400">return</span>;
+
+  <span class="text-amber-400">const</span> getDist = () =&gt; track.scrollWidth - window.innerWidth;
+
+  <span class="text-amber-400">const</span> tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: container,
+      start: <span class="text-emerald-300">"top top"</span>,
+      end: () =&gt; <span class="text-emerald-300">`+=${getDist()}`</span>,
+      scrub: 1,
+      pin: <span class="text-purple-400">true</span>,
+      pinSpacing: <span class="text-purple-400">true</span>,
+      anticipatePin: 1,
+    }
+  });
+
+  tl.to(track, { x: () =&gt; -getDist(), ease: <span class="text-emerald-300">"none"</span>, force3D: <span class="text-purple-400">true</span> }, 0);
+  tl.fromTo(bar, { scaleX: 0.25 }, { scaleX: 1, ease: <span class="text-emerald-300">"none"</span> }, 0);
+
+  tl.eventCallback(<span class="text-emerald-300">"onUpdate"</span>, () =&gt; {
+    <span class="text-amber-400">const</span> current = Math.min(4, Math.floor(tl.progress() * 3.999) + 1);
+    label.textContent = String(current).padStart(2, <span class="text-emerald-300">"0"</span>);
+  });
+}
+
+window.addEventListener(<span class="text-emerald-300">"DOMContentLoaded"</span>, initHorizontalScroll);</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TIER 4: ENGINEERING SPECS & BENCHMARKS                                    -->
+  <!-- ========================================================================= -->
+  <section id="specs" class="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-200 border border-warm-300 text-ink text-[10px] sm:text-xs font-mono font-bold uppercase tracking-widest mb-3">
+        <span>📊 Technical Matrix</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-normal font-serif text-ink tracking-tight">
+        Engineering Specifications &amp; Parameters
+      </h2>
+    </div>
+
+    <div class="overflow-x-auto rounded-2xl border border-warm-300 bg-white shadow-sm">
+      <table class="w-full text-left text-xs sm:text-sm font-sans">
+        <thead class="bg-warm-100 border-b border-warm-300 font-mono text-xs uppercase tracking-wider text-ink">
+          <tr>
+            <th class="py-3.5 px-4 sm:px-6">Parameter</th>
+            <th class="py-3.5 px-4 sm:px-6">Production Value</th>
+            <th class="py-3.5 px-4 sm:px-6">Engineering Rationale</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-warm-200">
+          <tr>
+            <td class="py-3 px-4 sm:px-6 font-mono font-bold text-ink">Scroll Scrub</td>
+            <td class="py-3 px-4 sm:px-6 font-mono text-emerald-700">1.0s inertia</td>
+            <td class="py-3 px-4 sm:px-6 text-ink-muted">Absorbs mouse wheel discrete jumps and ensures tactile momentum.</td>
+          </tr>
+          <tr>
+            <td class="py-3 px-4 sm:px-6 font-mono font-bold text-ink">Progress Fill</td>
+            <td class="py-3 px-4 sm:px-6 font-mono text-emerald-700">scaleX (0.25 → 1.0)</td>
+            <td class="py-3 px-4 sm:px-6 text-ink-muted">GPU transform composite with zero browser reflow or layout recalculation.</td>
+          </tr>
+          <tr>
+            <td class="py-3 px-4 sm:px-6 font-mono font-bold text-ink">Pinning Mode</td>
+            <td class="py-3 px-4 sm:px-6 font-mono text-emerald-700">pin: true, anticipatePin: 1</td>
+            <td class="py-3 px-4 sm:px-6 text-ink-muted">GSAP inserts spacer and anticipates pin to avoid visible stutter.</td>
+          </tr>
+          <tr>
+            <td class="py-3 px-4 sm:px-6 font-mono font-bold text-ink">Layout Shift (CLS)</td>
+            <td class="py-3 px-4 sm:px-6 font-mono text-emerald-700">0.00</td>
+            <td class="py-3 px-4 sm:px-6 text-ink-muted">Fixed aspect-ratio thumbnails (16:9) prevent image layout shift.</td>
+          </tr>
+          <tr>
+            <td class="py-3 px-4 sm:px-6 font-mono font-bold text-ink">Responsive Fallback</td>
+            <td class="py-3 px-4 sm:px-6 font-mono text-emerald-700">&lt; 768px (Tailwind md)</td>
+            <td class="py-3 px-4 sm:px-6 text-ink-muted">Disables horizontal pinning on mobile screens for natural vertical touch scroll.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER                                                                    -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-warm-300 bg-[#FAF9F6] py-10 px-4 text-center text-xs text-ink-muted font-mono">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-ink font-sans">Animations Lab</span>
+        <span>&bull; Horizontal Multi-Panel Showcase</span>
+      </div>
+      <div class="flex items-center gap-4 text-ink-muted">
+        <a href="index.html" class="hover:text-ink transition-colors">← Back to Gallery Hub</a>
+        <span>&bull;</span>
+        <a href="https://github.com/UdayPratap902/Animations" target="_blank" class="hover:text-ink transition-colors">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- SCRIPTS: GSAP TIMELINE & MODAL CONTROLLER                                -->
+  <!-- ========================================================================= -->
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    let mainTL = null;
+    let isAutoGliding = false;
+    let autoGlideTween = null;
+
+    function initShowcaseTimeline() {
+      const container = document.getElementById("experience");
+      const track = document.getElementById("horizontal-track");
+      const progressBar = document.getElementById("progress-bar-fill");
+      const panelLabel = document.getElementById("panel-label");
+
+      if (!container || !track) return;
+
+      const getScrollDist = () => Math.max(0, track.scrollWidth - track.parentElement.clientWidth);
+
+      // Reset
+      gsap.set(track, { x: 0 });
+
+      mainTL = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: "top 80px",
+          end: () => `+=${getScrollDist()}`,
+          scrub: 1,
+          pin: true,
+          pinSpacing: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          refreshPriority: 10,
+        }
+      });
+
+      // Track glide
+      mainTL.fromTo(
+        track,
+        { x: 0 },
+        {
+          x: () => -getScrollDist(),
+          ease: "none",
+          force3D: true,
+        },
+        0
+      );
+
+      // Progress bar fill (scaleX 0.25 -> 1.0 across 4 panels)
+      if (progressBar) {
+        mainTL.fromTo(
+          progressBar,
+          { scaleX: 0.25, transformOrigin: "left center" },
+          { scaleX: 1, ease: "none", force3D: true },
+          0
+        );
+      }
+
+      // Panel label updates (4 panels)
+      if (panelLabel) {
+        let lastPanel = 1;
+        mainTL.eventCallback("onUpdate", () => {
+          const p = mainTL.progress();
+          const current = Math.min(4, Math.floor(p * 3.999) + 1);
+          if (current !== lastPanel) {
+            lastPanel = current;
+            panelLabel.textContent = String(current).padStart(2, "0");
+            updateControlBtns(current);
+          }
+        });
+      }
+    }
+
+    function updateControlBtns(activeNum) {
+      [1, 2, 3, 4].forEach(num => {
+        const btn = document.getElementById(`ctrl-p${num}`);
+        if (!btn) return;
+        if (num === activeNum) {
+          btn.classList.add("bg-ink", "text-white");
+          btn.classList.remove("bg-warm-100", "text-ink");
+        } else {
+          btn.classList.remove("bg-ink", "text-white");
+          btn.classList.add("bg-warm-100", "text-ink");
+        }
+      });
+    }
+
+    function jumpToPanel(panelNum) {
+      stopAutoGlide();
+      if (!mainTL) return;
+      const targetP = (panelNum - 1) / 3; // 0.0, 0.333, 0.666, 1.0
+      gsap.to(mainTL, { progress: targetP, duration: 0.9, ease: "power2.out" });
+    }
+
+    function toggleScrollSimAutoplay() {
+      if (isAutoGliding) stopAutoGlide();
+      else startAutoGlide();
+    }
+
+    function startAutoGlide() {
+      if (!mainTL) return;
+      isAutoGliding = true;
+      document.getElementById("sim-play-icon").textContent = "⏸";
+      document.getElementById("sim-play-text").textContent = "Pause Glides";
+
+      autoGlideTween = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 1.5 });
+      autoGlideTween.to(mainTL, { progress: 1, duration: 5.5, ease: "power1.inOut" });
+    }
+
+    function stopAutoGlide() {
+      if (autoGlideTween) { autoGlideTween.kill(); autoGlideTween = null; }
+      isAutoGliding = false;
+      document.getElementById("sim-play-icon").textContent = "▶";
+      document.getElementById("sim-play-text").textContent = "Auto-Glides";
+    }
+
+
+
+    // Code Tab Switcher
+    function switchCodeTab(tab) {
+      const tabs = ["react", "vanilla"];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const pre = document.getElementById(`code-${t}`);
+        if (t === tab) {
+          btn.classList.add("active");
+          pre.classList.remove("hidden");
+        } else {
+          btn.classList.remove("active");
+          pre.classList.add("hidden");
+        }
+      });
+    }
+
+    function copyActiveCode() {
+      const activePre = document.querySelector("pre:not(.hidden) code");
+      if (!activePre) return;
+      navigator.clipboard.writeText(activePre.innerText).then(() => {
+        const copyText = document.getElementById("copy-text");
+        copyText.textContent = "Copied!";
+        setTimeout(() => { copyText.textContent = "Copy Code"; }, 2000);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initShowcaseTimeline();
+    });
+  </script>
+</body>
+</html>
