@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Animations Lab — Open Source Web Animations Gallery</title>
-  <meta name="description" content="A curated open-source gallery of high-performance web animations, physics effects, and interactive UI motion components with live interactive previews." />
+  <title>Animations Lab — Curated Web Motion &amp; Components</title>
+  <meta name="description" content="A curated open-source gallery of high-performance web animations, 3D perspective decks, specular glare carousels, and horizontal ScrollTrigger multi-panels." />
   
   <!-- Google Fonts: Instrument Serif + Almarai + Plus Jakarta Sans + Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,7 +46,7 @@
     }
   </script>
 
-  <!-- GSAP CDN for Hardware-Accelerated 60+ FPS 3D Motion -->
+  <!-- GSAP CDN for Hardware-Accelerated 60+ FPS Motion -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
   <style>
@@ -94,64 +94,29 @@
       transform: translateY(-4px);
     }
 
-    /* Mini 3D card deck simulator */
-    .mini-perspective-stage {
-      perspective: 900px;
+    /* 3D Perspective Containers */
+    .perspective-stage {
+      perspective: 1000px;
       perspective-origin: 50% 50%;
     }
 
-    .mini-review-card {
+    .preserve-3d {
       transform-style: preserve-3d;
       backface-visibility: hidden;
       will-change: transform, opacity;
-      transform-origin: 50% 0%;
     }
 
-    .mini-card-shadow {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 16px 32px -8px rgba(40, 30, 10, 0.12);
-    }
-
-    /* Mini Carousel 3D Cards */
-    .mini-carousel-card {
-      transform-style: preserve-3d;
-      backface-visibility: hidden;
-      will-change: transform, opacity, filter;
-    }
-
-    /* Dynamic Glare Overlay */
+    /* Specular Glare Overlay */
     .glare-shine {
       position: absolute;
       inset: 0;
       pointer-events: none;
       border-radius: 1rem;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      background: radial-gradient(circle at 50% 50%, rgba(222, 219, 200, 0.45) 0%, rgba(255, 255, 255, 0) 65%);
+      opacity: 0.85;
       mix-blend-mode: overlay;
+      transition: opacity 0.3s ease;
       z-index: 25;
-    }
-
-    /* Custom range slider */
-    input[type=range] {
-      -webkit-appearance: none;
-      background: #EDE8DC;
-      border-radius: 9999px;
-      height: 6px;
-      outline: none;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #141413;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      transition: transform 0.15s ease;
-    }
-    input[type=range]::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
+      background: radial-gradient(circle at 50% 50%, rgba(222, 219, 200, 0.55) 0%, rgba(255, 255, 255, 0) 65%);
     }
 
     /* Custom scrollbar */
@@ -170,7 +135,7 @@
     }
   </style>
 </head>
-<body class="bg-[#FAF9F6] text-ink font-sans antialiased overflow-x-hidden selection:bg-warm-400 selection:text-ink min-h-screen flex flex-col justify-between relative">
+<body class="bg-[#FAF9F6] text-ink font-sans antialiased selection:bg-warm-400 selection:text-ink min-h-screen flex flex-col justify-between relative">
 
   <!-- Noise Texture -->
   <div class="noise-overlay"></div>
@@ -181,839 +146,607 @@
   <div class="warm-glow bottom-10 left-10 w-[600px] h-[320px] bg-warm-200/35 -z-10"></div>
 
   <!-- ========================================================================= -->
-  <!-- Floating Pill Navbar (General Entrance Navigation)                         -->
+  <!-- Floating Pill Navbar                                                      -->
   <!-- ========================================================================= -->
-  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-auto max-w-[calc(100vw-2rem)] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/90 backdrop-blur-md px-4 sm:px-6 py-2 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-center gap-3 sm:gap-6 whitespace-nowrap">
-    <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 w-auto max-w-[calc(100vw-2rem)] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/90 backdrop-blur-md px-4 sm:px-6 py-2 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-between gap-3 sm:gap-6 whitespace-nowrap">
+    <a href="#" class="flex items-center gap-2 sm:gap-2.5 shrink-0 hover:opacity-90 transition-opacity">
       <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-warm-200 border border-warm-400/50 text-ink flex items-center justify-center font-bold text-xs shadow-2xs">
         ✨
       </div>
-      <span class="font-bold text-xs sm:text-sm tracking-wider uppercase text-ink">Animations<span class="text-warm-700 font-normal">Lab</span></span>
-    </div>
+      <span class="font-bold text-xs sm:text-sm tracking-wider uppercase text-ink">
+        Animations<span class="text-warm-700 font-normal">Lab</span>
+      </span>
+    </a>
 
-    <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+    <div class="flex items-center gap-1 sm:gap-2 shrink-0">
       <a href="#gallery" class="text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-2.5 sm:px-3 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
         Gallery
       </a>
-      <a href="https://github.com/UdayPratap902/Animations" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink-muted hover:text-ink transition-all items-center gap-1.5 shadow-2xs">
+      <a href="gsap-3d-card-stack.html" class="hidden md:inline-flex text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-2.5 sm:px-3 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
+        3D Deck
+      </a>
+      <a href="interactive-3d-review-stack.html" class="hidden md:inline-flex text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-2.5 sm:px-3 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
+        3D Glare
+      </a>
+      <a href="gsap-horizontal-video-showcase.html" class="hidden md:inline-flex text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-2.5 sm:px-3 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
+        Horizontal
+      </a>
+      <a href="https://github.com/UdayPratap902/Animations" target="_blank" rel="noopener noreferrer" class="text-[10px] sm:text-xs font-bold tracking-widest uppercase border px-3 sm:px-4 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-2xs flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         <span>GitHub</span>
-      </a>
-      <a href="#gallery" class="text-[10px] sm:text-xs font-bold tracking-widest uppercase border px-3 sm:px-4 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] flex items-center gap-1.5">
-        <span>Explore</span>
-        <span>↓</span>
       </a>
     </div>
   </nav>
 
   <!-- ========================================================================= -->
-  <!-- General Entrance Hero Section                                             -->
+  <!-- Hero Section                                                              -->
   <!-- ========================================================================= -->
-  <header class="pt-28 pb-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
-    
-    <!-- General Status Badge -->
-    <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 shadow-2xs">
+  <header class="pt-28 pb-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+    <!-- Status Badge -->
+    <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full mb-5 shadow-2xs">
       <span class="relative flex h-2 w-2">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-warm-600 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-2 w-2 bg-warm-700"></span>
       </span>
       <span class="text-[10px] sm:text-xs tracking-[0.15em] uppercase text-ink font-bold font-mono">
-        Curated Web Motion &bull; 3 Production Components
+        Curated Web Motion &bull; 3 Production Animations
       </span>
     </div>
 
-    <!-- Editorial Hero Title with Instrument Serif Italic -->
-    <h1 class="text-ink text-4xl sm:text-6xl md:text-7xl font-normal leading-[1.08] tracking-tight max-w-4xl mx-auto font-serif">
+    <!-- Editorial Hero Title -->
+    <h1 class="text-ink text-3xl sm:text-5xl md:text-6xl font-normal leading-[1.12] tracking-tight max-w-4xl mx-auto font-serif">
       Hardware-Accelerated <span class="italic text-ink">Animations</span> &amp; Motion Lab
     </h1>
 
-    <p class="mt-4 text-xs sm:text-sm md:text-base text-ink-muted max-w-2xl mx-auto leading-relaxed">
-      An open-source library of high-performance web animations and drop-in UI motion components. Browse the collection below to test live interactive previews and launch full-page demos.
+    <p class="mt-3.5 text-xs sm:text-sm text-ink-muted max-w-2xl mx-auto leading-relaxed">
+      An open-source collection of high-performance web animations, spatial perspective decks, and interactive UI motion components. Each card displays its live animation auto-moving with links to full demos.
     </p>
   </header>
 
   <!-- ========================================================================= -->
-  <!-- Showcase Grid (Each card is an individual animation)                       -->
+  <!-- Showcase Gallery (Two Cards Per Row, One Card Per Animation)               -->
   <!-- ========================================================================= -->
-  <main id="gallery" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 w-full space-y-12">
+  <main id="gallery" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 w-full">
     
-    <!-- ========================================================================= -->
-    <!-- CARD 01: GSAP 3D ScrollTrigger Card Deck                                   -->
-    <!-- ========================================================================= -->
-    <article class="warm-card rounded-3xl p-6 sm:p-9 relative overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
       
-      <!-- Top Meta Info -->
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-            Full Demo &amp; Code Ready
-          </span>
-          <span class="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-mono text-ink-muted border border-warm-300 bg-warm-100">
-            3D Perspective &bull; ScrollTrigger
-          </span>
-        </div>
-        <span class="text-xs font-mono text-ink-subtle uppercase tracking-widest font-bold">01 / Collection</span>
-      </div>
-
-      <!-- Title & Description -->
-      <div class="mb-6">
-        <h2 class="text-2xl sm:text-3xl md:text-4xl font-serif text-ink font-normal tracking-tight">
-          GSAP 3D ScrollTrigger <span class="italic">Card Deck Stack</span>
-        </h2>
-        <p class="mt-2.5 text-xs sm:text-sm text-ink-muted leading-relaxed max-w-2xl">
-          Physics-driven 3D card deck that lands on top of previous layers with spatial perspective (<code class="font-mono text-xs bg-warm-200 text-ink border border-warm-300 px-1.5 py-0.5 rounded">perspective: 1200px</code>), realistic tilt angles, and smooth scroll scrubbing.
-        </p>
-      </div>
-
-      <!-- Interactive Mini-Window Preview Stage (GSAP 3D Timeline) -->
-      <div id="mini-preview-container" class="relative bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-2xl border border-warm-300 p-5 overflow-hidden flex flex-col justify-between select-none mb-6 shadow-inner">
+      <!-- ===================================================================== -->
+      <!-- CARD 1: GSAP 3D Scroll Perspective Card Deck                          -->
+      <!-- ===================================================================== -->
+      <article class="warm-card rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 relative overflow-hidden group">
         
-        <!-- Mini Window Header Bar -->
-        <div class="flex items-center justify-between text-xs font-mono text-ink-muted pb-3 border-b border-warm-300/80">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
-            <span class="ml-2 text-ink font-sans text-xs font-medium">True GSAP 3D Scrub Engine</span>
-          </div>
-          <div class="flex items-center gap-2 text-xs font-mono text-ink font-bold">
-            <span id="mini-deck-step-text" class="px-2 py-0.5 rounded-md bg-warm-200 border border-warm-300 text-ink">Card 1 Active (0%)</span>
-          </div>
-        </div>
-
-        <!-- Mini 3D Perspective Stage -->
-        <div class="mini-perspective-stage relative flex items-center justify-center my-6 h-[200px] sm:h-[220px] w-full overflow-hidden">
+        <!-- Live Animation Preview Stage (Auto-Moving 3D Deck, Zero Buttons) -->
+        <div class="relative h-[280px] sm:h-[310px] bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex items-center justify-center select-none shadow-inner group/stage">
           
-          <!-- Mini Card 1 -->
-          <div id="mini-card-0" class="mini-review-card absolute w-full max-w-[460px] rounded-2xl bg-white text-ink p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 select-none">
-            <div class="flex items-center justify-between text-[10px] font-bold mb-2">
-              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono uppercase tracking-wider text-[9px]">
-                <span>Verified Showcase</span>
+          <!-- Perspective Stage -->
+          <div class="perspective-stage relative w-full h-full flex items-center justify-center px-4">
+            
+            <!-- Deck Card 0: Alex Rivera -->
+            <div id="c1-deck-0" class="preserve-3d absolute w-[90%] max-w-[380px] h-[190px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-lg">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
+                  Demo Review &bull; 3D Perspective
+                </span>
+                <span class="text-ink-subtle font-mono font-bold">01 / 03</span>
               </div>
-              <span class="text-ink-subtle font-mono">01 / 03</span>
-            </div>
-            <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3">
-              "The 3D perspective layering and smooth scrub give an editorial feel that immediately wows visitors."
-            </p>
-            <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2">
-              <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded-full bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-[9px]">AR</div>
-                <span class="font-semibold text-ink">Alex Rivera</span>
+              <p class="text-xs sm:text-[13px] italic font-serif text-ink leading-snug my-1">
+                "The 3D perspective layering and smooth scrub give our landing page an editorial feel that immediately wows visitors. It performs at a steady 60 FPS even on mobile."
+              </p>
+              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px] border border-warm-300">AR</div>
+                  <div>
+                    <span class="font-bold text-ink block text-[11px] leading-tight">Alex Rivera</span>
+                    <span class="text-[9px] text-ink-muted">Lead Frontend Engineer</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="text-amber-500">★★★★★</span>
+                  <span class="text-emerald-700 font-bold text-[9px] hidden sm:inline">&bull; Verified</span>
+                </div>
               </div>
-              <span class="text-amber-500 text-xs">★★★★★</span>
             </div>
+
+            <!-- Deck Card 1: Sophia Chen -->
+            <div id="c1-deck-1" class="preserve-3d absolute w-[90%] max-w-[380px] h-[190px] rounded-2xl bg-[#FAF8F5] border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-lg">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
+                  Demo Review &bull; Scroll Pinning
+                </span>
+                <span class="text-ink-subtle font-mono font-bold">02 / 03</span>
+              </div>
+              <p class="text-xs sm:text-[13px] italic font-serif text-ink leading-snug my-1">
+                "Integrating this with Next.js and Tailwind was effortless. The scroll distance formula and step timeline give total control over timing and depth layering."
+              </p>
+              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px] border border-warm-300">SC</div>
+                  <div>
+                    <span class="font-bold text-ink block text-[11px] leading-tight">Sophia Chen</span>
+                    <span class="text-[9px] text-ink-muted">Design Systems Lead</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="text-amber-500">★★★★★</span>
+                  <span class="text-emerald-700 font-bold text-[9px] hidden sm:inline">&bull; Verified</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Deck Card 2: Marcus Vance -->
+            <div id="c1-deck-2" class="preserve-3d absolute w-[90%] max-w-[380px] h-[190px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-lg">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
+                  Demo Review &bull; Performance
+                </span>
+                <span class="text-ink-subtle font-mono font-bold">03 / 03</span>
+              </div>
+              <p class="text-xs sm:text-[13px] italic font-serif text-ink leading-snug my-1">
+                "Clean code, zero layout shift, and robust prefers-reduced-motion support. Perfect reference implementation for interactive component libraries."
+              </p>
+              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px] border border-warm-300">MV</div>
+                  <div>
+                    <span class="font-bold text-ink block text-[11px] leading-tight">Marcus Vance</span>
+                    <span class="text-[9px] text-ink-muted">VP of Product Engineering</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="text-amber-500">★★★★★</span>
+                  <span class="text-emerald-700 font-bold text-[9px] hidden sm:inline">&bull; Verified</span>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          <!-- Mini Card 2 -->
-          <div id="mini-card-1-el" class="mini-review-card absolute w-full max-w-[460px] rounded-2xl bg-[#FCFAF7] text-ink p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 select-none">
-            <div class="flex items-center justify-between text-[10px] font-bold mb-2">
-              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono uppercase tracking-wider text-[9px]">
-                <span>Verified Showcase</span>
-              </div>
-              <span class="text-ink-subtle font-mono">02 / 03</span>
-            </div>
-            <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3">
-              "Scroll distance formula and step timeline give total control over timing and depth layering."
-            </p>
-            <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2">
-              <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded-full bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-[9px]">SC</div>
-                <span class="font-semibold text-ink">Sophia Chen</span>
-              </div>
-              <span class="text-amber-500 text-xs">★★★★★</span>
-            </div>
-          </div>
-
-          <!-- Mini Card 3 -->
-          <div id="mini-card-2-el" class="mini-review-card absolute w-full max-w-[460px] rounded-2xl bg-white text-ink p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 select-none">
-            <div class="flex items-center justify-between text-[10px] font-bold mb-2">
-              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono uppercase tracking-wider text-[9px]">
-                <span>Verified Showcase</span>
-              </div>
-              <span class="text-ink-subtle font-mono">03 / 03</span>
-            </div>
-            <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3">
-              "Clean code, zero layout shift, and robust prefers-reduced-motion support out of the box."
-            </p>
-            <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2">
-              <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded-full bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-[9px]">MV</div>
-                <span class="font-semibold text-ink">Marcus Vance</span>
-              </div>
-              <span class="text-amber-500 text-xs">★★★★★</span>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Interactive Scrub Controls Bar -->
-        <div class="pt-3 border-t border-warm-300/80 flex flex-col gap-3">
-          <div class="flex items-center gap-3 w-full">
-            <span class="text-[10px] font-mono text-ink-muted shrink-0">Scrub:</span>
-            <input type="range" id="mini-scrub-range" min="0" max="1" step="0.001" value="0" class="w-full cursor-ew-resize" />
-            <button id="toggle-autoplay-btn" onclick="toggleAutoPlay()" class="shrink-0 px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-[10px] font-mono font-bold text-ink transition-colors flex items-center gap-1 shadow-2xs">
-              <span id="autoplay-icon">▶</span>
-              <span id="autoplay-label">Auto</span>
-            </button>
-          </div>
-
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-ink-muted font-mono text-[10px] hidden sm:inline">Jump to Step:</span>
-            <div class="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end">
-              <button onclick="scrubToStep(0)" id="step-btn-0" class="step-btn px-3 py-1 rounded-full bg-ink text-white border border-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                Card 01 (Top)
-              </button>
-              <button onclick="scrubToStep(0.5)" id="step-btn-1" class="step-btn px-3 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                Card 02 (Land)
-              </button>
-              <button onclick="scrubToStep(1.0)" id="step-btn-2" class="step-btn px-3 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                Card 03 (Stacked)
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tech Stack & Action Links -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
-        <div class="flex flex-wrap gap-2 text-xs font-mono">
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">GSAP 3.12</span>
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">ScrollTrigger</span>
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">Tailwind CSS</span>
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink-muted border border-warm-300">React / Next.js</span>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <a href="gsap-3d-card-stack.html#readme-section" class="py-2.5 px-4 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 text-ink font-semibold text-xs transition-colors flex items-center gap-1.5 tracking-wider uppercase">
-            <span>📖</span>
-            <span>Docs &amp; Code</span>
-          </a>
-          <a href="gsap-3d-card-stack.html" class="py-2.5 px-5 rounded-full bg-ink hover:bg-warm-900 text-warm-100 hover:text-white font-bold text-xs transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] hover:scale-105 flex items-center gap-1.5 tracking-wider uppercase">
-            <span>Open Full Demo</span>
-            <span>↗</span>
+          <!-- Clickable Demo Launch Overlay -->
+          <a href="gsap-3d-card-stack.html" class="absolute inset-0 z-30 flex items-center justify-center bg-ink/10 opacity-0 group-hover/stage:opacity-100 transition-opacity duration-200 backdrop-blur-[1px]">
+            <span class="px-4 py-2 rounded-full bg-ink text-warm-100 font-bold text-xs tracking-wider uppercase flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform">
+              <span>Open Full Demo</span>
+              <span>↗</span>
+            </span>
           </a>
         </div>
-      </div>
-    </article>
 
-    <!-- ========================================================================= -->
-    <!-- CARD 02: 3D Perspective Carousel & Glare Stack (AvadaKeDevara)             -->
-    <!-- ========================================================================= -->
-    <article class="warm-card rounded-3xl p-6 sm:p-9 relative overflow-hidden">
-      
-      <!-- Top Meta Info -->
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-            Full Demo &amp; Code Ready
-          </span>
-          <span class="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-mono text-ink-muted border border-warm-300 bg-warm-100">
-            Framer Motion &bull; Dynamic 3D Glare &bull; Drag
-          </span>
-        </div>
-        <span class="text-xs font-mono text-ink-subtle uppercase tracking-widest font-bold">02 / Collection</span>
-      </div>
-
-      <!-- Title & Description -->
-      <div class="mb-6">
-        <h2 class="text-2xl sm:text-3xl md:text-4xl font-serif text-ink font-normal tracking-tight">
-          3D Perspective <span class="italic">Carousel &amp; Glare Stack</span>
-        </h2>
-        <p class="mt-2.5 text-xs sm:text-sm text-ink-muted leading-relaxed max-w-2xl">
-          A spatial 3D perspective review carousel featuring depth-angled side wings, cursor-tracked radial glare shine, responsive swipe gesture handling, and auto-play as built for AvadaKeDevara.
-        </p>
-      </div>
-
-      <!-- Interactive Mini-Window Preview Stage (GSAP-Driven Ultra-Smooth) -->
-      <div id="mini-carousel-container" class="relative bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-2xl border border-warm-300 p-5 overflow-hidden flex flex-col justify-between select-none mb-6 shadow-inner">
-        
-        <!-- Mini Header Bar -->
-        <div class="flex items-center justify-between text-xs font-mono text-ink-muted pb-3 border-b border-warm-300/80">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
-            <span class="ml-2 text-ink font-sans text-xs font-medium">True 3D Glare &amp; Perspective Engine</span>
+        <!-- Bottom Info Bar (Avatar, Title, Author, Options •••) -->
+        <div class="flex items-center justify-between pt-1 px-0.5">
+          <div class="flex items-center gap-3 min-w-0">
+            <!-- Avatar Icon -->
+            <div class="w-9 h-9 rounded-lg bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-xs shrink-0 font-mono shadow-2xs">
+              3D
+            </div>
+            <div class="min-w-0">
+              <a href="gsap-3d-card-stack.html" class="font-bold text-ink text-sm sm:text-base hover:text-warm-800 transition-colors truncate block leading-snug">
+                3D Interactive Card Deck Stack
+              </a>
+              <div class="text-xs text-ink-muted mt-0.5 font-sans truncate">
+                Alex Rivera &bull; ScrollTrigger 3D Pinned Animation
+              </div>
+            </div>
           </div>
-          <div class="flex items-center gap-2 text-xs font-mono text-ink font-bold">
-            <span id="mini-carousel-step-text" class="px-2 py-0.5 rounded-md bg-warm-200 border border-warm-300 text-ink">Review 1 Active (0%)</span>
-          </div>
-        </div>
-
-        <!-- 3D Mini Carousel Stage -->
-        <div id="mini-carousel-stage" class="mini-perspective-stage relative flex items-center justify-center my-6 h-[200px] sm:h-[220px] w-full overflow-hidden">
           
-          <!-- Mini Carousel Card 0 -->
-          <div id="m-c-0" onclick="clickMiniCarousel(0)" class="mini-carousel-card absolute w-[86%] sm:w-[75%] max-w-[440px] rounded-2xl bg-white text-ink p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 cursor-pointer overflow-hidden">
-            <div class="glare-shine" id="m-glare-0"></div>
-            <div class="flex items-center justify-between text-[10px] font-bold mb-2 relative z-10">
-              <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono">Interactive Motion</span>
-              <span class="text-ink-subtle font-mono">01 / 03</span>
-            </div>
-            <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3 relative z-10">
-              "The cursor-tracked specular glare tilt creates depth that immediately wows visitors."
-            </p>
-            <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2 relative z-10">
-              <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">AR</div>
-                <span class="font-semibold text-ink">Alex Rivera</span>
-              </div>
-              <span class="text-amber-500 text-xs">★★★★★</span>
-            </div>
-          </div>
-
-          <!-- Mini Carousel Card 1 -->
-          <div id="m-c-1" onclick="clickMiniCarousel(1)" class="mini-carousel-card absolute w-[86%] sm:w-[75%] max-w-[440px] rounded-2xl bg-white text-ink p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 cursor-pointer overflow-hidden">
-            <div class="glare-shine" id="m-glare-1"></div>
-            <div class="flex items-center justify-between text-[10px] font-bold mb-2 relative z-10">
-              <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono">Spatial 3D Wings</span>
-              <span class="text-ink-subtle font-mono">02 / 03</span>
-            </div>
-            <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3 relative z-10">
-              "The depth-tiered side wings and perspective transforms run at a locked 60 FPS."
-            </p>
-            <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2 relative z-10">
-              <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">ER</div>
-                <span class="font-semibold text-ink">Elena Rostova</span>
-              </div>
-              <span class="text-amber-500 text-xs">★★★★★</span>
-            </div>
-          </div>
-
-          <!-- Mini Carousel Card 2 -->
-          <div id="m-c-2" onclick="clickMiniCarousel(2)" class="mini-carousel-card absolute w-[86%] sm:w-[75%] max-w-[440px] rounded-2xl bg-white text-ink p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 cursor-pointer overflow-hidden">
-            <div class="glare-shine" id="m-glare-2"></div>
-            <div class="flex items-center justify-between text-[10px] font-bold mb-2 relative z-10">
-              <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono">Dynamic Glare</span>
-              <span class="text-ink-subtle font-mono">03 / 03</span>
-            </div>
-            <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3 relative z-10">
-              "Realistic radial lighting calculations make the cards feel physical and tactile."
-            </p>
-            <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2 relative z-10">
-              <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">MV</div>
-                <span class="font-semibold text-ink">Marcus Vance</span>
-              </div>
-              <span class="text-amber-500 text-xs">★★★★★</span>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Interactive Scrub Controls Bar -->
-        <div class="pt-3 border-t border-warm-300/80 flex flex-col gap-3">
-          <div class="flex items-center gap-3 w-full">
-            <span class="text-[10px] font-mono text-ink-muted shrink-0">Scrub:</span>
-            <input type="range" id="mini-carousel-range" min="0" max="2" step="0.001" value="0" class="w-full cursor-ew-resize" />
-            <button id="toggle-m-autoplay-btn" onclick="toggleMiniCarouselAutoPlay()" class="shrink-0 px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-[10px] font-mono font-bold text-ink transition-colors flex items-center gap-1 shadow-2xs">
-              <span id="m-autoplay-icon">▶</span>
-              <span id="m-autoplay-label">Auto</span>
-            </button>
-          </div>
-
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-ink-muted font-mono text-[10px] hidden sm:inline">Jump to Review:</span>
-            <div class="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end">
-              <button onclick="scrubMiniCarouselTo(0)" id="m-step-btn-0" class="m-step-btn px-3 py-1 rounded-full bg-ink text-white border border-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                Review 01 (Center)
-              </button>
-              <button onclick="scrubMiniCarouselTo(1)" id="m-step-btn-1" class="m-step-btn px-3 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                Review 02 (Center)
-              </button>
-              <button onclick="scrubMiniCarouselTo(2)" id="m-step-btn-2" class="m-step-btn px-3 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                Review 03 (Center)
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tech Stack & Action Links -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
-        <div class="flex flex-wrap gap-2 text-xs font-mono">
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">Framer Motion</span>
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">3D Tilt &amp; Glare</span>
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">Tailwind CSS</span>
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink-muted border border-warm-300">TypeScript / React</span>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <a href="interactive-3d-review-stack.html#build" class="py-2.5 px-4 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 text-ink font-semibold text-xs transition-colors flex items-center gap-1.5 tracking-wider uppercase">
-            <span>📖</span>
-            <span>Docs &amp; Code</span>
-          </a>
-          <a href="interactive-3d-review-stack.html" class="py-2.5 px-5 rounded-full bg-ink hover:bg-warm-900 text-warm-100 hover:text-white font-bold text-xs transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] hover:scale-105 flex items-center gap-1.5 tracking-wider uppercase">
-            <span>Open Full Demo</span>
-            <span>↗</span>
+          <a href="gsap-3d-card-stack.html" title="Open 3D Deck Demo" class="text-ink-subtle hover:text-ink p-2 rounded-lg hover:bg-warm-200/60 transition-colors text-lg tracking-widest leading-none font-mono shrink-0">
+            &bull;&bull;&bull;
           </a>
         </div>
-      </div>
-    </article>
 
-    <!-- ========================================================================= -->
-    <!-- CARD 03: GSAP ScrollTrigger Horizontal Multi-Panel Showcase                -->
-    <!-- ========================================================================= -->
-    <article class="warm-card rounded-3xl p-6 sm:p-9 relative overflow-hidden">
-      
-      <!-- Top Meta Info -->
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-            Full Demo &amp; Code Ready
-          </span>
-          <span class="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-mono text-ink-muted border border-warm-300 bg-warm-100">
-            Horizontal Pinning &bull; GSAP ScrollTrigger &bull; GPU scaleX
-          </span>
-        </div>
-        <span class="text-xs font-mono text-ink-subtle uppercase tracking-widest font-bold">03 / Collection</span>
-      </div>
+      </article>
 
-      <!-- Title & Description -->
-      <div class="mb-6">
-        <h2 class="text-2xl sm:text-3xl md:text-4xl font-serif text-ink font-normal tracking-tight">
-          GSAP ScrollTrigger <span class="italic">Horizontal Multi-Panel Showcase</span>
-        </h2>
-        <p class="mt-2.5 text-xs sm:text-sm text-ink-muted leading-relaxed max-w-2xl">
-          A scroll-pinned horizontal gliding showcase across standalone full-width panels. Each panel features a distinct background theme with clear visual transitions, zero-reflow GPU scaleX progress tracking, and tactile scrub inertia.
-        </p>
-      </div>
-
-      <!-- Interactive Mini-Window Preview Stage (GSAP Horizontal Glide) -->
-      <div id="mini-video-container" class="relative bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-2xl border border-warm-300 p-5 overflow-hidden flex flex-col justify-between select-none mb-6 shadow-inner">
+      <!-- ===================================================================== -->
+      <!-- CARD 2: Interactive 3D Review Carousel & Glare Stack                  -->
+      <!-- ===================================================================== -->
+      <article class="warm-card rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 relative overflow-hidden group">
         
-        <!-- Mini Header Bar -->
-        <div class="flex items-center justify-between text-xs font-mono text-ink-muted pb-3 border-b border-warm-300/80">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
-            <span class="ml-2 text-ink font-sans text-xs font-medium flex items-center gap-1.5">
-              <span>Pinned Horizontal Glide Engine</span>
+        <!-- Live Animation Preview Stage (Auto-Moving 3D Glare Carousel, Zero Buttons) -->
+        <div id="c2-preview-stage" class="relative h-[280px] sm:h-[310px] bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex items-center justify-center select-none shadow-inner group/stage">
+          
+          <!-- 3D Carousel Stage -->
+          <div class="perspective-stage relative w-full h-full flex items-center justify-center px-2">
+            
+            <!-- Left Wing: Alex Rivera -->
+            <div id="c2-wing-left" class="preserve-3d absolute w-[72%] max-w-[310px] h-[185px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-md opacity-60">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
+                  Interactive Motion
+                </span>
+                <span class="text-ink-subtle font-mono font-bold">01 / 03</span>
+              </div>
+              <p class="text-xs italic font-serif text-ink-muted leading-snug my-1">
+                "The cursor-tracked specular glare tilt creates depth that immediately wows visitors. It feels responsive, tactile, and alive across every interaction."
+              </p>
+              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-4 h-4 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[8px] border border-warm-300">AR</div>
+                  <span class="font-bold text-ink">Alex Rivera</span>
+                </div>
+                <span class="text-amber-500">★★★★★</span>
+              </div>
+            </div>
+
+            <!-- Center Active Card with Dynamic Glare: Elena Rostova -->
+            <div id="c2-center-card" class="preserve-3d absolute w-[82%] max-w-[340px] h-[195px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-xl z-10 overflow-hidden">
+              <!-- Animated Specular Glare Shine -->
+              <div id="c2-glare-shine" class="glare-shine"></div>
+
+              <div class="flex items-center justify-between text-[10px] relative z-10">
+                <span id="c2-badge-text" class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
+                  Spatial 3D Wings
+                </span>
+                <span id="c2-counter-text" class="text-ink-muted font-mono font-bold">02 / 03</span>
+              </div>
+              <p id="c2-quote-text" class="text-xs sm:text-[13px] italic font-serif text-ink leading-snug relative z-10 my-1">
+                "The depth-tiered side wings and smooth perspective transformations perform at a locked 60 FPS across desktop and touch screens."
+              </p>
+              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono relative z-10">
+                <div class="flex items-center gap-1.5">
+                  <div id="c2-avatar-text" class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px] border border-warm-300">ER</div>
+                  <div>
+                    <span id="c2-author-text" class="font-bold text-ink block text-[11px] leading-tight">Elena Rostova</span>
+                    <span id="c2-role-text" class="text-[9px] text-ink-muted">Lead UI Engineer, London</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="text-amber-500">★★★★★</span>
+                  <span class="text-emerald-700 font-bold text-[9px] hidden sm:inline">&bull; Verified</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Wing: Marcus Vance -->
+            <div id="c2-wing-right" class="preserve-3d absolute w-[72%] max-w-[310px] h-[185px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-md opacity-60">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
+                  Dynamic Glare
+                </span>
+                <span class="text-ink-subtle font-mono font-bold">03 / 03</span>
+              </div>
+              <p class="text-xs italic font-serif text-ink-muted leading-snug my-1">
+                "Realistic radial lighting calculations make the cards feel like physical glass. It is easily our most engaging interactive landing component."
+              </p>
+              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-4 h-4 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[8px] border border-warm-300">MV</div>
+                  <span class="font-bold text-ink">Marcus Vance</span>
+                </div>
+                <span class="text-amber-500">★★★★★</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Clickable Demo Launch Overlay -->
+          <a href="interactive-3d-review-stack.html" class="absolute inset-0 z-30 flex items-center justify-center bg-ink/10 opacity-0 group-hover/stage:opacity-100 transition-opacity duration-200 backdrop-blur-[1px]">
+            <span class="px-4 py-2 rounded-full bg-ink text-warm-100 font-bold text-xs tracking-wider uppercase flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform">
+              <span>Open Full Demo</span>
+              <span>↗</span>
             </span>
-          </div>
-          <div class="flex items-center gap-2 text-xs font-mono text-ink font-bold">
-            <span id="mini-video-step-text" class="px-2 py-0.5 rounded-md bg-warm-200 border border-warm-300 text-ink">Panel 01 Active (0%)</span>
-          </div>
+          </a>
         </div>
 
-        <!-- Mini Pinned Simulation Stage with Persistent Top Bar -->
-        <div class="my-4 bg-white/80 rounded-xl border border-warm-300 overflow-hidden flex flex-col shadow-xs">
-          <!-- Mini Persistent Header -->
-          <div class="px-3.5 py-1.5 border-b border-warm-200 bg-white flex items-center justify-between text-[11px] font-mono">
-            <span class="font-bold text-ink flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-              Showcase Hub
-            </span>
-            <div class="flex items-center gap-2">
-              <span id="m-panel-num" class="font-bold text-ink">01</span>
-              <div class="w-20 h-1 bg-warm-200 rounded-full overflow-hidden relative">
-                <div id="m-panel-progress" class="absolute left-0 top-0 h-full w-full bg-ink origin-left" style="transform: scaleX(0.25);"></div>
+        <!-- Bottom Info Bar (Avatar, Title, Author, Options •••) -->
+        <div class="flex items-center justify-between pt-1 px-0.5">
+          <div class="flex items-center gap-3 min-w-0">
+            <!-- Author Avatar -->
+            <div class="w-9 h-9 rounded-lg bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs font-sans">
+              ER
+            </div>
+            <div class="min-w-0">
+              <a href="interactive-3d-review-stack.html" class="font-bold text-ink text-sm sm:text-base hover:text-warm-800 transition-colors truncate block leading-snug">
+                3D Perspective Review Carousel &amp; Glare
+              </a>
+              <div class="text-xs text-ink-muted mt-0.5 font-sans truncate">
+                Elena Rostova &bull; Interactive 3D Glare Engine
               </div>
-              <span class="text-ink-subtle">04</span>
             </div>
           </div>
+          
+          <a href="interactive-3d-review-stack.html" title="Open 3D Carousel Demo" class="text-ink-subtle hover:text-ink p-2 rounded-lg hover:bg-warm-200/60 transition-colors text-lg tracking-widest leading-none font-mono shrink-0">
+            &bull;&bull;&bull;
+          </a>
+        </div>
 
-          <!-- Mini Sliding Viewport across 4 standalone panels -->
-          <div class="relative w-full h-[140px] overflow-hidden">
-            <div id="m-video-track" class="flex h-full w-[400%]" style="will-change: transform;">
+      </article>
+
+      <!-- ===================================================================== -->
+      <!-- CARD 3: GSAP ScrollTrigger Horizontal Multi-Panel Showcase           -->
+      <!-- ===================================================================== -->
+      <article class="warm-card rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 relative overflow-hidden group">
+        
+        <!-- Live Animation Preview Stage (Auto-Moving Horizontal Multi-Panel, Zero Buttons) -->
+        <div class="relative h-[280px] sm:h-[310px] bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex flex-col justify-between select-none shadow-inner group/stage">
+          
+          <!-- Live Synchronized scaleX Progress Bar Across Top -->
+          <div class="w-full h-1.5 bg-warm-300/80 relative overflow-hidden z-20">
+            <div id="c3-progress-bar" class="h-full w-full bg-ink origin-left" style="transform: scaleX(0.25);"></div>
+          </div>
+
+          <!-- Auto-Moving Horizontal Multi-Panel Track (Exact Colors & Text from gsap-horizontal-video-showcase.html) -->
+          <div class="relative w-full h-[calc(100%-6px)] overflow-hidden">
+            <div id="c3-panels-track" class="h-full flex flex-nowrap will-change-transform" style="width: 400%;">
               
-              <!-- Mini Panel 1 (Light Sky Blue) -->
-              <div class="w-1/4 h-full bg-[#E0F2FE] text-sky-950 flex flex-col items-center justify-center p-3 text-center select-none border-r border-sky-200">
-                <span class="font-mono text-[9px] uppercase font-bold text-sky-800 bg-sky-200/80 px-2 py-0.5 rounded-full mb-1">01 &bull; Pinning</span>
-                <span class="font-mono font-black text-xl sm:text-2xl tracking-wider text-sky-950">PANEL 01</span>
-                <span class="text-[10px] font-medium text-sky-800">Spatial Viewport Pin</span>
+              <!-- PANEL 1: Viewport Pinning (Light Sky Blue: #E0F2FE) -->
+              <div class="w-1/4 h-full bg-[#E0F2FE] border-r border-sky-200/80 p-5 sm:p-6 flex flex-col justify-between text-center">
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-200/80 border border-sky-300/80 text-sky-900 text-[10px] font-mono font-bold tracking-widest uppercase shadow-2xs">
+                    <span>✦</span>
+                    <span>01 &bull; Viewport Pinning</span>
+                  </span>
+                  <span class="text-sky-800 font-mono text-[10px] font-bold">1 / 4</span>
+                </div>
+                <div class="my-auto">
+                  <h2 class="text-3xl sm:text-4xl font-black font-mono tracking-tight text-sky-950 mb-1">PANEL 01</h2>
+                  <p class="font-serif text-sm sm:text-base text-sky-900 font-medium mb-1">Spatial Viewport Pinning</p>
+                  <p class="text-[11px] text-sky-700/90 font-sans max-w-sm mx-auto leading-relaxed line-clamp-2">
+                    ScrollTrigger locks the stage in place while scroll scrub translates the continuous horizontal track with hardware acceleration.
+                  </p>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-[10px] text-sky-800 font-mono font-semibold">
+                  <span class="w-2 h-2 rounded-full bg-sky-600 inline-block"></span>
+                  <span>Pure CSS &amp; GSAP Pinning</span>
+                </div>
               </div>
 
-              <!-- Mini Panel 2 (Light Amber Cream) -->
-              <div class="w-1/4 h-full bg-[#FEF3C7] text-amber-950 flex flex-col items-center justify-center p-3 text-center select-none border-r border-amber-200">
-                <span class="font-mono text-[9px] uppercase font-bold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full mb-1">02 &bull; Inertia</span>
-                <span class="font-mono font-black text-xl sm:text-2xl tracking-wider text-amber-950">PANEL 02</span>
-                <span class="text-[10px] font-medium text-amber-800">Tactile Momentum</span>
+              <!-- PANEL 2: Inertial Momentum (Light Warm Amber Cream: #FEF3C7) -->
+              <div class="w-1/4 h-full bg-[#FEF3C7] border-r border-amber-200/80 p-5 sm:p-6 flex flex-col justify-between text-center">
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-200/80 border border-amber-300/80 text-amber-900 text-[10px] font-mono font-bold tracking-widest uppercase shadow-2xs">
+                    <span>✦</span>
+                    <span>02 &bull; Inertial Scrub</span>
+                  </span>
+                  <span class="text-amber-800 font-mono text-[10px] font-bold">2 / 4</span>
+                </div>
+                <div class="my-auto">
+                  <h2 class="text-3xl sm:text-4xl font-black font-mono tracking-tight text-amber-950 mb-1">PANEL 02</h2>
+                  <p class="font-serif text-sm sm:text-base text-amber-900 font-medium mb-1">Tactile Momentum &amp; Damping</p>
+                  <p class="text-[11px] text-amber-700/90 font-sans max-w-sm mx-auto leading-relaxed line-clamp-2">
+                    Weighted scrub smoothing absorbs discrete mouse wheel notches into smooth, cinematic motion at 60 FPS.
+                  </p>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-[10px] text-amber-800 font-mono font-semibold">
+                  <span class="w-2 h-2 rounded-full bg-amber-600 inline-block"></span>
+                  <span>Weighted Scrub Smoothing</span>
+                </div>
               </div>
 
-              <!-- Mini Panel 3 (Light Mint Sage) -->
-              <div class="w-1/4 h-full bg-[#D1FAE5] text-emerald-950 flex flex-col items-center justify-center p-3 text-center select-none border-r border-emerald-200">
-                <span class="font-mono text-[9px] uppercase font-bold text-emerald-800 bg-emerald-200/80 px-2 py-0.5 rounded-full mb-1">03 &bull; Progress</span>
-                <span class="font-mono font-black text-xl sm:text-2xl tracking-wider text-emerald-950">PANEL 03</span>
-                <span class="text-[10px] font-medium text-emerald-800">GPU scaleX Metrics</span>
+              <!-- PANEL 3: Transform Metrics (Light Mint Sage Green: #D1FAE5) -->
+              <div class="w-1/4 h-full bg-[#D1FAE5] border-r border-emerald-200/80 p-5 sm:p-6 flex flex-col justify-between text-center">
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-200/80 border border-emerald-300/80 text-emerald-900 text-[10px] font-mono font-bold tracking-widest uppercase shadow-2xs">
+                    <span>✦</span>
+                    <span>03 &bull; GPU Progress</span>
+                  </span>
+                  <span class="text-emerald-800 font-mono text-[10px] font-bold">3 / 4</span>
+                </div>
+                <div class="my-auto">
+                  <h2 class="text-3xl sm:text-4xl font-black font-mono tracking-tight text-emerald-950 mb-1">PANEL 03</h2>
+                  <p class="font-serif text-sm sm:text-base text-emerald-900 font-medium mb-1">Zero-Reflow scaleX Metrics</p>
+                  <p class="text-[11px] text-emerald-700/90 font-sans max-w-sm mx-auto leading-relaxed line-clamp-2">
+                    Hardware-composited scaleX transform drives progress bar updates without triggering layout recalculations.
+                  </p>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-[10px] text-emerald-800 font-mono font-semibold">
+                  <span class="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+                  <span>Hardware Composited Metrics</span>
+                </div>
               </div>
 
-              <!-- Mini Panel 4 (Light Lavender Violet) -->
-              <div class="w-1/4 h-full bg-[#EDE9FE] text-violet-950 flex flex-col items-center justify-center p-3 text-center select-none">
-                <span class="font-mono text-[9px] uppercase font-bold text-violet-800 bg-violet-200/80 px-2 py-0.5 rounded-full mb-1">04 &bull; Modular</span>
-                <span class="font-mono font-black text-xl sm:text-2xl tracking-wider text-violet-950">PANEL 04</span>
-                <span class="text-[10px] font-medium text-violet-800">Adaptive Geometry</span>
+              <!-- PANEL 4: Viewport Geometry (Light Lavender Violet: #EDE9FE) -->
+              <div class="w-1/4 h-full bg-[#EDE9FE] p-5 sm:p-6 flex flex-col justify-between text-center">
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-200/80 border border-violet-300/80 text-violet-900 text-[10px] font-mono font-bold tracking-widest uppercase shadow-2xs">
+                    <span>✦</span>
+                    <span>04 &bull; Modular Flow</span>
+                  </span>
+                  <span class="text-violet-800 font-mono text-[10px] font-bold">4 / 4</span>
+                </div>
+                <div class="my-auto">
+                  <h2 class="text-3xl sm:text-4xl font-black font-mono tracking-tight text-violet-950 mb-1">PANEL 04</h2>
+                  <p class="font-serif text-sm sm:text-base text-violet-900 font-medium mb-1">Adaptive Viewport Geometry</p>
+                  <p class="text-[11px] text-violet-700/90 font-sans max-w-sm mx-auto leading-relaxed line-clamp-2">
+                    Clean 100vw modular panels adapt responsively across viewports with mathematical precision.
+                  </p>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-[10px] text-violet-800 font-mono font-semibold">
+                  <span class="w-2 h-2 rounded-full bg-violet-600 inline-block"></span>
+                  <span>Mathematical Precision</span>
+                </div>
               </div>
 
             </div>
           </div>
+
+          <!-- Clickable Demo Launch Overlay -->
+          <a href="gsap-horizontal-video-showcase.html" class="absolute inset-0 z-30 flex items-center justify-center bg-ink/10 opacity-0 group-hover/stage:opacity-100 transition-opacity duration-200 backdrop-blur-[1px]">
+            <span class="px-4 py-2 rounded-full bg-ink text-warm-100 font-bold text-xs tracking-wider uppercase flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform">
+              <span>Open Full Demo</span>
+              <span>↗</span>
+            </span>
+          </a>
         </div>
 
-        <!-- Interactive Scrub Controls Bar -->
-        <div class="pt-3 border-t border-warm-300/80 flex flex-col gap-3">
-          <div class="flex items-center gap-3 w-full">
-            <span class="text-[10px] font-mono text-ink-muted shrink-0">Scrub:</span>
-            <input type="range" id="mini-video-range" min="0" max="1" step="0.001" value="0" class="w-full cursor-ew-resize" />
-            <button id="toggle-v-autoplay-btn" onclick="toggleMiniVideoAutoPlay()" class="shrink-0 px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-[10px] font-mono font-bold text-ink transition-colors flex items-center gap-1 shadow-2xs">
-              <span id="v-autoplay-icon">▶</span>
-              <span id="v-autoplay-label">Auto</span>
-            </button>
-          </div>
-
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-ink-muted font-mono text-[10px] hidden sm:inline">Jump to Panel:</span>
-            <div class="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end">
-              <button onclick="scrubMiniVideoTo(0)" id="v-step-btn-0" class="v-step-btn px-2.5 py-1 rounded-full bg-ink text-white border border-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                P01
-              </button>
-              <button onclick="scrubMiniVideoTo(0.333)" id="v-step-btn-1" class="v-step-btn px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                P02
-              </button>
-              <button onclick="scrubMiniVideoTo(0.666)" id="v-step-btn-2" class="v-step-btn px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                P03
-              </button>
-              <button onclick="scrubMiniVideoTo(1.0)" id="v-step-btn-3" class="v-step-btn px-2.5 py-1 rounded-full bg-white border border-warm-300 hover:bg-warm-100 text-ink font-bold transition-all text-[10px] font-mono shadow-2xs">
-                P04
-              </button>
+        <!-- Bottom Info Bar (Avatar, Title, Author, Options •••) -->
+        <div class="flex items-center justify-between pt-1 px-0.5">
+          <div class="flex items-center gap-3 min-w-0">
+            <!-- Avatar Icon -->
+            <div class="w-9 h-9 rounded-lg bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-xs shrink-0 font-mono shadow-2xs">
+              ⇄
+            </div>
+            <div class="min-w-0">
+              <a href="gsap-horizontal-video-showcase.html" class="font-bold text-ink text-sm sm:text-base hover:text-warm-800 transition-colors truncate block leading-snug">
+                GSAP ScrollTrigger Horizontal Showcase
+              </a>
+              <div class="text-xs text-ink-muted mt-0.5 font-sans truncate">
+                AnimationsLab &bull; 4 Standalone Pinned Panels
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Tech Stack & Action Links -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
-        <div class="flex flex-wrap gap-2 text-xs font-mono">
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">GSAP 3.12</span>
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">ScrollTrigger</span>
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink border border-warm-300">Tailwind CSS</span>
-          <span class="px-3 py-1 rounded-full bg-warm-100 text-ink-muted border border-warm-300">React / Next.js</span>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <a href="gsap-horizontal-video-showcase.html#specs" class="py-2.5 px-4 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 text-ink font-semibold text-xs transition-colors flex items-center gap-1.5 tracking-wider uppercase">
-            <span>📖</span>
-            <span>Docs &amp; Code</span>
-          </a>
-          <a href="gsap-horizontal-video-showcase.html" class="py-2.5 px-5 rounded-full bg-ink hover:bg-warm-900 text-warm-100 hover:text-white font-bold text-xs transition-all shadow-[0_4px_15px_rgba(20,20,19,0.15)] hover:scale-105 flex items-center gap-1.5 tracking-wider uppercase">
-            <span>Open Full Demo</span>
-            <span>↗</span>
+          
+          <a href="gsap-horizontal-video-showcase.html" title="Open Horizontal Demo" class="text-ink-subtle hover:text-ink p-2 rounded-lg hover:bg-warm-200/60 transition-colors text-lg tracking-widest leading-none font-mono shrink-0">
+            &bull;&bull;&bull;
           </a>
         </div>
-      </div>
-    </article>
+
+      </article>
+
+    </div>
 
   </main>
 
   <!-- ========================================================================= -->
-  <!-- General Gallery Footer                                                    -->
+  <!-- Footer                                                                    -->
   <!-- ========================================================================= -->
   <footer class="border-t border-warm-300 bg-[#FAF9F6] py-10 px-4 text-center text-xs text-ink-muted font-mono">
-    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-2">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
         <span class="font-bold text-ink font-sans">Animations Lab</span>
-        <span>&bull; Curated Web Motion Gallery</span>
+        <span>&bull;</span>
+        <span>Built by <a href="https://udaysingh.dev" target="_blank" rel="noopener noreferrer" class="font-bold text-ink hover:text-warm-800 underline decoration-warm-400 underline-offset-4 transition-colors">Uday Pratap Singh</a></span>
       </div>
-      <div class="flex items-center gap-4 text-ink-muted">
+      <div class="flex items-center gap-4 text-ink-muted flex-wrap justify-center">
+        <a href="https://udaysingh.dev" target="_blank" rel="noopener noreferrer" class="hover:text-ink transition-colors flex items-center gap-1 font-semibold text-ink">
+          <span>udaysingh.dev</span>
+          <span>↗</span>
+        </a>
+        <span>&bull;</span>
         <a href="#gallery" class="hover:text-ink transition-colors">Browse Gallery</a>
         <span>&bull;</span>
-        <a href="https://github.com/UdayPratap902/Animations" target="_blank" class="hover:text-ink transition-colors">GitHub Repository</a>
+        <a href="https://github.com/UdayPratap902/Animations" target="_blank" rel="noopener noreferrer" class="hover:text-ink transition-colors">GitHub</a>
       </div>
     </div>
   </footer>
 
   <!-- ========================================================================= -->
-  <!-- Interactive Animation Engines Script                                       -->
+  <!-- Continuous Autonomous Animation Engines (Zero Controls, 60 FPS)           -->
   <!-- ========================================================================= -->
   <script>
     // -------------------------------------------------------------------------
-    // Engine 1: GSAP 3D Scroll Card Deck Scrub Engine
+    // Animation 1 Engine: GSAP 3D Scroll Perspective Card Deck Loop
+    // Exactly matches gsap-3d-card-stack.html spatial mechanics
     // -------------------------------------------------------------------------
-    let miniTimeline;
-    let isAutoPlaying = true;
-    let autoTween = null;
-
-    function initGSAPDeck() {
-      const card0 = document.getElementById("mini-card-0");
-      const card1 = document.getElementById("mini-card-1-el");
-      const card2 = document.getElementById("mini-card-2-el");
-      const rangeInput = document.getElementById("mini-scrub-range");
-
+    function initCard1DeckLoop() {
+      const card0 = document.getElementById("c1-deck-0");
+      const card1 = document.getElementById("c1-deck-1");
+      const card2 = document.getElementById("c1-deck-2");
       if (!card0 || !card1 || !card2) return;
 
-      gsap.set(card0, { transformOrigin: "50% 0%", y: 0, rotateX: 0, scale: 1, opacity: 1, zIndex: 1 });
-      gsap.set(card1, { transformOrigin: "50% 0%", y: 200, rotateX: 38, scale: 0.92, opacity: 1, zIndex: 2 });
-      gsap.set(card2, { transformOrigin: "50% 0%", y: 260, rotateX: 42, scale: 0.86, opacity: 1, zIndex: 3 });
+      // Initial resting spatial coordinates matching 3D stack
+      gsap.set(card0, { transformOrigin: "50% 0%", y: 0, rotateX: 0, scale: 1, zIndex: 3 });
+      gsap.set(card1, { transformOrigin: "50% 0%", y: 40, rotateX: 28, scale: 0.94, zIndex: 2 });
+      gsap.set(card2, { transformOrigin: "50% 0%", y: 76, rotateX: 36, scale: 0.88, zIndex: 1 });
 
-      miniTimeline = gsap.timeline({ paused: true, onUpdate: updateUIFromTimeline });
-
+      // Smooth step timeline: Card 1 lands on Card 0, then Card 2 lands on Card 1
+      const tl = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 1.5, defaults: { ease: "power2.inOut", duration: 1.6 } });
+      
       // Step 1: Card 1 ascends and lands ON TOP of Card 0
-      miniTimeline.to(card0, { scale: 0.95, y: -14, ease: "none", duration: 1 }, "step-1");
-      miniTimeline.to(card1, { y: 0, rotateX: 0, scale: 1, opacity: 1, ease: "none", duration: 1 }, "step-1");
-      miniTimeline.to(card2, { y: 200, rotateX: 38, scale: 0.92, ease: "none", duration: 1 }, "step-1");
-
+      tl.to(card0, { scale: 0.94, y: -16, duration: 1.4 }, "step-1")
+        .to(card1, { y: 0, rotateX: 0, scale: 1, duration: 1.4 }, "step-1")
+        .to(card2, { y: 40, rotateX: 28, scale: 0.94, duration: 1.4 }, "step-1")
+      
       // Step 2: Card 2 ascends and lands ON TOP of Card 1
-      miniTimeline.to(card0, { scale: 0.90, y: -26, ease: "none", duration: 1 }, "step-2");
-      miniTimeline.to(card1, { scale: 0.95, y: -14, ease: "none", duration: 1 }, "step-2");
-      miniTimeline.to(card2, { y: 0, rotateX: 0, scale: 1, opacity: 1, ease: "none", duration: 1 }, "step-2");
-
-      if (rangeInput) {
-        rangeInput.addEventListener("input", (e) => {
-          stopAutoPlay();
-          miniTimeline.progress(parseFloat(e.target.value));
-        });
-      }
-
-      startAutoPlayLoop();
-    }
-
-    function updateUIFromTimeline() {
-      const p = miniTimeline ? miniTimeline.progress() : 0;
-      const rangeInput = document.getElementById("mini-scrub-range");
-      const stepText = document.getElementById("mini-deck-step-text");
-
-      if (rangeInput) rangeInput.value = p;
-
-      if (stepText) {
-        const pct = Math.round(p * 100);
-        if (p < 0.3) {
-          stepText.innerText = `Card 1 Active (${pct}%)`;
-          updateStepButtons(0);
-        } else if (p < 0.75) {
-          stepText.innerText = `Card 2 Landed (${pct}%)`;
-          updateStepButtons(1);
-        } else {
-          stepText.innerText = `Card 3 Stacked (${pct}%)`;
-          updateStepButtons(2);
-        }
-      }
-    }
-
-    function updateStepButtons(activeIdx) {
-      const b0 = document.getElementById("step-btn-0");
-      const b1 = document.getElementById("step-btn-1");
-      const b2 = document.getElementById("step-btn-2");
-      [b0, b1, b2].forEach((btn, idx) => {
-        if (!btn) return;
-        if (idx === activeIdx) {
-          btn.classList.add("bg-ink", "text-white", "border-ink");
-          btn.classList.remove("bg-white", "text-ink", "border-warm-300");
-        } else {
-          btn.classList.remove("bg-ink", "text-white", "border-ink");
-          btn.classList.add("bg-white", "text-ink", "border-warm-300");
-        }
-      });
-    }
-
-    function scrubToStep(targetProgress) {
-      stopAutoPlay();
-      if (!miniTimeline) return;
-      gsap.to(miniTimeline, { progress: targetProgress, duration: 0.8, ease: "power2.out" });
-    }
-
-    function startAutoPlayLoop() {
-      if (!miniTimeline) return;
-      isAutoPlaying = true;
-      updateAutoPlayBtn();
-      autoTween = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 1.2 });
-      autoTween.to(miniTimeline, { progress: 1, duration: 4.5, ease: "power1.inOut" });
-    }
-
-    function stopAutoPlay() {
-      if (autoTween) { autoTween.kill(); autoTween = null; }
-      isAutoPlaying = false;
-      updateAutoPlayBtn();
-    }
-
-    function toggleAutoPlay() {
-      if (isAutoPlaying) stopAutoPlay();
-      else {
-        if (miniTimeline && miniTimeline.progress() >= 0.98) miniTimeline.progress(0);
-        startAutoPlayLoop();
-      }
-    }
-
-    function updateAutoPlayBtn() {
-      const icon = document.getElementById("autoplay-icon");
-      const label = document.getElementById("autoplay-label");
-      if (!icon || !label) return;
-      if (isAutoPlaying) { icon.innerText = "⏸"; label.innerText = "Pause"; }
-      else { icon.innerText = "▶"; label.innerText = "Auto"; }
+      tl.to(card0, { scale: 0.88, y: -30, duration: 1.4 }, "step-2")
+        .to(card1, { scale: 0.94, y: -16, duration: 1.4 }, "step-2")
+        .to(card2, { y: 0, rotateX: 0, scale: 1, duration: 1.4 }, "step-2");
     }
 
     // -------------------------------------------------------------------------
-    // Engine 2: GSAP-Driven Ultra-Smooth 3D Carousel Simulator (AvadaKeDevara)
+    // Animation 2 Engine: 3D Glare Carousel & Dynamic Specular Shine
+    // Exactly matches interactive-3d-review-stack.html
     // -------------------------------------------------------------------------
-    let miniCarouselIdx = 0;
-    const totalMC = 3;
-    let isMCAutoPlaying = true;
-    let mAutoInterval = null;
-
-    function renderMiniCarousel(animate = true) {
-      for (let i = 0; i < totalMC; i++) {
-        const card = document.getElementById(`m-c-${i}`);
-        const glare = document.getElementById(`m-glare-${i}`);
-        if (!card) continue;
-        const diff = (i - miniCarouselIdx + totalMC) % totalMC;
-
-        let target = {};
-        if (diff === 0) {
-          // Center
-          target = {
-            xPercent: 0,
-            scale: 1,
-            rotateY: 0,
-            rotateX: 0,
-            opacity: 1,
-            zIndex: 10,
-            filter: "blur(0px) brightness(1)",
-            duration: animate ? 0.65 : 0,
-            ease: "power3.out",
-            overwrite: "auto",
-          };
-        } else if (diff === totalMC - 1 || diff === -1) {
-          // Left wing
-          target = {
-            xPercent: -52,
-            scale: 0.88,
-            rotateY: 12,
-            rotateX: 0,
-            opacity: 0.6,
-            zIndex: 5,
-            filter: "blur(1.5px) brightness(0.98)",
-            duration: animate ? 0.65 : 0,
-            ease: "power3.out",
-            overwrite: "auto",
-          };
-          if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
-        } else if (diff === 1) {
-          // Right wing
-          target = {
-            xPercent: 52,
-            scale: 0.88,
-            rotateY: -12,
-            rotateX: 0,
-            opacity: 0.6,
-            zIndex: 5,
-            filter: "blur(1.5px) brightness(0.98)",
-            duration: animate ? 0.65 : 0,
-            ease: "power3.out",
-            overwrite: "auto",
-          };
-          if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
-        }
-
-        gsap.to(card, target);
+    const c2Reviews = [
+      {
+        badge: "Interactive Motion",
+        counter: "01 / 03",
+        quote: "The cursor-tracked specular glare tilt creates depth that immediately wows visitors. It feels responsive, tactile, and alive across every interaction.",
+        author: "Alex Rivera",
+        role: "Product Designer, San Francisco",
+        avatar: "AR"
+      },
+      {
+        badge: "Spatial 3D Wings",
+        counter: "02 / 03",
+        quote: "The depth-tiered side wings and smooth perspective transformations perform at a locked 60 FPS across desktop and touch screens.",
+        author: "Elena Rostova",
+        role: "Lead UI Engineer, London",
+        avatar: "ER"
+      },
+      {
+        badge: "Dynamic Glare",
+        counter: "03 / 03",
+        quote: "Realistic radial lighting calculations make the cards feel like physical glass. It is easily our most engaging interactive landing component.",
+        author: "Marcus Vance",
+        role: "VP of Engineering, Berlin",
+        avatar: "MV"
       }
+    ];
+    let c2ActiveIdx = 1;
 
-      updateMiniCarouselUI();
-    }
+    function initCard2CarouselLoop() {
+      const leftWing = document.getElementById("c2-wing-left");
+      const rightWing = document.getElementById("c2-wing-right");
+      const centerCard = document.getElementById("c2-center-card");
+      const glare = document.getElementById("c2-glare-shine");
+      const stage = document.getElementById("c2-preview-stage");
 
-    function updateMiniCarouselUI() {
-      const range = document.getElementById("mini-carousel-range");
-      const txt = document.getElementById("mini-carousel-step-text");
-      if (range) range.value = miniCarouselIdx;
+      if (!leftWing || !rightWing || !centerCard || !glare) return;
 
-      if (txt) {
-        const pct = Math.round((miniCarouselIdx / (totalMC - 1)) * 100);
-        txt.innerText = `Review 0${miniCarouselIdx + 1} Active (${pct}%)`;
-      }
+      // Position wings in 3D perspective space matching the standalone review stack
+      gsap.set(leftWing, { transformOrigin: "100% 50%", xPercent: -50, rotateY: 14, scale: 0.88, zIndex: 2 });
+      gsap.set(rightWing, { transformOrigin: "0% 50%", xPercent: 50, rotateY: -14, scale: 0.88, zIndex: 2 });
+      gsap.set(centerCard, { transformOrigin: "50% 50%", xPercent: 0, rotateY: 0, scale: 1, zIndex: 5 });
 
-      const b0 = document.getElementById("m-step-btn-0");
-      const b1 = document.getElementById("m-step-btn-1");
-      const b2 = document.getElementById("m-step-btn-2");
-      [b0, b1, b2].forEach((btn, idx) => {
-        if (!btn) return;
-        if (idx === miniCarouselIdx) {
-          btn.classList.add("bg-ink", "text-white", "border-ink");
-          btn.classList.remove("bg-white", "text-ink", "border-warm-300");
-        } else {
-          btn.classList.remove("bg-ink", "text-white", "border-ink");
-          btn.classList.add("bg-white", "text-ink", "border-warm-300");
+      // Continuous Specular Glare Organic Sweep (exact formula)
+      let glareProgress = { p: 0 };
+      gsap.to(glareProgress, {
+        p: 1,
+        duration: 3.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        onUpdate: () => {
+          const px = 20 + glareProgress.p * 60;
+          const py = 20 + Math.sin(glareProgress.p * Math.PI) * 50;
+          glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(222, 219, 200, 0.55) 0%, rgba(255, 255, 255, 0) 65%)`;
         }
       });
-    }
 
-    function scrubMiniCarouselTo(idx) {
-      stopMiniCarouselAutoPlay();
-      miniCarouselIdx = idx;
-      renderMiniCarousel(true);
-    }
+      // Auto-cycle review cards smoothly
+      setInterval(() => {
+        c2ActiveIdx = (c2ActiveIdx + 1) % c2Reviews.length;
+        const rev = c2Reviews[c2ActiveIdx];
+        
+        gsap.to(centerCard, {
+          scale: 0.96,
+          duration: 0.35,
+          yoyo: true,
+          repeat: 1,
+          ease: "power2.inOut",
+          onRepeat: () => {
+            const badgeEl = document.getElementById("c2-badge-text");
+            const quoteEl = document.getElementById("c2-quote-text");
+            const authorEl = document.getElementById("c2-author-text");
+            const roleEl = document.getElementById("c2-role-text");
+            const counterEl = document.getElementById("c2-counter-text");
+            const avatarEl = document.getElementById("c2-avatar-text");
 
-    function clickMiniCarousel(idx) {
-      const diff = (idx - miniCarouselIdx + totalMC) % totalMC;
-      if (diff === 1) {
-        stopMiniCarouselAutoPlay();
-        miniCarouselIdx = (miniCarouselIdx + 1) % totalMC;
-        renderMiniCarousel(true);
-      } else if (diff === totalMC - 1) {
-        stopMiniCarouselAutoPlay();
-        miniCarouselIdx = (miniCarouselIdx - 1 + totalMC) % totalMC;
-        renderMiniCarousel(true);
-      }
-    }
-
-    function startMiniCarouselAutoPlay() {
-      isMCAutoPlaying = true;
-      updateMCAutoPlayBtn();
-      if (mAutoInterval) clearInterval(mAutoInterval);
-      mAutoInterval = setInterval(() => {
-        miniCarouselIdx = (miniCarouselIdx + 1) % totalMC;
-        renderMiniCarousel(true);
-      }, 4200);
-    }
-
-    function stopMiniCarouselAutoPlay() {
-      if (mAutoInterval) {
-        clearInterval(mAutoInterval);
-        mAutoInterval = null;
-      }
-      isMCAutoPlaying = false;
-      updateMCAutoPlayBtn();
-    }
-
-    function toggleMiniCarouselAutoPlay() {
-      if (isMCAutoPlaying) stopMiniCarouselAutoPlay();
-      else startMiniCarouselAutoPlay();
-    }
-
-    function updateMCAutoPlayBtn() {
-      const icon = document.getElementById("m-autoplay-icon");
-      const label = document.getElementById("m-autoplay-label");
-      if (!icon || !label) return;
-      if (isMCAutoPlaying) { icon.innerText = "⏸"; label.innerText = "Pause"; }
-      else { icon.innerText = "▶"; label.innerText = "Auto"; }
-    }
-
-    // Mini Carousel Range Listener & Smooth 3D Inertial Glare Mouse Move
-    function initMiniCarouselListeners() {
-      const range = document.getElementById("mini-carousel-range");
-      if (range) {
-        range.addEventListener("input", (e) => {
-          stopMiniCarouselAutoPlay();
-          miniCarouselIdx = Math.round(parseFloat(e.target.value));
-          renderMiniCarousel(true);
+            if (badgeEl) badgeEl.innerText = rev.badge;
+            if (quoteEl) quoteEl.innerText = `"${rev.quote}"`;
+            if (authorEl) authorEl.innerText = rev.author;
+            if (roleEl) roleEl.innerText = rev.role;
+            if (counterEl) counterEl.innerText = rev.counter;
+            if (avatarEl) avatarEl.innerText = rev.avatar;
+          }
         });
-      }
+      }, 4000);
 
-      // Cursor Glare Tilt on Active Card in Mini Stage using GSAP damping
-      const stage = document.getElementById("mini-carousel-stage");
+      // Interactive mouse-tracking tilt on hover
       if (stage) {
         stage.addEventListener("mousemove", (e) => {
-          const activeCard = document.getElementById(`m-c-${miniCarouselIdx}`);
-          const glare = document.getElementById(`m-glare-${miniCarouselIdx}`);
-          if (!activeCard) return;
-
-          const rect = activeCard.getBoundingClientRect();
+          const rect = centerCard.getBoundingClientRect();
           const isInside = 
-            e.clientX >= rect.left && 
-            e.clientX <= rect.right && 
-            e.clientY >= rect.top && 
-            e.clientY <= rect.bottom;
+            e.clientX >= rect.left && e.clientX <= rect.right &&
+            e.clientY >= rect.top && e.clientY <= rect.bottom;
 
           if (isInside) {
             const cx = rect.left + rect.width / 2;
@@ -1021,166 +754,54 @@
             const dx = (e.clientX - cx) / (rect.width / 2);
             const dy = (e.clientY - cy) / (rect.height / 2);
 
-            gsap.to(activeCard, {
-              rotateX: -dy * 6.5,
-              rotateY: dx * 6.5,
-              duration: 0.35,
+            gsap.to(centerCard, {
+              rotateX: -dy * 8,
+              rotateY: dx * 8,
+              duration: 0.3,
               ease: "power2.out",
               overwrite: "auto",
             });
-
-            if (glare) {
-              const px = ((e.clientX - rect.left) / rect.width) * 100;
-              const py = ((e.clientY - rect.top) / rect.height) * 100;
-              glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(222, 219, 200, 0.45) 0%, rgba(255, 255, 255, 0) 65%)`;
-              gsap.to(glare, { opacity: 1, duration: 0.25, overwrite: "auto" });
-            }
           } else {
-            gsap.to(activeCard, {
-              rotateX: 0,
-              rotateY: 0,
-              duration: 0.45,
-              ease: "power2.out",
-              overwrite: "auto",
-            });
-            if (glare) gsap.to(glare, { opacity: 0, duration: 0.3, overwrite: "auto" });
+            gsap.to(centerCard, { rotateX: 0, rotateY: 0, duration: 0.4, ease: "power2.out", overwrite: "auto" });
           }
         });
 
         stage.addEventListener("mouseleave", () => {
-          const activeCard = document.getElementById(`m-c-${miniCarouselIdx}`);
-          const glare = document.getElementById(`m-glare-${miniCarouselIdx}`);
-          if (activeCard) {
-            gsap.to(activeCard, {
-              rotateX: 0,
-              rotateY: 0,
-              duration: 0.45,
-              ease: "power2.out",
-              overwrite: "auto",
-            });
-          }
-          if (glare) gsap.to(glare, { opacity: 0, duration: 0.3, overwrite: "auto" });
+          gsap.to(centerCard, { rotateX: 0, rotateY: 0, duration: 0.4, ease: "power2.out", overwrite: "auto" });
         });
       }
-
-      startMiniCarouselAutoPlay();
     }
 
     // -------------------------------------------------------------------------
-    // Engine 3: GSAP Horizontal Video Showcase Simulator (4 Standalone Panels)
+    // Animation 3 Engine: GSAP ScrollTrigger Horizontal Multi-Panel Loop
+    // Exactly matches gsap-horizontal-video-showcase.html (4 Panels, scaleX 0.25 -> 1.0)
     // -------------------------------------------------------------------------
-    let miniVideoTL;
-    let isVideoAutoPlaying = true;
-    let videoAutoTween = null;
+    function initCard3PanelsLoop() {
+      const track = document.getElementById("c3-panels-track");
+      const progressBar = document.getElementById("c3-progress-bar");
+      if (!track || !progressBar) return;
 
-    function initMiniVideoShowcase() {
-      const track = document.getElementById("m-video-track");
-      const bar = document.getElementById("m-panel-progress");
-      const rangeInput = document.getElementById("mini-video-range");
+      // Continuous horizontal glide looping through panels 1, 2, 3, 4
+      const tl = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 1.5 });
+      
+      tl.to(track, {
+        xPercent: -75,
+        duration: 9,
+        ease: "power1.inOut"
+      }, 0);
 
-      if (!track || !bar) return;
-
-      // Track moves by -75% across total width 400% (4 panels)
-      gsap.set(track, { xPercent: 0 });
-      gsap.set(bar, { scaleX: 0.25, transformOrigin: "left center" });
-
-      miniVideoTL = gsap.timeline({ paused: true, onUpdate: updateMiniVideoUI });
-      miniVideoTL.to(track, { xPercent: -75, ease: "none", duration: 1 }, 0);
-      miniVideoTL.to(bar, { scaleX: 1, ease: "none", duration: 1 }, 0);
-
-      if (rangeInput) {
-        rangeInput.addEventListener("input", (e) => {
-          stopMiniVideoAutoPlay();
-          miniVideoTL.progress(parseFloat(e.target.value));
-        });
-      }
-
-      startMiniVideoAutoPlay();
+      tl.to(progressBar, {
+        scaleX: 1,
+        duration: 9,
+        ease: "power1.inOut"
+      }, 0);
     }
 
-    function updateMiniVideoUI() {
-      const p = miniVideoTL ? miniVideoTL.progress() : 0;
-      const rangeInput = document.getElementById("mini-video-range");
-      const stepText = document.getElementById("mini-video-step-text");
-      const numLabel = document.getElementById("m-panel-num");
-
-      if (rangeInput) rangeInput.value = p;
-
-      const pct = Math.round(p * 100);
-      let activeIdx = 0;
-      if (p < 0.25) {
-        activeIdx = 0;
-        if (stepText) stepText.innerText = `Panel 01 Active (${pct}%)`;
-        if (numLabel) numLabel.innerText = "01";
-      } else if (p < 0.58) {
-        activeIdx = 1;
-        if (stepText) stepText.innerText = `Panel 02 Active (${pct}%)`;
-        if (numLabel) numLabel.innerText = "02";
-      } else if (p < 0.85) {
-        activeIdx = 2;
-        if (stepText) stepText.innerText = `Panel 03 Active (${pct}%)`;
-        if (numLabel) numLabel.innerText = "03";
-      } else {
-        activeIdx = 3;
-        if (stepText) stepText.innerText = `Panel 04 Active (${pct}%)`;
-        if (numLabel) numLabel.innerText = "04";
-      }
-
-      [0, 1, 2, 3].forEach((idx) => {
-        const btn = document.getElementById(`v-step-btn-${idx}`);
-        if (!btn) return;
-        if (idx === activeIdx) {
-          btn.classList.add("bg-ink", "text-white", "border-ink");
-          btn.classList.remove("bg-white", "text-ink", "border-warm-300");
-        } else {
-          btn.classList.remove("bg-ink", "text-white", "border-ink");
-          btn.classList.add("bg-white", "text-ink", "border-warm-300");
-        }
-      });
-    }
-
-    function scrubMiniVideoTo(targetP) {
-      stopMiniVideoAutoPlay();
-      if (!miniVideoTL) return;
-      gsap.to(miniVideoTL, { progress: targetP, duration: 0.75, ease: "power2.out" });
-    }
-
-    function startMiniVideoAutoPlay() {
-      if (!miniVideoTL) return;
-      isVideoAutoPlaying = true;
-      updateMiniVideoAutoBtn();
-      videoAutoTween = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 1.2 });
-      videoAutoTween.to(miniVideoTL, { progress: 1, duration: 5.2, ease: "power1.inOut" });
-    }
-
-    function stopMiniVideoAutoPlay() {
-      if (videoAutoTween) { videoAutoTween.kill(); videoAutoTween = null; }
-      isVideoAutoPlaying = false;
-      updateMiniVideoAutoBtn();
-    }
-
-    function toggleMiniVideoAutoPlay() {
-      if (isVideoAutoPlaying) stopMiniVideoAutoPlay();
-      else {
-        if (miniVideoTL && miniVideoTL.progress() >= 0.98) miniVideoTL.progress(0);
-        startMiniVideoAutoPlay();
-      }
-    }
-
-    function updateMiniVideoAutoBtn() {
-      const icon = document.getElementById("v-autoplay-icon");
-      const label = document.getElementById("v-autoplay-label");
-      if (!icon || !label) return;
-      if (isVideoAutoPlaying) { icon.innerText = "⏸"; label.innerText = "Pause"; }
-      else { icon.innerText = "▶"; label.innerText = "Auto"; }
-    }
-
-    // Initialize all engines on DOM ready
+    // Initialize all engines on DOM load
     document.addEventListener("DOMContentLoaded", () => {
-      initGSAPDeck();
-      renderMiniCarousel(false);
-      initMiniCarouselListeners();
-      initMiniVideoShowcase();
+      initCard1DeckLoop();
+      initCard2CarouselLoop();
+      initCard3PanelsLoop();
     });
   </script>
 </body>
