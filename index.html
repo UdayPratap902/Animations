@@ -94,29 +94,41 @@
       transform: translateY(-4px);
     }
 
-    /* 3D Perspective Containers */
-    .perspective-stage {
-      perspective: 1000px;
+    /* Mini 3D card deck simulator */
+    .mini-perspective-stage {
+      perspective: 900px;
       perspective-origin: 50% 50%;
     }
 
-    .preserve-3d {
+    .mini-review-card {
       transform-style: preserve-3d;
       backface-visibility: hidden;
       will-change: transform, opacity;
+      transform-origin: 50% 0%;
     }
 
-    /* Specular Glare Overlay */
+    .mini-card-shadow {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 16px 32px -8px rgba(40, 30, 10, 0.12);
+    }
+
+    /* Mini Carousel 3D Cards */
+    .mini-carousel-card {
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      will-change: transform, opacity, filter;
+    }
+
+    /* Dynamic Glare Overlay */
     .glare-shine {
       position: absolute;
       inset: 0;
       pointer-events: none;
       border-radius: 1rem;
-      opacity: 0.85;
-      mix-blend-mode: overlay;
+      opacity: 0;
       transition: opacity 0.3s ease;
+      background: radial-gradient(circle at 50% 50%, rgba(222, 219, 200, 0.45) 0%, rgba(255, 255, 255, 0) 65%);
+      mix-blend-mode: overlay;
       z-index: 25;
-      background: radial-gradient(circle at 50% 50%, rgba(222, 219, 200, 0.55) 0%, rgba(255, 255, 255, 0) 65%);
     }
 
     /* Custom scrollbar */
@@ -216,86 +228,68 @@
       <article class="warm-card rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 relative overflow-hidden group">
         
         <!-- Live Animation Preview Stage (Auto-Moving 3D Deck, Zero Buttons) -->
-        <div class="relative h-[280px] sm:h-[310px] bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex items-center justify-center select-none shadow-inner group/stage">
+        <div class="relative h-[250px] sm:h-[280px] bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex items-center justify-center select-none shadow-inner group/stage">
           
-          <!-- Perspective Stage -->
-          <div class="perspective-stage relative w-full h-full flex items-center justify-center px-4">
+          <!-- Mini 3D Perspective Stage (Original Exact Geometry) -->
+          <div class="mini-perspective-stage relative flex items-center justify-center h-[200px] sm:h-[220px] w-full overflow-hidden">
             
-            <!-- Deck Card 0: Alex Rivera -->
-            <div id="c1-deck-0" class="preserve-3d absolute w-[90%] max-w-[380px] h-[190px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-lg">
-              <div class="flex items-center justify-between text-[10px]">
-                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
-                  Demo Review &bull; 3D Perspective
-                </span>
-                <span class="text-ink-subtle font-mono font-bold">01 / 03</span>
+            <!-- Mini Card 1: Alex Rivera -->
+            <div id="mini-card-0" class="mini-review-card absolute w-[90%] max-w-[420px] rounded-2xl bg-white text-ink p-4 sm:p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 select-none">
+              <div class="flex items-center justify-between text-[10px] font-bold mb-2">
+                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono uppercase tracking-wider text-[9px]">
+                  <span>Verified Showcase</span>
+                </div>
+                <span class="text-ink-subtle font-mono">01 / 03</span>
               </div>
-              <p class="text-xs sm:text-[13px] italic font-serif text-ink leading-snug my-1">
-                "The 3D perspective layering and smooth scrub give our landing page an editorial feel that immediately wows visitors. It performs at a steady 60 FPS even on mobile."
+              <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3">
+                "The 3D perspective layering and smooth scrub give an editorial feel that immediately wows visitors."
               </p>
-              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
+              <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2">
                 <div class="flex items-center gap-2">
-                  <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px] border border-warm-300">AR</div>
-                  <div>
-                    <span class="font-bold text-ink block text-[11px] leading-tight">Alex Rivera</span>
-                    <span class="text-[9px] text-ink-muted">Lead Frontend Engineer</span>
-                  </div>
+                  <div class="w-5 h-5 rounded-full bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-[9px]">AR</div>
+                  <span class="font-semibold text-ink">Alex Rivera</span>
                 </div>
-                <div class="flex items-center gap-1">
-                  <span class="text-amber-500">★★★★★</span>
-                  <span class="text-emerald-700 font-bold text-[9px] hidden sm:inline">&bull; Verified</span>
-                </div>
+                <span class="text-amber-500 text-xs">★★★★★</span>
               </div>
             </div>
 
-            <!-- Deck Card 1: Sophia Chen -->
-            <div id="c1-deck-1" class="preserve-3d absolute w-[90%] max-w-[380px] h-[190px] rounded-2xl bg-[#FAF8F5] border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-lg">
-              <div class="flex items-center justify-between text-[10px]">
-                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
-                  Demo Review &bull; Scroll Pinning
-                </span>
-                <span class="text-ink-subtle font-mono font-bold">02 / 03</span>
+            <!-- Mini Card 2: Sophia Chen -->
+            <div id="mini-card-1-el" class="mini-review-card absolute w-[90%] max-w-[420px] rounded-2xl bg-[#FCFAF7] text-ink p-4 sm:p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 select-none">
+              <div class="flex items-center justify-between text-[10px] font-bold mb-2">
+                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono uppercase tracking-wider text-[9px]">
+                  <span>Verified Showcase</span>
+                </div>
+                <span class="text-ink-subtle font-mono">02 / 03</span>
               </div>
-              <p class="text-xs sm:text-[13px] italic font-serif text-ink leading-snug my-1">
-                "Integrating this with Next.js and Tailwind was effortless. The scroll distance formula and step timeline give total control over timing and depth layering."
+              <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3">
+                "Scroll distance formula and step timeline give total control over timing and depth layering."
               </p>
-              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
+              <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2">
                 <div class="flex items-center gap-2">
-                  <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px] border border-warm-300">SC</div>
-                  <div>
-                    <span class="font-bold text-ink block text-[11px] leading-tight">Sophia Chen</span>
-                    <span class="text-[9px] text-ink-muted">Design Systems Lead</span>
-                  </div>
+                  <div class="w-5 h-5 rounded-full bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-[9px]">SC</div>
+                  <span class="font-semibold text-ink">Sophia Chen</span>
                 </div>
-                <div class="flex items-center gap-1">
-                  <span class="text-amber-500">★★★★★</span>
-                  <span class="text-emerald-700 font-bold text-[9px] hidden sm:inline">&bull; Verified</span>
-                </div>
+                <span class="text-amber-500 text-xs">★★★★★</span>
               </div>
             </div>
 
-            <!-- Deck Card 2: Marcus Vance -->
-            <div id="c1-deck-2" class="preserve-3d absolute w-[90%] max-w-[380px] h-[190px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-lg">
-              <div class="flex items-center justify-between text-[10px]">
-                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
-                  Demo Review &bull; Performance
-                </span>
-                <span class="text-ink-subtle font-mono font-bold">03 / 03</span>
+            <!-- Mini Card 3: Marcus Vance -->
+            <div id="mini-card-2-el" class="mini-review-card absolute w-[90%] max-w-[420px] rounded-2xl bg-white text-ink p-4 sm:p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 select-none">
+              <div class="flex items-center justify-between text-[10px] font-bold mb-2">
+                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono uppercase tracking-wider text-[9px]">
+                  <span>Verified Showcase</span>
+                </div>
+                <span class="text-ink-subtle font-mono">03 / 03</span>
               </div>
-              <p class="text-xs sm:text-[13px] italic font-serif text-ink leading-snug my-1">
-                "Clean code, zero layout shift, and robust prefers-reduced-motion support. Perfect reference implementation for interactive component libraries."
+              <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3">
+                "Clean code, zero layout shift, and robust prefers-reduced-motion support out of the box."
               </p>
-              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
+              <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2">
                 <div class="flex items-center gap-2">
-                  <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px] border border-warm-300">MV</div>
-                  <div>
-                    <span class="font-bold text-ink block text-[11px] leading-tight">Marcus Vance</span>
-                    <span class="text-[9px] text-ink-muted">VP of Product Engineering</span>
-                  </div>
+                  <div class="w-5 h-5 rounded-full bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-[9px]">MV</div>
+                  <span class="font-semibold text-ink">Marcus Vance</span>
                 </div>
-                <div class="flex items-center gap-1">
-                  <span class="text-amber-500">★★★★★</span>
-                  <span class="text-emerald-700 font-bold text-[9px] hidden sm:inline">&bull; Verified</span>
-                </div>
+                <span class="text-amber-500 text-xs">★★★★★</span>
               </div>
             </div>
 
@@ -319,7 +313,7 @@
             </div>
             <div class="min-w-0">
               <a href="gsap-3d-card-stack.html" class="font-bold text-ink text-sm sm:text-base hover:text-warm-800 transition-colors truncate block leading-snug">
-                3D Interactive Card Deck Stack
+                Control / 3D Perspective Card Deck Stack
               </a>
               <div class="text-xs text-ink-muted mt-0.5 font-sans truncate">
                 Alex Rivera &bull; ScrollTrigger 3D Pinned Animation
@@ -340,77 +334,65 @@
       <article class="warm-card rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 relative overflow-hidden group">
         
         <!-- Live Animation Preview Stage (Auto-Moving 3D Glare Carousel, Zero Buttons) -->
-        <div id="c2-preview-stage" class="relative h-[280px] sm:h-[310px] bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex items-center justify-center select-none shadow-inner group/stage">
+        <div class="relative h-[250px] sm:h-[280px] bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex items-center justify-center select-none shadow-inner group/stage">
           
-          <!-- 3D Carousel Stage -->
-          <div class="perspective-stage relative w-full h-full flex items-center justify-center px-2">
+          <!-- 3D Mini Carousel Stage (Original Exact Geometry) -->
+          <div id="mini-carousel-stage" class="mini-perspective-stage relative flex items-center justify-center h-[200px] sm:h-[220px] w-full overflow-hidden">
             
-            <!-- Left Wing: Alex Rivera -->
-            <div id="c2-wing-left" class="preserve-3d absolute w-[72%] max-w-[310px] h-[185px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-md opacity-60">
-              <div class="flex items-center justify-between text-[10px]">
-                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
-                  Interactive Motion
-                </span>
-                <span class="text-ink-subtle font-mono font-bold">01 / 03</span>
+            <!-- Mini Carousel Card 0 -->
+            <div id="m-c-0" class="mini-carousel-card absolute w-[86%] sm:w-[75%] max-w-[420px] rounded-2xl bg-white text-ink p-4 sm:p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 cursor-pointer overflow-hidden">
+              <div class="glare-shine" id="m-glare-0"></div>
+              <div class="flex items-center justify-between text-[10px] font-bold mb-2 relative z-10">
+                <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono text-[9px]">Interactive Motion</span>
+                <span class="text-ink-subtle font-mono">01 / 03</span>
               </div>
-              <p class="text-xs italic font-serif text-ink-muted leading-snug my-1">
-                "The cursor-tracked specular glare tilt creates depth that immediately wows visitors. It feels responsive, tactile, and alive across every interaction."
+              <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3 relative z-10">
+                "The cursor-tracked specular glare tilt creates depth that immediately wows visitors."
               </p>
-              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
-                <div class="flex items-center gap-1.5">
-                  <div class="w-4 h-4 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[8px] border border-warm-300">AR</div>
-                  <span class="font-bold text-ink">Alex Rivera</span>
+              <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2 relative z-10">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">AR</div>
+                  <span class="font-semibold text-ink">Alex Rivera</span>
                 </div>
-                <span class="text-amber-500">★★★★★</span>
+                <span class="text-amber-500 text-xs">★★★★★</span>
               </div>
             </div>
 
-            <!-- Center Active Card with Dynamic Glare: Elena Rostova -->
-            <div id="c2-center-card" class="preserve-3d absolute w-[82%] max-w-[340px] h-[195px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-xl z-10 overflow-hidden">
-              <!-- Animated Specular Glare Shine -->
-              <div id="c2-glare-shine" class="glare-shine"></div>
-
-              <div class="flex items-center justify-between text-[10px] relative z-10">
-                <span id="c2-badge-text" class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
-                  Spatial 3D Wings
-                </span>
-                <span id="c2-counter-text" class="text-ink-muted font-mono font-bold">02 / 03</span>
+            <!-- Mini Carousel Card 1 -->
+            <div id="m-c-1" class="mini-carousel-card absolute w-[86%] sm:w-[75%] max-w-[420px] rounded-2xl bg-white text-ink p-4 sm:p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 cursor-pointer overflow-hidden">
+              <div class="glare-shine" id="m-glare-1"></div>
+              <div class="flex items-center justify-between text-[10px] font-bold mb-2 relative z-10">
+                <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono text-[9px]">Spatial 3D Wings</span>
+                <span class="text-ink-subtle font-mono">02 / 03</span>
               </div>
-              <p id="c2-quote-text" class="text-xs sm:text-[13px] italic font-serif text-ink leading-snug relative z-10 my-1">
-                "The depth-tiered side wings and smooth perspective transformations perform at a locked 60 FPS across desktop and touch screens."
+              <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3 relative z-10">
+                "The depth-tiered side wings and perspective transforms run at a locked 60 FPS."
               </p>
-              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono relative z-10">
-                <div class="flex items-center gap-1.5">
-                  <div id="c2-avatar-text" class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px] border border-warm-300">ER</div>
-                  <div>
-                    <span id="c2-author-text" class="font-bold text-ink block text-[11px] leading-tight">Elena Rostova</span>
-                    <span id="c2-role-text" class="text-[9px] text-ink-muted">Lead UI Engineer, London</span>
-                  </div>
+              <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2 relative z-10">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">ER</div>
+                  <span class="font-semibold text-ink">Elena Rostova</span>
                 </div>
-                <div class="flex items-center gap-1">
-                  <span class="text-amber-500">★★★★★</span>
-                  <span class="text-emerald-700 font-bold text-[9px] hidden sm:inline">&bull; Verified</span>
-                </div>
+                <span class="text-amber-500 text-xs">★★★★★</span>
               </div>
             </div>
 
-            <!-- Right Wing: Marcus Vance -->
-            <div id="c2-wing-right" class="preserve-3d absolute w-[72%] max-w-[310px] h-[185px] rounded-2xl bg-white border border-warm-300 p-4 sm:p-5 text-ink flex flex-col justify-between shadow-md opacity-60">
-              <div class="flex items-center justify-between text-[10px]">
-                <span class="px-2.5 py-0.5 rounded-full bg-warm-100 border border-warm-300 text-warm-800 font-mono font-bold uppercase tracking-wider text-[9px]">
-                  Dynamic Glare
-                </span>
-                <span class="text-ink-subtle font-mono font-bold">03 / 03</span>
+            <!-- Mini Carousel Card 2 -->
+            <div id="m-c-2" class="mini-carousel-card absolute w-[86%] sm:w-[75%] max-w-[420px] rounded-2xl bg-white text-ink p-4 sm:p-5 mini-card-shadow flex flex-col justify-between border border-warm-300 cursor-pointer overflow-hidden">
+              <div class="glare-shine" id="m-glare-2"></div>
+              <div class="flex items-center justify-between text-[10px] font-bold mb-2 relative z-10">
+                <span class="text-xs font-bold uppercase tracking-wider text-warm-800 font-mono text-[9px]">Dynamic Glare</span>
+                <span class="text-ink-subtle font-mono">03 / 03</span>
               </div>
-              <p class="text-xs italic font-serif text-ink-muted leading-snug my-1">
-                "Realistic radial lighting calculations make the cards feel like physical glass. It is easily our most engaging interactive landing component."
+              <p class="text-xs sm:text-sm italic font-serif text-ink leading-snug mb-3 relative z-10">
+                "Realistic radial lighting calculations make the cards feel physical and tactile."
               </p>
-              <div class="flex items-center justify-between text-[10px] text-ink-muted border-t border-warm-100 pt-2 font-mono">
-                <div class="flex items-center gap-1.5">
-                  <div class="w-4 h-4 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[8px] border border-warm-300">MV</div>
-                  <span class="font-bold text-ink">Marcus Vance</span>
+              <div class="flex items-center justify-between text-[11px] text-ink-muted border-t border-warm-100 pt-2 relative z-10">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-warm-200 text-ink font-bold flex items-center justify-center text-[9px]">MV</div>
+                  <span class="font-semibold text-ink">Marcus Vance</span>
                 </div>
-                <span class="text-amber-500">★★★★★</span>
+                <span class="text-amber-500 text-xs">★★★★★</span>
               </div>
             </div>
 
@@ -455,7 +437,7 @@
       <article class="warm-card rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 relative overflow-hidden group">
         
         <!-- Live Animation Preview Stage (Auto-Moving Horizontal Multi-Panel, Zero Buttons) -->
-        <div class="relative h-[280px] sm:h-[310px] bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex flex-col justify-between select-none shadow-inner group/stage">
+        <div class="relative h-[250px] sm:h-[280px] bg-gradient-to-b from-warm-100 to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex flex-col justify-between select-none shadow-inner group/stage">
           
           <!-- Live Synchronized scaleX Progress Bar Across Top -->
           <div class="w-full h-1.5 bg-warm-300/80 relative overflow-hidden z-20">
@@ -623,130 +605,121 @@
   <script>
     // -------------------------------------------------------------------------
     // Animation 1 Engine: GSAP 3D Scroll Perspective Card Deck Loop
-    // Exactly matches gsap-3d-card-stack.html spatial mechanics
+    // Restored from original git diff implementation (Smooth 3D Stacking Loop)
     // -------------------------------------------------------------------------
-    function initCard1DeckLoop() {
-      const card0 = document.getElementById("c1-deck-0");
-      const card1 = document.getElementById("c1-deck-1");
-      const card2 = document.getElementById("c1-deck-2");
+    function initGSAPDeck() {
+      const card0 = document.getElementById("mini-card-0");
+      const card1 = document.getElementById("mini-card-1-el");
+      const card2 = document.getElementById("mini-card-2-el");
+
       if (!card0 || !card1 || !card2) return;
 
-      // Initial resting spatial coordinates matching 3D stack
-      gsap.set(card0, { transformOrigin: "50% 0%", y: 0, rotateX: 0, scale: 1, zIndex: 3 });
-      gsap.set(card1, { transformOrigin: "50% 0%", y: 40, rotateX: 28, scale: 0.94, zIndex: 2 });
-      gsap.set(card2, { transformOrigin: "50% 0%", y: 76, rotateX: 36, scale: 0.88, zIndex: 1 });
+      gsap.set(card0, { transformOrigin: "50% 0%", y: 0, rotateX: 0, scale: 1, opacity: 1, zIndex: 1 });
+      gsap.set(card1, { transformOrigin: "50% 0%", y: 180, rotateX: 38, scale: 0.92, opacity: 1, zIndex: 2 });
+      gsap.set(card2, { transformOrigin: "50% 0%", y: 240, rotateX: 42, scale: 0.86, opacity: 1, zIndex: 3 });
 
-      // Smooth step timeline: Card 1 lands on Card 0, then Card 2 lands on Card 1
-      const tl = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 1.5, defaults: { ease: "power2.inOut", duration: 1.6 } });
-      
+      const miniTimeline = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 1.2 });
+
       // Step 1: Card 1 ascends and lands ON TOP of Card 0
-      tl.to(card0, { scale: 0.94, y: -16, duration: 1.4 }, "step-1")
-        .to(card1, { y: 0, rotateX: 0, scale: 1, duration: 1.4 }, "step-1")
-        .to(card2, { y: 40, rotateX: 28, scale: 0.94, duration: 1.4 }, "step-1")
-      
+      miniTimeline.to(card0, { scale: 0.95, y: -14, ease: "power2.inOut", duration: 2.2 }, "step-1");
+      miniTimeline.to(card1, { y: 0, rotateX: 0, scale: 1, opacity: 1, ease: "power2.inOut", duration: 2.2 }, "step-1");
+      miniTimeline.to(card2, { y: 180, rotateX: 38, scale: 0.92, ease: "power2.inOut", duration: 2.2 }, "step-1");
+
       // Step 2: Card 2 ascends and lands ON TOP of Card 1
-      tl.to(card0, { scale: 0.88, y: -30, duration: 1.4 }, "step-2")
-        .to(card1, { scale: 0.94, y: -16, duration: 1.4 }, "step-2")
-        .to(card2, { y: 0, rotateX: 0, scale: 1, duration: 1.4 }, "step-2");
+      miniTimeline.to(card0, { scale: 0.90, y: -26, ease: "power2.inOut", duration: 2.2 }, "step-2");
+      miniTimeline.to(card1, { scale: 0.95, y: -14, ease: "power2.inOut", duration: 2.2 }, "step-2");
+      miniTimeline.to(card2, { y: 0, rotateX: 0, scale: 1, opacity: 1, ease: "power2.inOut", duration: 2.2 }, "step-2");
     }
 
     // -------------------------------------------------------------------------
-    // Animation 2 Engine: 3D Glare Carousel & Dynamic Specular Shine
-    // Exactly matches interactive-3d-review-stack.html
+    // Animation 2 Engine: GSAP 3D Carousel & Dynamic Specular Glare Loop
+    // Restored from original git diff implementation (renderMiniCarousel)
     // -------------------------------------------------------------------------
-    const c2Reviews = [
-      {
-        badge: "Interactive Motion",
-        counter: "01 / 03",
-        quote: "The cursor-tracked specular glare tilt creates depth that immediately wows visitors. It feels responsive, tactile, and alive across every interaction.",
-        author: "Alex Rivera",
-        role: "Product Designer, San Francisco",
-        avatar: "AR"
-      },
-      {
-        badge: "Spatial 3D Wings",
-        counter: "02 / 03",
-        quote: "The depth-tiered side wings and smooth perspective transformations perform at a locked 60 FPS across desktop and touch screens.",
-        author: "Elena Rostova",
-        role: "Lead UI Engineer, London",
-        avatar: "ER"
-      },
-      {
-        badge: "Dynamic Glare",
-        counter: "03 / 03",
-        quote: "Realistic radial lighting calculations make the cards feel like physical glass. It is easily our most engaging interactive landing component.",
-        author: "Marcus Vance",
-        role: "VP of Engineering, Berlin",
-        avatar: "MV"
-      }
-    ];
-    let c2ActiveIdx = 1;
+    let miniCarouselIdx = 0;
+    const totalMC = 3;
 
-    function initCard2CarouselLoop() {
-      const leftWing = document.getElementById("c2-wing-left");
-      const rightWing = document.getElementById("c2-wing-right");
-      const centerCard = document.getElementById("c2-center-card");
-      const glare = document.getElementById("c2-glare-shine");
-      const stage = document.getElementById("c2-preview-stage");
+    function renderMiniCarousel(animate = true) {
+      for (let i = 0; i < totalMC; i++) {
+        const card = document.getElementById(`m-c-${i}`);
+        const glare = document.getElementById(`m-glare-${i}`);
+        if (!card) continue;
+        const diff = (i - miniCarouselIdx + totalMC) % totalMC;
 
-      if (!leftWing || !rightWing || !centerCard || !glare) return;
-
-      // Position wings in 3D perspective space matching the standalone review stack
-      gsap.set(leftWing, { transformOrigin: "100% 50%", xPercent: -50, rotateY: 14, scale: 0.88, zIndex: 2 });
-      gsap.set(rightWing, { transformOrigin: "0% 50%", xPercent: 50, rotateY: -14, scale: 0.88, zIndex: 2 });
-      gsap.set(centerCard, { transformOrigin: "50% 50%", xPercent: 0, rotateY: 0, scale: 1, zIndex: 5 });
-
-      // Continuous Specular Glare Organic Sweep (exact formula)
-      let glareProgress = { p: 0 };
-      gsap.to(glareProgress, {
-        p: 1,
-        duration: 3.5,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        onUpdate: () => {
-          const px = 20 + glareProgress.p * 60;
-          const py = 20 + Math.sin(glareProgress.p * Math.PI) * 50;
-          glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(222, 219, 200, 0.55) 0%, rgba(255, 255, 255, 0) 65%)`;
-        }
-      });
-
-      // Auto-cycle review cards smoothly
-      setInterval(() => {
-        c2ActiveIdx = (c2ActiveIdx + 1) % c2Reviews.length;
-        const rev = c2Reviews[c2ActiveIdx];
-        
-        gsap.to(centerCard, {
-          scale: 0.96,
-          duration: 0.35,
-          yoyo: true,
-          repeat: 1,
-          ease: "power2.inOut",
-          onRepeat: () => {
-            const badgeEl = document.getElementById("c2-badge-text");
-            const quoteEl = document.getElementById("c2-quote-text");
-            const authorEl = document.getElementById("c2-author-text");
-            const roleEl = document.getElementById("c2-role-text");
-            const counterEl = document.getElementById("c2-counter-text");
-            const avatarEl = document.getElementById("c2-avatar-text");
-
-            if (badgeEl) badgeEl.innerText = rev.badge;
-            if (quoteEl) quoteEl.innerText = `"${rev.quote}"`;
-            if (authorEl) authorEl.innerText = rev.author;
-            if (roleEl) roleEl.innerText = rev.role;
-            if (counterEl) counterEl.innerText = rev.counter;
-            if (avatarEl) avatarEl.innerText = rev.avatar;
+        let target = {};
+        if (diff === 0) {
+          // Center
+          target = {
+            xPercent: 0,
+            scale: 1,
+            rotateY: 0,
+            rotateX: 0,
+            opacity: 1,
+            zIndex: 10,
+            filter: "blur(0px) brightness(1)",
+            duration: animate ? 0.75 : 0,
+            ease: "power3.out",
+            overwrite: "auto",
+          };
+          if (glare) {
+            gsap.to(glare, { opacity: 0.75, duration: 0.3 });
           }
-        });
-      }, 4000);
+        } else if (diff === totalMC - 1 || diff === -1) {
+          // Left wing
+          target = {
+            xPercent: -52,
+            scale: 0.88,
+            rotateY: 12,
+            rotateX: 0,
+            opacity: 0.6,
+            zIndex: 5,
+            filter: "blur(1.5px) brightness(0.98)",
+            duration: animate ? 0.75 : 0,
+            ease: "power3.out",
+            overwrite: "auto",
+          };
+          if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
+        } else if (diff === 1) {
+          // Right wing
+          target = {
+            xPercent: 52,
+            scale: 0.88,
+            rotateY: -12,
+            rotateX: 0,
+            opacity: 0.6,
+            zIndex: 5,
+            filter: "blur(1.5px) brightness(0.98)",
+            duration: animate ? 0.75 : 0,
+            ease: "power3.out",
+            overwrite: "auto",
+          };
+          if (glare) gsap.to(glare, { opacity: 0, duration: 0.2 });
+        }
 
-      // Interactive mouse-tracking tilt on hover
+        gsap.to(card, target);
+      }
+    }
+
+    function initMiniCarouselListeners() {
+      // Auto cycle every 3.8s
+      setInterval(() => {
+        miniCarouselIdx = (miniCarouselIdx + 1) % totalMC;
+        renderMiniCarousel(true);
+      }, 3800);
+
+      // Cursor Glare Tilt on Active Card using GSAP damping
+      const stage = document.getElementById("mini-carousel-stage");
       if (stage) {
         stage.addEventListener("mousemove", (e) => {
-          const rect = centerCard.getBoundingClientRect();
+          const activeCard = document.getElementById(`m-c-${miniCarouselIdx}`);
+          const glare = document.getElementById(`m-glare-${miniCarouselIdx}`);
+          if (!activeCard) return;
+
+          const rect = activeCard.getBoundingClientRect();
           const isInside = 
-            e.clientX >= rect.left && e.clientX <= rect.right &&
-            e.clientY >= rect.top && e.clientY <= rect.bottom;
+            e.clientX >= rect.left && 
+            e.clientX <= rect.right && 
+            e.clientY >= rect.top && 
+            e.clientY <= rect.bottom;
 
           if (isInside) {
             const cx = rect.left + rect.width / 2;
@@ -754,27 +727,69 @@
             const dx = (e.clientX - cx) / (rect.width / 2);
             const dy = (e.clientY - cy) / (rect.height / 2);
 
-            gsap.to(centerCard, {
-              rotateX: -dy * 8,
-              rotateY: dx * 8,
-              duration: 0.3,
+            gsap.to(activeCard, {
+              rotateX: -dy * 6.5,
+              rotateY: dx * 6.5,
+              duration: 0.35,
               ease: "power2.out",
               overwrite: "auto",
             });
+
+            if (glare) {
+              const px = ((e.clientX - rect.left) / rect.width) * 100;
+              const py = ((e.clientY - rect.top) / rect.height) * 100;
+              glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(222, 219, 200, 0.45) 0%, rgba(255, 255, 255, 0) 65%)`;
+              gsap.to(glare, { opacity: 1, duration: 0.25, overwrite: "auto" });
+            }
           } else {
-            gsap.to(centerCard, { rotateX: 0, rotateY: 0, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+            gsap.to(activeCard, {
+              rotateX: 0,
+              rotateY: 0,
+              duration: 0.45,
+              ease: "power2.out",
+              overwrite: "auto",
+            });
+            if (glare) gsap.to(glare, { opacity: 0.75, duration: 0.3, overwrite: "auto" });
           }
         });
 
         stage.addEventListener("mouseleave", () => {
-          gsap.to(centerCard, { rotateX: 0, rotateY: 0, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+          const activeCard = document.getElementById(`m-c-${miniCarouselIdx}`);
+          const glare = document.getElementById(`m-glare-${miniCarouselIdx}`);
+          if (activeCard) {
+            gsap.to(activeCard, {
+              rotateX: 0,
+              rotateY: 0,
+              duration: 0.45,
+              ease: "power2.out",
+              overwrite: "auto",
+            });
+          }
+          if (glare) gsap.to(glare, { opacity: 0.75, duration: 0.3, overwrite: "auto" });
         });
       }
+
+      // Organic specular glare sweeping loop
+      let glareSweep = { p: 0 };
+      gsap.to(glareSweep, {
+        p: 1,
+        duration: 3.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        onUpdate: () => {
+          const glare = document.getElementById(`m-glare-${miniCarouselIdx}`);
+          if (!glare) return;
+          const px = 20 + glareSweep.p * 60;
+          const py = 20 + Math.sin(glareSweep.p * Math.PI) * 50;
+          glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(222, 219, 200, 0.55) 0%, rgba(255, 255, 255, 0) 65%)`;
+        }
+      });
     }
 
     // -------------------------------------------------------------------------
     // Animation 3 Engine: GSAP ScrollTrigger Horizontal Multi-Panel Loop
-    // Exactly matches gsap-horizontal-video-showcase.html (4 Panels, scaleX 0.25 -> 1.0)
+    // (Already fine & retained)
     // -------------------------------------------------------------------------
     function initCard3PanelsLoop() {
       const track = document.getElementById("c3-panels-track");
@@ -799,8 +814,9 @@
 
     // Initialize all engines on DOM load
     document.addEventListener("DOMContentLoaded", () => {
-      initCard1DeckLoop();
-      initCard2CarouselLoop();
+      initGSAPDeck();
+      renderMiniCarousel(false);
+      initMiniCarouselListeners();
       initCard3PanelsLoop();
     });
   </script>
