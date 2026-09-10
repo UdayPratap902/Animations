@@ -116,6 +116,26 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #C8C4AB;
     }
+
+    /* Mobile Hamburger morphing lines */
+    #mobile-nav-toggle.is-active .bar-top {
+      transform: translateY(6px) rotate(45deg);
+    }
+    #mobile-nav-toggle.is-active .bar-mid {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    #mobile-nav-toggle.is-active .bar-bot {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    /* Mobile Nav Overlay styling */
+    #mobile-nav-overlay {
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #mobile-nav-bubble {
+      will-change: clip-path;
+    }
   </style>
 
   <!-- GSAP & ScrollTrigger CDN -->
@@ -130,14 +150,14 @@
   <!-- ========================================================================= -->
   <!-- Floating Pill Navbar (Warm Light Glass)                                    -->
   <!-- ========================================================================= -->
-  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-auto max-w-[calc(100vw-2rem)] pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/85 backdrop-blur-md px-4 sm:px-6 py-2 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-center gap-3 sm:gap-6 whitespace-nowrap">
-    <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
-      <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink text-[10px] sm:text-xs font-semibold tracking-wider uppercase transition-colors shadow-2xs">
+  <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 w-[calc(100vw-2rem)] max-w-fit sm:w-auto pointer-events-auto rounded-full border border-warm-300 bg-[#FAF9F6]/90 backdrop-blur-md px-3.5 sm:px-6 py-2 shadow-[0_8px_30px_rgba(40,30,10,0.06)] flex items-center justify-between gap-2.5 sm:gap-6 whitespace-nowrap">
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <a href="index.html" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink text-[10px] sm:text-xs font-semibold tracking-wider uppercase transition-colors shadow-2xs">
         <span>←</span>
-        <span>Gallery Hub</span>
+        <span>Hub</span>
       </a>
       <div class="h-4 w-[1px] bg-warm-300 hidden sm:block"></div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5 sm:gap-2">
         <div class="w-6 h-6 rounded-full bg-warm-200 border border-warm-400/50 text-ink flex items-center justify-center font-bold text-xs shadow-2xs">
           ✨
         </div>
@@ -145,7 +165,8 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+    <!-- Desktop Navigation Links (Visible on md+) -->
+    <div class="hidden md:flex items-center gap-2 sm:gap-3 shrink-0">
       <a href="#live-demo" class="text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full border border-warm-300 bg-white/70 hover:bg-white text-ink-muted hover:text-ink transition-all shadow-2xs">
         Live Demo
       </a>
@@ -154,7 +175,150 @@
         <span>Docs &amp; Code</span>
       </a>
     </div>
+
+    <!-- Mobile Hamburger Toggle Button (Visible on < md) -->
+    <button id="mobile-nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" class="md:hidden relative z-50 w-8 h-8 rounded-full border border-warm-300 bg-white/90 hover:bg-white text-ink flex flex-col items-center justify-center gap-[4.5px] transition-all shadow-2xs cursor-pointer select-none active:scale-95 focus:outline-none">
+      <span class="bar-top block w-4 h-[1.5px] bg-ink rounded-full transition-transform duration-300 ease-out origin-center"></span>
+      <span class="bar-mid block w-4 h-[1.5px] bg-ink rounded-full transition-all duration-200 ease-out origin-center"></span>
+      <span class="bar-bot block w-4 h-[1.5px] bg-ink rounded-full transition-transform duration-300 ease-out origin-center"></span>
+    </button>
   </nav>
+
+  <!-- ========================================================================= -->
+  <!-- Full-Page Bubble Navigation Overlay                                       -->
+  <!-- ========================================================================= -->
+  <div id="mobile-nav-overlay" class="fixed inset-0 z-40 pointer-events-none opacity-0 invisible overflow-hidden" aria-hidden="true">
+    <!-- Dynamic Expanding Bubble Canvas / Mask -->
+    <div id="mobile-nav-bubble" class="absolute inset-0 bg-[#FAF9F6]/95 backdrop-blur-2xl flex flex-col justify-between p-5 sm:p-8 pt-24 pb-6 overflow-y-auto" style="clip-path: circle(0px at 90% 28px);">
+      
+      <!-- Atmospheric Ambient Glows within the overlay -->
+      <div class="glow-orb -top-24 -left-24 w-80 h-80 bg-warm-300/40 rounded-full blur-3xl pointer-events-none absolute"></div>
+      <div class="glow-orb bottom-10 -right-20 w-96 h-96 bg-amber-100/40 rounded-full blur-3xl pointer-events-none absolute"></div>
+      <div class="noise-overlay opacity-10"></div>
+
+      <!-- Overlay Top Category Bar -->
+      <div class="relative z-10 flex items-center justify-between border-b border-warm-300 pb-3 mb-4 max-w-xl mx-auto w-full">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-warm-700 animate-pulse"></span>
+          <span class="text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-ink-muted">Navigation Menu</span>
+        </div>
+        <button id="mobile-nav-close-btn" class="px-2.5 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-[11px] font-mono text-ink font-semibold shadow-2xs flex items-center gap-1 transition-colors">
+          <span>✕</span> <span>Close</span>
+        </button>
+      </div>
+
+      <!-- Showcase Labs Navigation Links -->
+      <div class="relative z-10 flex flex-col gap-2.5 max-w-xl mx-auto w-full my-auto py-2">
+        <!-- Link 1: Gallery Hub -->
+        <a href="index.html" class="mobile-nav-item group relative p-3.5 sm:p-4 rounded-2xl border border-warm-300 bg-white/80 hover:bg-white hover:border-warm-400 transition-all duration-300 flex items-center justify-between shadow-2xs">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-warm-200/70 border border-warm-300 flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-transform">
+              ✨
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-warm-700">01 &bull; Hub</span>
+              </div>
+              <div class="font-bold text-sm text-ink group-hover:text-warm-900 transition-colors">
+                Animations Lab Gallery
+              </div>
+              <div class="text-[11px] text-ink-muted line-clamp-1">
+                Curated collection of 3 production motion components
+              </div>
+            </div>
+          </div>
+          <span class="text-ink-subtle group-hover:text-ink group-hover:translate-x-1 transition-all text-sm font-bold">→</span>
+        </a>
+
+        <!-- Link 2: 3D Card Stack (Current) -->
+        <a href="gsap-3d-card-stack.html" class="mobile-nav-item group relative p-3.5 sm:p-4 rounded-2xl border border-warm-700 bg-warm-200/90 shadow-sm transition-all duration-300 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-warm-300/80 border border-warm-400/60 flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+              🃏
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-warm-800">02 &bull; 3D Deck</span>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-warm-800 text-warm-50 font-bold">CURRENT</span>
+              </div>
+              <div class="font-bold text-sm text-ink group-hover:text-warm-900 transition-colors">
+                GSAP 3D Card Stack
+              </div>
+              <div class="text-[11px] text-ink-muted line-clamp-1">
+                ScrollTrigger spatial perspective card pinning
+              </div>
+            </div>
+          </div>
+          <span class="text-ink-subtle group-hover:text-ink group-hover:translate-x-1 transition-all text-sm font-bold">→</span>
+        </a>
+
+        <!-- Link 3: 3D Glare Showcase -->
+        <a href="interactive-3d-review-stack.html" class="mobile-nav-item group relative p-3.5 sm:p-4 rounded-2xl border border-warm-300 bg-white/80 hover:bg-white hover:border-warm-400 transition-all duration-300 flex items-center justify-between shadow-2xs">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-warm-200/70 border border-warm-300 flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-transform">
+              💎
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-warm-700">03 &bull; Carousel</span>
+              </div>
+              <div class="font-bold text-sm text-ink group-hover:text-warm-900 transition-colors">
+                3D Specular Glare Carousel
+              </div>
+              <div class="text-[11px] text-ink-muted line-clamp-1">
+                Interactive spatial cards with specular glare reflection
+              </div>
+            </div>
+          </div>
+          <span class="text-ink-subtle group-hover:text-ink group-hover:translate-x-1 transition-all text-sm font-bold">→</span>
+        </a>
+
+        <!-- Link 4: Horizontal Scroll Showcase -->
+        <a href="gsap-horizontal-video-showcase.html" class="mobile-nav-item group relative p-3.5 sm:p-4 rounded-2xl border border-warm-300 bg-white/80 hover:bg-white hover:border-warm-400 transition-all duration-300 flex items-center justify-between shadow-2xs">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-warm-200/70 border border-warm-300 flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-transform">
+              🎬
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-warm-700">04 &bull; ScrollTrigger</span>
+              </div>
+              <div class="font-bold text-sm text-ink group-hover:text-warm-900 transition-colors">
+                Horizontal Video Showcase
+              </div>
+              <div class="text-[11px] text-ink-muted line-clamp-1">
+                Multi-panel scroll-pinned horizontal slider &amp; specs
+              </div>
+            </div>
+          </div>
+          <span class="text-ink-subtle group-hover:text-ink group-hover:translate-x-1 transition-all text-sm font-bold">→</span>
+        </a>
+      </div>
+
+      <!-- Quick Jump & Footer Links -->
+      <div class="relative z-10 pt-4 border-t border-warm-300 mt-4 flex flex-col items-center justify-between gap-3 max-w-xl mx-auto w-full">
+        <div class="mobile-nav-item flex items-center justify-center gap-2 flex-wrap w-full">
+          <span class="text-[10px] font-mono text-ink-subtle uppercase tracking-wider">Page Sections:</span>
+          <a href="#live-demo" class="px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-xs font-semibold transition-all shadow-2xs">
+            01. Live Demo
+          </a>
+          <a href="#readme-section" class="px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-xs font-semibold transition-all shadow-2xs">
+            02. Docs &amp; Code
+          </a>
+          <a href="https://github.com/UdayPratap902/Animations" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-full border border-ink bg-ink hover:bg-warm-900 text-warm-100 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            <span>GitHub</span>
+          </a>
+        </div>
+        <div class="text-[10px] font-mono text-ink-subtle text-center">
+          ScrollTrigger 3D Pinned Animation &bull; GSAP 3.12
+        </div>
+      </div>
+    </div>
+
+    <!-- Bubble Ripple Ring (Liquid pop effect originating from hamburger button) -->
+    <div id="bubble-ripple" class="pointer-events-none absolute w-10 h-10 rounded-full border-2 border-warm-500/50 -translate-x-1/2 -translate-y-1/2 opacity-0 z-50"></div>
+  </div>
 
   <!-- ========================================================================= -->
   <!-- 1. Hero Intro Section                                                     -->
@@ -1044,7 +1208,178 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       ScrollTrigger.refresh();
+      initMobileBubbleNav();
     });
+
+    // -------------------------------------------------------------------------
+    // Responsive Mobile Full-Page Bubble Navigation Controller
+    // -------------------------------------------------------------------------
+    function initMobileBubbleNav() {
+      const toggleBtn = document.getElementById("mobile-nav-toggle");
+      const overlay = document.getElementById("mobile-nav-overlay");
+      const bubble = document.getElementById("mobile-nav-bubble");
+      const closeBtn = document.getElementById("mobile-nav-close-btn");
+      const ripple = document.getElementById("bubble-ripple");
+      if (!toggleBtn || !overlay || !bubble) return;
+
+      const navItems = overlay.querySelectorAll(".mobile-nav-item");
+      let isOpen = false;
+      let isAnimating = false;
+
+      function getOrigin() {
+        const rect = toggleBtn.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        };
+      }
+
+      function openMenu() {
+        if (isAnimating || isOpen) return;
+        isAnimating = true;
+        isOpen = true;
+
+        toggleBtn.setAttribute("aria-expanded", "true");
+        toggleBtn.classList.add("is-active");
+        document.body.style.overflow = "hidden";
+
+        const { x, y } = getOrigin();
+        const maxRadius = Math.hypot(
+          Math.max(x, window.innerWidth - x),
+          Math.max(y, window.innerHeight - y)
+        ) * 1.05;
+
+        overlay.style.pointerEvents = "auto";
+        overlay.style.visibility = "visible";
+        overlay.setAttribute("aria-hidden", "false");
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            isAnimating = false;
+          }
+        });
+
+        // Bubble ripple pulse
+        if (ripple) {
+          gsap.set(ripple, {
+            left: x,
+            top: y,
+            width: 24,
+            height: 24,
+            opacity: 0.9,
+            scale: 1
+          });
+          tl.to(ripple, {
+            scale: 9,
+            opacity: 0,
+            duration: 0.6,
+            ease: "power2.out"
+          }, 0);
+        }
+
+        // Full-page circular bubble expansion
+        tl.to(overlay, { opacity: 1, duration: 0.15 }, 0);
+        tl.fromTo(bubble,
+          { clipPath: `circle(0px at ${x}px ${y}px)` },
+          { 
+            clipPath: `circle(${maxRadius}px at ${x}px ${y}px)`,
+            duration: 0.65,
+            ease: "power3.inOut"
+          },
+          0
+        );
+
+        // Staggered entrance for items
+        if (navItems.length) {
+          tl.fromTo(navItems,
+            { opacity: 0, y: 25, scale: 0.95 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.05, ease: "power2.out" },
+            "-=0.3"
+          );
+        }
+      }
+
+      function closeMenu(callback) {
+        if (isAnimating || !isOpen) return;
+        isAnimating = true;
+        isOpen = false;
+
+        toggleBtn.setAttribute("aria-expanded", "false");
+        toggleBtn.classList.remove("is-active");
+        document.body.style.overflow = "";
+
+        const { x, y } = getOrigin();
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            overlay.style.pointerEvents = "none";
+            overlay.style.visibility = "hidden";
+            overlay.setAttribute("aria-hidden", "true");
+            isAnimating = false;
+            if (typeof callback === "function") callback();
+          }
+        });
+
+        if (navItems.length) {
+          tl.to(navItems, {
+            opacity: 0,
+            y: 15,
+            duration: 0.2,
+            stagger: 0.02,
+            ease: "power2.in"
+          }, 0);
+        }
+
+        tl.to(bubble, {
+          clipPath: `circle(0px at ${x}px ${y}px)`,
+          duration: 0.45,
+          ease: "power3.inOut"
+        }, "-=0.1");
+
+        tl.to(overlay, { opacity: 0, duration: 0.2 }, "-=0.15");
+      }
+
+      toggleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (isOpen) closeMenu();
+        else openMenu();
+      });
+
+      if (closeBtn) {
+        closeBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeMenu();
+        });
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && isOpen) closeMenu();
+      });
+
+      overlay.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", (e) => {
+          const href = link.getAttribute("href");
+          if (!href || href.startsWith("http") || link.target === "_blank") return;
+          
+          if (href.startsWith("#")) {
+            e.preventDefault();
+            closeMenu(() => {
+              const el = document.querySelector(href);
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            });
+          } else {
+            e.preventDefault();
+            closeMenu(() => {
+              window.location.href = href;
+            });
+          }
+        });
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 768 && isOpen) closeMenu();
+      });
+    }
   </script>
 </body>
 </html>
