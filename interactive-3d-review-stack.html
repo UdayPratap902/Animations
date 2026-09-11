@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>3D Perspective Carousel &amp; Glare Motion Lab — Interactive Showcase</title>
-  <meta name="description" content="An interactive spatial 3D perspective review carousel with real-time cursor-tracked glare, physics controls, visual deconstructor, and production React / Framer Motion code." />
+  <meta name="description" content="An interactive spatial 3D perspective review carousel with real-time cursor-tracked glare, visual deconstructor, and production React / Framer Motion code." />
 
   <!-- Google Fonts: Instrument Serif + Almarai + Plus Jakarta Sans + Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -494,35 +494,39 @@
             </div>
           </div>
 
-          <!-- Card 2: 3D Depth Presets Switcher -->
+          <!-- Card 2: Calibrated Motion Telemetry -->
           <div class="p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-warm-300 shadow-sm flex flex-col justify-between space-y-3">
             <div class="flex items-center justify-between border-b border-warm-200 pb-2.5">
               <span class="text-xs font-mono font-bold uppercase text-ink flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                3D Depth Presets
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Motion Telemetry
               </span>
-              <span id="preset-active-label" class="text-[10px] font-mono text-ink-muted">Standard 10°</span>
+              <span class="text-[10px] font-mono text-ink-muted">60 FPS Hardware</span>
             </div>
 
-            <!-- Presets Buttons -->
-            <div class="grid grid-cols-3 gap-2">
-              <button id="preset-default" onclick="setPhysicsPreset('default')" class="preset-btn active py-2 px-1.5 rounded-xl border border-warm-300 text-center font-mono text-[11px] font-bold transition-all hover:border-ink cursor-pointer">
-                Default
-                <span class="block text-[9px] font-normal opacity-75">10° Balanced</span>
-              </button>
-              <button id="preset-cinematic" onclick="setPhysicsPreset('cinematic')" class="preset-btn py-2 px-1.5 rounded-xl border border-warm-300 text-center font-mono text-[11px] font-bold transition-all hover:border-ink cursor-pointer">
-                Cinematic
-                <span class="block text-[9px] font-normal opacity-75">18° Deep</span>
-              </button>
-              <button id="preset-subtle" onclick="setPhysicsPreset('subtle')" class="preset-btn py-2 px-1.5 rounded-xl border border-warm-300 text-center font-mono text-[11px] font-bold transition-all hover:border-ink cursor-pointer">
-                Subtle
-                <span class="block text-[9px] font-normal opacity-75">5° Gentle</span>
-              </button>
+            <!-- Static Spec Grid -->
+            <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+              <div class="p-2 rounded-xl bg-warm-100/70 border border-warm-200">
+                <span class="text-[10px] text-ink-muted block uppercase">Perspective</span>
+                <span class="font-bold text-ink">1200px</span>
+              </div>
+              <div class="p-2 rounded-xl bg-warm-100/70 border border-warm-200">
+                <span class="text-[10px] text-ink-muted block uppercase">Wing Pitch</span>
+                <span class="font-bold text-ink">&plusmn;10&deg; Spatial</span>
+              </div>
+              <div class="p-2 rounded-xl bg-warm-100/70 border border-warm-200">
+                <span class="text-[10px] text-ink-muted block uppercase">Spring Mass</span>
+                <span class="font-bold text-ink">300st / 30dmp</span>
+              </div>
+              <div class="p-2 rounded-xl bg-warm-100/70 border border-warm-200">
+                <span class="text-[10px] text-ink-muted block uppercase">Cursor Glare</span>
+                <span class="font-bold text-ink">&Delta; Vector Track</span>
+              </div>
             </div>
 
             <div class="text-[10px] text-ink-muted font-mono flex items-center justify-between border-t border-warm-100 pt-2">
-              <span>Perspective: 1200px</span>
-              <span>Spring: 300 / 30</span>
+              <span>Stack: 4 Dynamic Layers</span>
+              <span class="text-emerald-700 font-semibold">&bull; GPU Active</span>
             </div>
           </div>
 
@@ -690,46 +694,7 @@
 
       </div>
 
-      <!-- Real-Time Interactive Property Playground Sliders -->
-      <div class="bg-warm-100/80 rounded-2xl border border-warm-300 p-5 shadow-2xs">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-2 border-b border-warm-300/80">
-          <span class="text-xs font-mono font-bold uppercase text-ink flex items-center gap-1.5">
-            <span>⚙</span> Live 3D Parameter Playground (Real-Time Tweaker)
-          </span>
-          <button onclick="resetSliders()" class="text-[10px] font-mono font-bold text-warm-800 hover:text-ink underline self-start sm:self-auto cursor-pointer">
-            Reset to Defaults
-          </button>
-        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          <!-- Slider 1: Wing Tilt -->
-          <div class="space-y-1.5">
-            <div class="flex justify-between text-xs font-mono">
-              <span class="text-ink-muted">Wing Angle:</span>
-              <span id="val-tilt-slider" class="font-bold text-ink">10 deg</span>
-            </div>
-            <input type="range" id="slider-tilt" min="0" max="30" value="10" oninput="updateDeconstructSliders()" class="w-full cursor-ew-resize" />
-          </div>
-
-          <!-- Slider 2: Wing X Offset -->
-          <div class="space-y-1.5">
-            <div class="flex justify-between text-xs font-mono">
-              <span class="text-ink-muted">Wing Spacing:</span>
-              <span id="val-spacing-slider" class="font-bold text-ink">52%</span>
-            </div>
-            <input type="range" id="slider-spacing" min="30" max="75" value="52" oninput="updateDeconstructSliders()" class="w-full cursor-ew-resize" />
-          </div>
-
-          <!-- Slider 3: Depth Blur -->
-          <div class="space-y-1.5">
-            <div class="flex justify-between text-xs font-mono">
-              <span class="text-ink-muted">Wing Blur:</span>
-              <span id="val-blur-slider" class="font-bold text-ink">1.5 px</span>
-            </div>
-            <input type="range" id="slider-blur" min="0" max="6" step="0.5" value="1.5" oninput="updateDeconstructSliders()" class="w-full cursor-ew-resize" />
-          </div>
-        </div>
-      </div>
 
     </div>
   </section>
@@ -794,7 +759,7 @@
       <!-- React Tab Content -->
       <div id="tab-react-content" class="space-y-3">
         <div class="flex justify-between items-center px-1">
-          <span class="text-xs font-semibold text-ink-muted font-mono">GlobalReviewsStack.tsx (From AvadaKeDevara Frontend)</span>
+          <span class="text-xs font-semibold text-ink-muted font-mono">GlobalReviewsStack.tsx (React + Framer Motion)</span>
           <div class="flex items-center gap-2">
             <button onclick="toggleCodeHeight('react-code-wrapper')" class="text-xs font-mono text-ink-muted hover:text-ink underline px-2 py-1 cursor-pointer">
               Toggle View
@@ -1397,44 +1362,7 @@ function renderCarousel(animate = true) {
       }
     }
 
-    // =========================================================================
-    // 3. 3D PHYSICS PRESETS
-    // =========================================================================
-    function setPhysicsPreset(preset) {
-      const btnDef = document.getElementById("preset-default");
-      const btnCin = document.getElementById("preset-cinematic");
-      const btnSub = document.getElementById("preset-subtle");
-      const activeLabel = document.getElementById("preset-active-label");
 
-      if (btnDef) btnDef.classList.remove("active");
-      if (btnCin) btnCin.classList.remove("active");
-      if (btnSub) btnSub.classList.remove("active");
-
-      if (preset === 'cinematic') {
-        if (btnCin) btnCin.classList.add("active");
-        currentTiltAngle = 18;
-        currentWingSpacing = 56;
-        currentWingBlur = 2.5;
-        currentWingScale = 0.84;
-        if (activeLabel) activeLabel.innerText = "Cinematic 18°";
-      } else if (preset === 'subtle') {
-        if (btnSub) btnSub.classList.add("active");
-        currentTiltAngle = 5;
-        currentWingSpacing = 48;
-        currentWingBlur = 0.8;
-        currentWingScale = 0.92;
-        if (activeLabel) activeLabel.innerText = "Subtle 5°";
-      } else {
-        if (btnDef) btnDef.classList.add("active");
-        currentTiltAngle = 10;
-        currentWingSpacing = 52;
-        currentWingBlur = 1.5;
-        currentWingScale = 0.88;
-        if (activeLabel) activeLabel.innerText = "Standard 10°";
-      }
-
-      renderCarousel(true);
-    }
 
     // Inertial Glare & Tilt Sensor Tracking
     let isHoveringCenter = false;
@@ -1662,43 +1590,7 @@ function renderCarousel(animate = true) {
       }
     }
 
-    function updateDeconstructSliders() {
-      const sTilt = document.getElementById("slider-tilt");
-      const sSpacing = document.getElementById("slider-spacing");
-      const sBlur = document.getElementById("slider-blur");
 
-      const valTilt = document.getElementById("val-tilt-slider");
-      const valSpacing = document.getElementById("val-spacing-slider");
-      const valBlur = document.getElementById("val-blur-slider");
-
-      if (sTilt && valTilt) {
-        currentTiltAngle = parseFloat(sTilt.value);
-        valTilt.innerText = `${currentTiltAngle} deg`;
-      }
-      if (sSpacing && valSpacing) {
-        currentWingSpacing = parseFloat(sSpacing.value);
-        valSpacing.innerText = `${currentWingSpacing}%`;
-      }
-      if (sBlur && valBlur) {
-        currentWingBlur = parseFloat(sBlur.value);
-        valBlur.innerText = `${currentWingBlur} px`;
-      }
-
-      setDeconstructState(currentDeconstructState);
-      renderCarousel(true);
-    }
-
-    function resetSliders() {
-      const sTilt = document.getElementById("slider-tilt");
-      const sSpacing = document.getElementById("slider-spacing");
-      const sBlur = document.getElementById("slider-blur");
-
-      if (sTilt) sTilt.value = 10;
-      if (sSpacing) sSpacing.value = 52;
-      if (sBlur) sBlur.value = 1.5;
-
-      updateDeconstructSliders();
-    }
 
 
     // =========================================================================

@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Interactive Pricing Deck — Hover Elevation &amp; Benefit Expansion</title>
+  <meta name="description" content="Interactive 3D card deck animation with hover-elevation transforms, staggered benefit expansion, elastic magnetic CTAs, and mobile accordion fallback. Full React + Framer Motion and Vanilla JS production code." />
+
+  <!-- Google Fonts: Instrument Serif + Almarai + Plus Jakarta Sans + Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Fira+Code:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Almarai', '"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            warm: {
+              50: '#FDFCFB', 100: '#FAF9F6', 200: '#F4F1EA',
+              300: '#EDE8DC', 400: '#DEDBC8', 500: '#C8C4AB',
+              600: '#A49F83', 700: '#757159', 800: '#474435', 900: '#1C1B15',
+            },
+            ink: { DEFAULT: '#141413', muted: '#6C6A63', subtle: '#9E9B91' },
+            mint: { DEFAULT: '#5CE0B8', hover: '#4dd3ab', light: '#F4FBF8' },
+            purple: { DEFAULT: '#5A4BD6', light: '#EDE9FE' },
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Shared Components -->
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+
+  <style>
+    :root {
+      --deck-ink: #16191C;
+      --deck-accent: #5CE0B8;
+      --deck-purple: #5A4BD6;
+      --deck-bg: #F4FBF8;
+      --deck-surface: #FFFFFF;
+      --deck-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body {
+      background-color: #FAF9F6;
+      color: #141413;
+      font-family: 'Almarai', 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Noise overlay */
+    .noise-overlay {
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.07; mix-blend-mode: multiply; pointer-events: none; z-index: 99;
+    }
+
+    /* Gradient text utility */
+    .deck-gradient-text {
+      background: linear-gradient(135deg, #16191C 40%, #5A4BD6 80%, #5CE0B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Design system buttons */
+    .deck-btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      background-color: #5CE0B8; color: #16191C; font-weight: 700; border-radius: 9999px;
+      box-shadow: 0 4px 16px rgba(92,224,184,0.22);
+      transition: background-color 200ms var(--deck-ease), box-shadow 200ms var(--deck-ease), transform 200ms var(--deck-ease);
+    }
+    .deck-btn-primary:hover {
+      background-color: #4dd3ab; box-shadow: 0 8px 24px rgba(92,224,184,0.38);
+      transform: translateY(-1px);
+    }
+    .deck-btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      background-color: #F8FAFC; border: 1px solid rgba(226,232,240,0.9);
+      color: #16191C; font-weight: 700; border-radius: 9999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      transition: all 200ms var(--deck-ease);
+    }
+    .deck-btn-secondary:hover {
+      background-color: #FFFFFF; border-color: rgba(92,224,184,0.5);
+      box-shadow: 0 6px 18px rgba(92,224,184,0.12); transform: translateY(-1px);
+    }
+
+    /* The pricing section stage background */
+    .pricing-stage {
+      background-color: #F4FBF8;
+      position: relative; overflow: hidden;
+    }
+
+    /* Card deck individual cards */
+    .deck-card {
+      will-change: transform;
+      transition: all 0.3s var(--deck-ease);
+      cursor: pointer;
+    }
+
+    /* Benefit list item animation */
+    .benefit-item {
+      opacity: 0; transform: translateY(5px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .benefit-item.revealed {
+      opacity: 1; transform: translateY(0);
+    }
+
+    /* Benefits wrapper (collapse/expand) */
+    .benefits-wrapper {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.28s var(--deck-ease), opacity 0.22s ease;
+      opacity: 0;
+    }
+    .benefits-wrapper.expanded {
+      max-height: 300px; opacity: 1;
+    }
+
+    /* Magnetic button wrapper */
+    .magnetic-btn-wrapper {
+      display: inline-block; transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Mobile tab switcher */
+    .mobile-tab-btn {
+      padding: 0.375rem 0.75rem; border-radius: 9999px;
+      font-size: 0.75rem; font-weight: 700;
+      transition: all 0.2s ease; cursor: pointer;
+      color: #475569;
+    }
+    .mobile-tab-btn.active {
+      background-color: #16191C; color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(22,25,28,0.18);
+    }
+
+    /* Mobile accordion card */
+    .mobile-acc-card {
+      background: #FFFFFF; border-radius: 1.5rem;
+      padding: 1.25rem 1.5rem; transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    /* Mobile benefits container */
+    .mobile-benefits-wrapper {
+      overflow: hidden; max-height: 0;
+      transition: max-height 0.3s var(--deck-ease);
+    }
+    .mobile-benefits-wrapper.open {
+      max-height: 320px;
+    }
+
+    /* Code block tab buttons */
+    .tab-btn {
+      padding: 0.375rem 0.875rem; border-radius: 0.5rem;
+      font-family: 'Fira Code', monospace; font-size: 0.75rem; font-weight: 600;
+      border: 1px solid rgba(226,232,240,0.8);
+      background: #FFFFFF; color: #64748B;
+      transition: all 0.15s ease; cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #16191C; color: #F4FBF8; border-color: #16191C;
+    }
+
+    /* Code panels */
+    .code-panel { display: none; }
+    .code-panel.active { display: block; }
+
+    /* Deconstructor step tab */
+    .decon-step-btn {
+      padding: 0.5rem 1rem; border-radius: 0.75rem;
+      font-family: 'Fira Code', monospace; font-size: 0.75rem; font-weight: 600;
+      border: 1px solid #E2E8F0; background: #FFFFFF; color: #64748B;
+      transition: all 0.15s ease; cursor: pointer;
+    }
+    .decon-step-btn.active {
+      background: #16191C; color: #F4FBF8; border-color: #16191C;
+    }
+
+    /* Specs table */
+    .spec-table th {
+      background: #F8FAFC; font-family: 'Fira Code', monospace;
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: #64748B; border-bottom: 1px solid #E2E8F0;
+    }
+    .spec-table td {
+      font-family: 'Fira Code', monospace; font-size: 0.75rem;
+    }
+
+    /* Copy button */
+    .copy-btn {
+      font-family: 'Fira Code', monospace; font-size: 0.68rem;
+      padding: 0.25rem 0.6rem; border-radius: 0.375rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06); color: #E2E8F0;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.14); color: #FFFFFF;
+    }
+  </style>
+</head>
+<body class="selection:bg-[#5CE0B8]/30 selection:text-[#16191C]">
+
+  <div class="noise-overlay"></div>
+
+  <!-- Global Shared Navbar Component -->
+  <site-navbar active="pricing-deck"></site-navbar>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 1: LIVE INTERACTIVE STAGE                                         -->
+  <!-- ========================================================================= -->
+  <section id="experience" class="pricing-stage min-h-screen pt-28 pb-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative">
+
+    <!-- Atmospheric ambient glows -->
+    <div class="absolute -top-32 -left-32 w-[550px] h-[550px] bg-[#5CE0B8]/15 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-[550px] h-[550px] bg-[#5A4BD6]/10 rounded-full blur-[160px] pointer-events-none"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#5CE0B8]/8 rounded-full blur-[130px] pointer-events-none"></div>
+
+    <!-- Section Header -->
+    <div class="text-center max-w-3xl mx-auto mb-8 z-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 border border-slate-200/90 text-xs font-mono font-bold uppercase tracking-widest text-slate-700 mb-4 shadow-xs">
+        <span class="w-2 h-2 rounded-full bg-[#5CE0B8] animate-pulse"></span>
+        <span>01 • Live Stage</span>
+      </div>
+
+      <!-- Animated heading (words pull-up) -->
+      <h1 id="pull-up-title" class="text-3xl sm:text-5xl md:text-6xl font-black text-[#16191C] tracking-tight leading-[1.1] overflow-hidden mb-4">
+        <!-- words injected by JS for staggered pull-up -->
+      </h1>
+
+      <p class="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
+        Three tiers. One spatial deck. Hover any card to lift it from the stack, expand its feature list with staggered reveals, and watch the others recede in calibrated depth.
+      </p>
+
+      <!-- Mode switcher: Desktop / Mobile / Reduced Motion -->
+      <div class="flex items-center justify-center gap-2 mt-6 flex-wrap">
+        <button id="mode-desktop" onclick="setMode('desktop')" class="tab-btn active text-xs px-3.5 py-1.5">🖥 Desktop 3D</button>
+        <button id="mode-mobile" onclick="setMode('mobile')" class="tab-btn text-xs px-3.5 py-1.5">📱 Mobile Accordion</button>
+        <button id="mode-reduced" onclick="setMode('reduced')" class="tab-btn text-xs px-3.5 py-1.5">♿ Reduced Motion</button>
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         DESKTOP 3D CARD DECK (lg+)
+         ===================================================================== -->
+    <div id="live-deck-desktop" class="w-full z-20 pb-6">
+      <div class="flex items-end justify-center pt-4 pb-8 min-h-[560px]">
+        <div id="deck-container" class="relative flex items-end justify-center" style="gap: 0; margin-right: -3rem;">
+
+          <!-- Card 0: Starter -->
+          <div id="pd-card-0" class="deck-card relative bg-white rounded-3xl p-5 xl:p-6 flex flex-col border border-slate-200/90 shadow-[0_12px_32px_rgba(0,0,0,0.06)]"
+               style="width:340px; height:380px; transform: rotate(-4deg) translateY(6px) scale(0.96); transform-origin: bottom center; z-index:10; margin-right:-3.5rem;"
+               onmouseenter="deckHover(0)" onmouseleave="deckRest()">
+
+            <!-- Top content -->
+            <div>
+              <h3 id="pd-h3-0" class="text-xl xl:text-2xl font-bold text-[#16191C] tracking-tight origin-left transition-transform duration-200">Starter</h3>
+              <p class="mt-1 text-xs text-slate-600 leading-relaxed min-h-[32px]">Essential foundation for solo creators and emerging projects.</p>
+              <div class="mt-2 pb-2.5 border-b border-slate-100">
+                <div class="flex items-baseline gap-1">
+                  <span class="text-3xl xl:text-4xl font-black text-[#16191C] tracking-tight">$49</span>
+                  <span class="text-xs font-medium text-slate-500">/month</span>
+                </div>
+              </div>
+              <!-- Benefits -->
+              <div class="benefits-wrapper" id="pd-benefits-0">
+                <div class="pt-2">
+                  <div class="flex items-center gap-1.5 mb-1.5">
+                    <span class="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase">What's included</span>
+                  </div>
+                  <ul class="space-y-1.5" id="pd-blist-0">
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Up to 3 active spaces</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>5 GB cloud storage</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Community support</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Core API access</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Monthly usage telemetry</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>1 workspace seat</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!-- CTA -->
+            <div class="mt-auto pt-2.5 border-t border-slate-100">
+              <div class="magnetic-btn-wrapper w-full" data-magnetic>
+                <button class="deck-btn-secondary w-full py-2.5 text-xs font-bold rounded-full flex items-center justify-center gap-2">
+                  <span>Get Started</span>
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 1: Pro (Featured/Center) -->
+          <div id="pd-card-1" class="deck-card relative bg-white rounded-3xl p-5 xl:p-6 flex flex-col border-2 border-[#5CE0B8] shadow-[0_20px_50px_-12px_rgba(92,224,184,0.22),0_8px_20px_rgba(0,0,0,0.04)]"
+               style="width:360px; height:420px; transform: rotate(0deg) translateY(0px) scale(1.0); transform-origin: bottom center; z-index:20; position:relative;"
+               onmouseenter="deckHover(1)" onmouseleave="deckRest()">
+
+            <!-- Badge -->
+            <div class="absolute -top-3.5 right-8 z-30 pointer-events-none">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5CE0B8] text-[#16191C] font-bold text-xs shadow-md">
+                <svg class="w-3 h-3 text-[#5A4BD6]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                Most Popular
+              </span>
+            </div>
+
+            <!-- Top content -->
+            <div>
+              <h3 id="pd-h3-1" class="text-xl xl:text-2xl font-bold text-[#16191C] tracking-tight origin-left transition-transform duration-200">Pro</h3>
+              <p class="mt-1 text-xs text-slate-600 leading-relaxed min-h-[32px]">Full spatial toolkit engineered for teams that build and scale fast.</p>
+              <div class="mt-2 pb-2.5 border-b border-slate-100">
+                <div class="flex items-baseline gap-1">
+                  <span class="text-3xl xl:text-4xl font-black text-[#16191C] tracking-tight">$99</span>
+                  <span class="text-xs font-medium text-slate-500">/month</span>
+                </div>
+              </div>
+              <!-- Benefits -->
+              <div class="benefits-wrapper" id="pd-benefits-1">
+                <div class="pt-2">
+                  <div class="flex items-center gap-1.5 mb-1.5">
+                    <span class="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase">What's included</span>
+                  </div>
+                  <ul class="space-y-1.5" id="pd-blist-1">
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Everything in Starter</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Unlimited active spaces</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>60 FPS hardware acceleration</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Real-time peer collaboration</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Custom domains &amp; branding</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Priority SLA &amp; 24/7 engineer support</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!-- CTA -->
+            <div class="mt-auto pt-2.5 border-t border-slate-100">
+              <div class="magnetic-btn-wrapper w-full" data-magnetic>
+                <button class="deck-btn-primary w-full py-2.5 text-xs font-bold rounded-full flex items-center justify-center gap-2">
+                  <span>Deploy Pro Suite</span>
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Enterprise -->
+          <div id="pd-card-2" class="deck-card relative bg-white rounded-3xl p-5 xl:p-6 flex flex-col border border-slate-200/90 shadow-[0_12px_32px_rgba(0,0,0,0.06)]"
+               style="width:340px; height:380px; transform: rotate(4deg) translateY(6px) scale(0.96); transform-origin: bottom center; z-index:10; margin-left:-3.5rem;"
+               onmouseenter="deckHover(2)" onmouseleave="deckRest()">
+
+            <!-- Badge -->
+            <div class="absolute -top-3.5 right-8 z-30 pointer-events-none">
+              <span class="inline-flex items-center px-3 py-1 rounded-full bg-[#5A4BD6]/10 text-[#5A4BD6] font-bold text-xs border border-[#5A4BD6]/20 font-mono shadow-xs">Enterprise</span>
+            </div>
+
+            <!-- Top content -->
+            <div>
+              <h3 id="pd-h3-2" class="text-xl xl:text-2xl font-bold text-[#16191C] tracking-tight origin-left transition-transform duration-200">Enterprise</h3>
+              <p class="mt-1 text-xs text-slate-600 leading-relaxed min-h-[32px]">Dedicated infrastructure, custom security audits, and dedicated SLAs.</p>
+              <div class="mt-2 pb-2.5 border-b border-slate-100">
+                <div class="flex items-baseline gap-1">
+                  <span class="text-3xl xl:text-4xl font-black text-[#16191C] tracking-tight">Custom</span>
+                </div>
+              </div>
+              <!-- Benefits -->
+              <div class="benefits-wrapper" id="pd-benefits-2">
+                <div class="pt-2">
+                  <div class="flex items-center gap-1.5 mb-1.5">
+                    <span class="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase">What's included</span>
+                  </div>
+                  <ul class="space-y-1.5" id="pd-blist-2">
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Everything in Pro</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Unlimited workspace seats</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Dedicated cloud cluster</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Custom WebGL shader pipelines</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>SSO, SAML &amp; audit logging</span></li>
+                    <li class="benefit-item flex items-start gap-2 text-xs text-slate-700 font-medium leading-tight"><div class="w-3.5 h-3.5 rounded-full bg-[#5CE0B8] flex items-center justify-center shrink-0 mt-0.5"><svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><polyline points="2,5 4,7 8,3" fill="none" stroke="#16191C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Dedicated solutions architect</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!-- CTA -->
+            <div class="mt-auto pt-2.5 border-t border-slate-100">
+              <div class="magnetic-btn-wrapper w-full" data-magnetic>
+                <button class="deck-btn-secondary w-full py-2.5 text-xs font-bold rounded-full flex items-center justify-center gap-2">
+                  <span>Talk to Sales</span>
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /deck-container -->
+      </div>
+
+      <!-- Hover hint label -->
+      <p class="text-center text-xs font-mono text-ink-muted mt-2 animate-pulse">← Hover any card to reveal benefits and see elevation in action →</p>
+    </div>
+
+    <!-- =====================================================================
+         MOBILE ACCORDION VIEW
+         ===================================================================== -->
+    <div id="live-deck-mobile" class="hidden w-full max-w-md mx-auto z-20 pb-6">
+      <!-- Tabs -->
+      <div class="flex items-center justify-center gap-1.5 mb-6 p-1.5 rounded-full bg-white border border-slate-200/90 shadow-sm max-w-xs mx-auto">
+        <button class="mobile-tab-btn active" id="mtab-0" onclick="setMobileTab(0)">Starter</button>
+        <button class="mobile-tab-btn" id="mtab-1" onclick="setMobileTab(1)">Pro</button>
+        <button class="mobile-tab-btn" id="mtab-2" onclick="setMobileTab(2)">Enterprise</button>
+      </div>
+
+      <!-- Accordion Stack -->
+      <div class="space-y-4">
+        <!-- Card 0: Starter -->
+        <div id="macc-0" class="mobile-acc-card border border-slate-200/80 shadow-sm" onclick="setMobileTab(0)">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-mono font-bold uppercase tracking-widest text-slate-500">Tier 01</span>
+              <h3 class="text-lg font-bold text-[#16191C]">Starter</h3>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-black text-[#16191C]">$49<span class="text-xs font-normal text-slate-500">/mo</span></div>
+              <span id="macc-hint-0" class="text-[10px] font-mono text-slate-600">Active</span>
+            </div>
+          </div>
+          <div class="mobile-benefits-wrapper open" id="macc-b-0">
+            <ul class="pt-4 space-y-2 text-xs text-slate-700 border-t border-slate-100 mt-3">
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Up to 3 active spaces</li>
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> 5 GB cloud storage</li>
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Community support</li>
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Core API access</li>
+            </ul>
+            <button class="deck-btn-secondary w-full py-3 mt-4 text-xs font-bold rounded-full flex items-center justify-center gap-2">
+              <span>Get Started</span><span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 1: Pro -->
+        <div id="macc-1" class="mobile-acc-card border-2 border-[#5CE0B8] shadow-md shadow-[#5CE0B8]/15" onclick="setMobileTab(1)">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#5CE0B8] text-[#16191C] font-bold text-[9px] mb-1">★ Most Popular</div>
+              <h3 class="text-lg font-bold text-[#16191C]">Pro</h3>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-black text-[#16191C]">$99<span class="text-xs font-normal text-slate-500">/mo</span></div>
+              <span id="macc-hint-1" class="text-[10px] font-mono text-slate-600">Tap to view</span>
+            </div>
+          </div>
+          <div class="mobile-benefits-wrapper" id="macc-b-1">
+            <ul class="pt-4 space-y-2 text-xs text-slate-700 border-t border-slate-100 mt-3">
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Everything in Starter</li>
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Unlimited active spaces</li>
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> 60 FPS acceleration</li>
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Priority SLA &amp; 24/7 chat</li>
+            </ul>
+            <button class="deck-btn-primary w-full py-3 mt-4 text-xs font-bold rounded-full flex items-center justify-center gap-2">
+              <span>Deploy Pro Suite</span><span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 2: Enterprise -->
+        <div id="macc-2" class="mobile-acc-card border border-slate-200/80 shadow-sm" onclick="setMobileTab(2)">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-mono font-bold uppercase tracking-widest text-[#5A4BD6]">Enterprise</span>
+              <h3 class="text-lg font-bold text-[#16191C]">Enterprise</h3>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-black text-[#16191C]">Custom</div>
+              <span id="macc-hint-2" class="text-[10px] font-mono text-slate-600">Tap to view</span>
+            </div>
+          </div>
+          <div class="mobile-benefits-wrapper" id="macc-b-2">
+            <ul class="pt-4 space-y-2 text-xs text-slate-700 border-t border-slate-100 mt-3">
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Everything in Pro</li>
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Dedicated cloud cluster</li>
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Custom shader pipelines</li>
+              <li class="flex items-center gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> SSO &amp; audit logging</li>
+            </ul>
+            <button class="deck-btn-secondary w-full py-3 mt-4 text-xs font-bold rounded-full flex items-center justify-center gap-2">
+              <span>Talk to Sales</span><span>→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         REDUCED MOTION — STATIC 3-COLUMN GRID
+         ===================================================================== -->
+    <div id="live-deck-reduced" class="hidden w-full max-w-5xl mx-auto z-20 pb-6 px-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-5xl mx-auto">
+        <div class="flex flex-col justify-between p-8 rounded-3xl bg-white border border-slate-200 shadow-sm">
+          <div>
+            <h3 class="text-xl font-bold text-[#16191C]">Starter</h3>
+            <p class="mt-2 text-xs text-slate-600">Essential foundation for solo creators.</p>
+            <div class="mt-5 pb-5 border-b border-slate-100"><span class="text-4xl font-black text-[#16191C]">$49</span><span class="text-sm font-medium text-slate-500">/month</span></div>
+            <ul class="mt-4 space-y-2 text-xs text-slate-700">
+              <li class="flex items-start gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Up to 3 active spaces</li>
+              <li class="flex items-start gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> 5 GB cloud storage</li>
+              <li class="flex items-start gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Community support</li>
+            </ul>
+          </div>
+          <div class="mt-6 pt-5 border-t border-slate-100"><button class="deck-btn-secondary w-full py-3 text-xs font-bold rounded-full text-center block">Get Started</button></div>
+        </div>
+        <div class="flex flex-col justify-between p-8 rounded-3xl bg-white border-2 border-[#5CE0B8] shadow-md">
+          <div>
+            <h3 class="text-xl font-bold text-[#16191C]">Pro</h3>
+            <p class="mt-2 text-xs text-slate-600">Full spatial toolkit for scaling teams.</p>
+            <div class="mt-5 pb-5 border-b border-slate-100"><span class="text-4xl font-black text-[#16191C]">$99</span><span class="text-sm font-medium text-slate-500">/month</span></div>
+            <ul class="mt-4 space-y-2 text-xs text-slate-700">
+              <li class="flex items-start gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Everything in Starter</li>
+              <li class="flex items-start gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Unlimited active spaces</li>
+              <li class="flex items-start gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> 60 FPS hardware acceleration</li>
+            </ul>
+          </div>
+          <div class="mt-6 pt-5 border-t border-slate-100"><button class="deck-btn-primary w-full py-3 text-xs font-bold rounded-full text-center block">Get Started</button></div>
+        </div>
+        <div class="flex flex-col justify-between p-8 rounded-3xl bg-white border border-slate-200 shadow-sm">
+          <div>
+            <h3 class="text-xl font-bold text-[#16191C]">Enterprise</h3>
+            <p class="mt-2 text-xs text-slate-600">Dedicated architecture for organizations.</p>
+            <div class="mt-5 pb-5 border-b border-slate-100"><span class="text-4xl font-black text-[#16191C]">Custom</span></div>
+            <ul class="mt-4 space-y-2 text-xs text-slate-700">
+              <li class="flex items-start gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Everything in Pro</li>
+              <li class="flex items-start gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Dedicated cloud cluster</li>
+              <li class="flex items-start gap-2"><span class="text-[#5CE0B8] font-bold">✓</span> Custom SLA &amp; SSO</li>
+            </ul>
+          </div>
+          <div class="mt-6 pt-5 border-t border-slate-100"><button class="deck-btn-secondary w-full py-3 text-xs font-bold rounded-full text-center block">Talk to Sales</button></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 2: ARCHITECTURE DECONSTRUCTOR                                     -->
+  <!-- ========================================================================= -->
+  <section id="deconstruct" class="relative bg-warm-100 py-16 sm:py-20 px-4 sm:px-8 border-t border-warm-300">
+    <div class="max-w-5xl mx-auto">
+
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-warm-300 text-[10px] font-mono font-bold uppercase tracking-widest mb-3 shadow-xs">
+          <span>02 • Deconstruct</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-ink tracking-tight">How the deck is built</h2>
+        <p class="mt-2 text-sm text-ink-muted max-w-xl mx-auto">Four animation layers that compose to create the full hover-elevation experience.</p>
+      </div>
+
+      <!-- Step Tabs -->
+      <div class="flex flex-wrap gap-2 justify-center mb-8">
+        <button class="decon-step-btn active" id="dstep-0" onclick="setDeconStep(0)">01 • Anchor Fanning</button>
+        <button class="decon-step-btn" id="dstep-1" onclick="setDeconStep(1)">02 • Hover Elevation</button>
+        <button class="decon-step-btn" id="dstep-2" onclick="setDeconStep(2)">03 • Benefit Expansion</button>
+        <button class="decon-step-btn" id="dstep-3" onclick="setDeconStep(3)">04 • Magnetic CTAs</button>
+      </div>
+
+      <!-- Step Panels -->
+      <div id="dstep-panel-0" class="decon-panel">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 class="text-lg font-bold text-ink mb-2 font-mono">Permanent Anchor Positions</h3>
+            <p class="text-sm text-ink-muted leading-relaxed mb-4">Cards are permanently fixed in their left/center/right positions. No position swapping occurs on hover — only transforms are applied in-place. This keeps the layout stable while creating the illusion of spatial depth.</p>
+            <div class="space-y-2 text-xs font-mono">
+              <div class="p-3 rounded-xl bg-white border border-warm-300 flex items-center justify-between">
+                <span class="font-bold">Starter (Left)</span>
+                <span class="text-ink-muted">rotate(-4deg) translateY(6px) scale(0.96)</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white border-2 border-[#5CE0B8] flex items-center justify-between">
+                <span class="font-bold">Pro (Center)</span>
+                <span class="text-ink-muted">rotate(0deg) translateY(0px) scale(1.0)</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white border border-warm-300 flex items-center justify-between">
+                <span class="font-bold">Enterprise (Right)</span>
+                <span class="text-ink-muted">rotate(4deg) translateY(6px) scale(0.96)</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-[#16191C] rounded-2xl p-5 text-[0.7rem] font-mono leading-relaxed overflow-x-auto">
+            <pre><code class="text-warm-100"><span class="text-[#5CE0B8]">// Resting deck state</span>
+<span class="text-warm-400">if</span> (hoveredIdx === <span class="text-amber-400">null</span>) {
+  <span class="text-warm-400">if</span> (i === <span class="text-amber-400">0</span>) { <span class="text-warm-600">// Left — Starter</span>
+    transform = <span class="text-emerald-400">"rotate(-4deg) translateY(6px) scale(0.96)"</span>;
+    zIndex = <span class="text-amber-400">10</span>;
+  } <span class="text-warm-400">else if</span> (i === <span class="text-amber-400">1</span>) { <span class="text-warm-600">// Center — Pro</span>
+    transform = <span class="text-emerald-400">"rotate(0deg) translateY(0px) scale(1.0)"</span>;
+    zIndex = <span class="text-amber-400">20</span>;
+  } <span class="text-warm-400">else</span> { <span class="text-warm-600">// Right — Enterprise</span>
+    transform = <span class="text-emerald-400">"rotate(4deg) translateY(6px) scale(0.96)"</span>;
+    zIndex = <span class="text-amber-400">10</span>;
+  }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="dstep-panel-1" class="decon-panel hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 class="text-lg font-bold text-ink mb-2 font-mono">Hover Elevation Mechanics</h3>
+            <p class="text-sm text-ink-muted leading-relaxed mb-4">The hovered card straightens to 0° rotation, lifts 14px, scales to 1.025, and gains the highest z-index. Non-hovered cards simultaneously recede to a deeper scale and slightly lower y-position. Both happen in the same 300ms cubic ease.</p>
+            <div class="space-y-2 text-xs font-mono">
+              <div class="p-3 rounded-xl bg-[#5CE0B8]/10 border border-[#5CE0B8]/40">
+                <span class="font-bold text-[#16191C]">Hovered Card</span><br/>
+                <span class="text-ink-muted">rotate(0deg) translateY(-14px) scale(1.025) — z: 35</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white border border-warm-300">
+                <span class="font-bold">Non-Hovered Side Card</span><br/>
+                <span class="text-ink-muted">rotate(±4deg) translateY(8px) scale(0.95) — z: 10</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white border border-warm-300">
+                <span class="font-bold">Non-Hovered Center</span><br/>
+                <span class="text-ink-muted">rotate(0deg) translateY(6px) scale(0.97) — z: 15</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-[#16191C] rounded-2xl p-5 text-[0.7rem] font-mono leading-relaxed overflow-x-auto">
+            <pre><code class="text-warm-100"><span class="text-[#5CE0B8]">// Hovered card: straighten + lift</span>
+<span class="text-warm-400">if</span> (isHovered) {
+  transform = <span class="text-emerald-400">"rotate(0deg) translateY(-14px) scale(1.025)"</span>;
+  zIndex = <span class="text-amber-400">35</span>;
+  shadowClass = isPro
+    ? <span class="text-emerald-400">"shadow-[0_28px_65px_-12px_rgba(92,224,184,0.35)..."</span>
+    : <span class="text-emerald-400">"shadow-[0_28px_65px_-12px_rgba(0,0,0,0.18)..."</span>;
+}
+
+<span class="text-[#5CE0B8]">// Non-hovered: recede in place</span>
+<span class="text-warm-400">else</span> {
+  <span class="text-warm-400">if</span> (i === <span class="text-amber-400">0</span>)
+    transform = <span class="text-emerald-400">"rotate(-4deg) translateY(8px) scale(0.95)"</span>;
+  <span class="text-warm-400">if</span> (i === <span class="text-amber-400">1</span>)
+    transform = <span class="text-emerald-400">"rotate(0deg) translateY(6px) scale(0.97)"</span>;
+  <span class="text-warm-400">if</span> (i === <span class="text-amber-400">2</span>)
+    transform = <span class="text-emerald-400">"rotate(4deg) translateY(8px) scale(0.95)"</span>;
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="dstep-panel-2" class="decon-panel hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 class="text-lg font-bold text-ink mb-2 font-mono">Benefit List Expansion</h3>
+            <p class="text-sm text-ink-muted leading-relaxed mb-4">Benefits are revealed via an AnimatePresence wrapper in Framer Motion (or a CSS max-height transition in Vanilla). Individual list items stagger in with 25ms delays between each, translating from y:5 to y:0 with opacity 0→1.</p>
+            <div class="space-y-2 text-xs font-mono">
+              <div class="p-3 rounded-xl bg-white border border-warm-300">
+                <span class="font-bold">Wrapper Transition</span>: max-height 280ms, opacity 220ms
+              </div>
+              <div class="p-3 rounded-xl bg-white border border-warm-300">
+                <span class="font-bold">Item Stagger</span>: delay: index * 25ms, duration: 200ms
+              </div>
+              <div class="p-3 rounded-xl bg-white border border-warm-300">
+                <span class="font-bold">Easing</span>: cubic-bezier(0.16, 1, 0.3, 1)
+              </div>
+            </div>
+          </div>
+          <div class="bg-[#16191C] rounded-2xl p-5 text-[0.7rem] font-mono leading-relaxed overflow-x-auto">
+            <pre><code class="text-warm-100"><span class="text-[#5CE0B8]">// Framer Motion: AnimatePresence expand</span>
+&lt;AnimatePresence&gt;
+  {isHovered &amp;&amp; (
+    &lt;motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+    &gt;
+      {features.map((feat, fIdx) =&gt; (
+        &lt;motion.li
+          key={fIdx}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: fIdx * 0.025 }}
+        /&gt;
+      ))}
+    &lt;/motion.div&gt;
+  )}
+&lt;/AnimatePresence&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="dstep-panel-3" class="decon-panel hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 class="text-lg font-bold text-ink mb-2 font-mono">Elastic Magnetic CTAs</h3>
+            <p class="text-sm text-ink-muted leading-relaxed mb-4">CTA buttons use GSAP <code class="bg-warm-200 px-1 rounded text-ink">quickTo</code> with elastic ease (<code class="bg-warm-200 px-1 rounded text-ink">elastic.out(1, 0.3)</code>) to track cursor position within the button bounding box. On mouse-leave, springs back to origin. Disabled on touch/coarse-pointer devices.</p>
+            <div class="space-y-2 text-xs font-mono">
+              <div class="p-3 rounded-xl bg-white border border-warm-300">
+                <span class="font-bold">Ease</span>: elastic.out(1, 0.3) — <span class="text-ink-muted">natural spring recoil</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white border border-warm-300">
+                <span class="font-bold">Duration</span>: 0.9s — <span class="text-ink-muted">lag felt, not instant</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white border border-warm-300">
+                <span class="font-bold">Strength</span>: 15px — <span class="text-ink-muted">ratio of cursor delta to button size</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-[#16191C] rounded-2xl p-5 text-[0.7rem] font-mono leading-relaxed overflow-x-auto">
+            <pre><code class="text-warm-100"><span class="text-[#5CE0B8]">// GsapMagnetic component core</span>
+<span class="text-warm-400">const</span> xTo = gsap.quickTo(el, <span class="text-emerald-400">"x"</span>, {
+  duration: <span class="text-amber-400">0.9</span>,
+  ease: <span class="text-emerald-400">"elastic.out(1, 0.3)"</span>
+});
+<span class="text-warm-400">const</span> yTo = gsap.quickTo(el, <span class="text-emerald-400">"y"</span>, {
+  duration: <span class="text-amber-400">0.9</span>,
+  ease: <span class="text-emerald-400">"elastic.out(1, 0.3)"</span>
+});
+
+el.addEventListener(<span class="text-emerald-400">"mousemove"</span>, (e) => {
+  <span class="text-warm-400">const</span> { height, width, left, top } = el.getBoundingClientRect();
+  <span class="text-warm-400">const</span> x = e.clientX - (left + width / <span class="text-amber-400">2</span>);
+  <span class="text-warm-400">const</span> y = e.clientY - (top + height / <span class="text-amber-400">2</span>);
+  xTo((x / width) * strength);  <span class="text-warm-600">// strength = 15</span>
+  yTo((y / height) * strength);
+});
+el.addEventListener(<span class="text-emerald-400">"mouseleave"</span>, () => {
+  xTo(<span class="text-amber-400">0</span>); yTo(<span class="text-amber-400">0</span>);  <span class="text-warm-600">// spring back to origin</span>
+});</code></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 3: SPATIAL PARAMETER MATRIX                                       -->
+  <!-- ========================================================================= -->
+  <section id="reference" class="relative bg-[#FAF9F6] py-16 sm:py-20 px-4 sm:px-8 border-t border-warm-300">
+    <div class="max-w-5xl mx-auto">
+
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-warm-300 text-[10px] font-mono font-bold uppercase tracking-widest mb-3 shadow-xs">
+          <span>03 • Specs</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-ink tracking-tight">Spatial Parameter Matrix</h2>
+        <p class="mt-2 text-sm text-ink-muted">The exact numbers behind every transform in the deck.</p>
+      </div>
+
+      <!-- Desktop transform table -->
+      <div class="overflow-x-auto rounded-2xl border border-warm-300 shadow-xs mb-8">
+        <table class="spec-table w-full border-collapse bg-white">
+          <thead>
+            <tr class="border-b border-warm-300">
+              <th class="text-left p-3.5">State</th>
+              <th class="text-left p-3.5">Card</th>
+              <th class="text-left p-3.5">Rotation</th>
+              <th class="text-left p-3.5">translateY</th>
+              <th class="text-left p-3.5">Scale</th>
+              <th class="text-left p-3.5">z-Index</th>
+              <th class="text-left p-3.5">Height</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-warm-200"><td class="p-3.5 font-bold text-ink-muted">Resting</td><td class="p-3.5">Starter (Left)</td><td class="p-3.5">-4deg</td><td class="p-3.5">+6px</td><td class="p-3.5">0.96</td><td class="p-3.5">10</td><td class="p-3.5">380px</td></tr>
+            <tr class="border-b border-warm-200 bg-[#5CE0B8]/4"><td class="p-3.5 font-bold text-ink-muted">Resting</td><td class="p-3.5 font-bold">Pro (Center)</td><td class="p-3.5">0deg</td><td class="p-3.5">0px</td><td class="p-3.5">1.0</td><td class="p-3.5 font-bold">20</td><td class="p-3.5 font-bold">420px</td></tr>
+            <tr class="border-b border-warm-200"><td class="p-3.5 font-bold text-ink-muted">Resting</td><td class="p-3.5">Enterprise (Right)</td><td class="p-3.5">+4deg</td><td class="p-3.5">+6px</td><td class="p-3.5">0.96</td><td class="p-3.5">10</td><td class="p-3.5">380px</td></tr>
+            <tr class="border-b border-warm-200 bg-amber-50"><td class="p-3.5 font-bold text-amber-700">Hover Active</td><td class="p-3.5">Any card</td><td class="p-3.5">0deg ✓</td><td class="p-3.5 font-bold">-14px</td><td class="p-3.5 font-bold">1.025</td><td class="p-3.5 font-bold">35</td><td class="p-3.5">unchanged</td></tr>
+            <tr class="border-b border-warm-200 bg-red-50/40"><td class="p-3.5 font-bold text-rose-600">Hover Recede</td><td class="p-3.5">Side cards</td><td class="p-3.5">±4deg</td><td class="p-3.5">+8px</td><td class="p-3.5">0.95</td><td class="p-3.5">10</td><td class="p-3.5">unchanged</td></tr>
+            <tr><td class="p-3.5 font-bold text-rose-600">Hover Recede</td><td class="p-3.5">Center</td><td class="p-3.5">0deg</td><td class="p-3.5">+6px</td><td class="p-3.5">0.97</td><td class="p-3.5">15</td><td class="p-3.5">unchanged</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Transition specs -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white border border-warm-300 rounded-2xl p-5 text-center shadow-xs">
+          <div class="text-2xl font-black text-ink font-mono">300ms</div>
+          <div class="text-xs font-mono uppercase tracking-widest text-ink-muted mt-1">Transition Duration</div>
+          <div class="text-[10px] text-ink-subtle mt-1">All hover/recede transforms</div>
+        </div>
+        <div class="bg-white border border-warm-300 rounded-2xl p-5 text-center shadow-xs">
+          <div class="text-2xl font-black text-ink font-mono">ease-out</div>
+          <div class="text-xs font-mono uppercase tracking-widest text-ink-muted mt-1">Transition Curve</div>
+          <div class="text-[10px] text-ink-subtle mt-1">cubic-bezier(0.16, 1, 0.3, 1)</div>
+        </div>
+        <div class="bg-white border border-warm-300 rounded-2xl p-5 text-center shadow-xs">
+          <div class="text-2xl font-black text-ink font-mono">280ms</div>
+          <div class="text-xs font-mono uppercase tracking-widest text-ink-muted mt-1">Benefit Expand</div>
+          <div class="text-[10px] text-ink-subtle mt-1">height 0 → auto</div>
+        </div>
+        <div class="bg-white border border-warm-300 rounded-2xl p-5 text-center shadow-xs">
+          <div class="text-2xl font-black text-[#5CE0B8] font-mono">25ms</div>
+          <div class="text-xs font-mono uppercase tracking-widest text-ink-muted mt-1">Item Stagger</div>
+          <div class="text-[10px] text-ink-subtle mt-1">Per benefit list item</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 4: PRODUCTION CODE                                                -->
+  <!-- ========================================================================= -->
+  <section id="code" class="relative bg-[#16191C] py-16 sm:py-20 px-4 sm:px-8">
+    <div class="max-w-5xl mx-auto">
+
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] font-mono font-bold uppercase tracking-widest mb-3">
+          <span class="text-warm-100">04 • Code</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-warm-100 tracking-tight">Production-Ready Code</h2>
+        <p class="mt-2 text-sm text-warm-600 max-w-xl mx-auto">Drop-in implementations for React/Next.js with Framer Motion, and a standalone Vanilla JS version.</p>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="flex flex-wrap gap-2 mb-6">
+        <button class="tab-btn active" id="ctab-react" onclick="setCodeTab('react')">React + Framer Motion</button>
+        <button class="tab-btn" id="ctab-vanilla" onclick="setCodeTab('vanilla')">Vanilla JS</button>
+        <button class="tab-btn" id="ctab-css" onclick="setCodeTab('css')">CSS Tokens</button>
+      </div>
+
+      <!-- React Panel -->
+      <div id="cpanel-react" class="code-panel active">
+        <div class="relative rounded-2xl overflow-hidden border border-white/10 bg-[#0E1014]">
+          <div class="flex items-center justify-between px-5 py-3 border-b border-white/10">
+            <span class="text-[10px] font-mono text-warm-600 uppercase tracking-widest">PricingDeck.tsx — React / Next.js / Framer Motion</span>
+            <button class="copy-btn" onclick="copyCode('cpanel-react')">Copy</button>
+          </div>
+          <pre class="p-5 text-[0.68rem] leading-relaxed overflow-x-auto"><code class="text-warm-300"><span class="text-warm-600">"use client";</span>
+
+<span class="text-amber-400">import</span> { useState, useSyncExternalStore } <span class="text-amber-400">from</span> <span class="text-emerald-400">"react"</span>;
+<span class="text-amber-400">import</span> { motion, AnimatePresence } <span class="text-amber-400">from</span> <span class="text-emerald-400">"framer-motion"</span>;
+
+<span class="text-warm-600">// 1. Reduced-motion hook via useSyncExternalStore</span>
+<span class="text-warm-400">function</span> <span class="text-[#5CE0B8]">subscribeReducedMotion</span>(callback) {
+  <span class="text-warm-400">const</span> mq = window.matchMedia(<span class="text-emerald-400">"(prefers-reduced-motion: reduce)"</span>);
+  mq.addEventListener(<span class="text-emerald-400">"change"</span>, callback);
+  <span class="text-warm-400">return</span> () =&gt; mq.removeEventListener(<span class="text-emerald-400">"change"</span>, callback);
+}
+
+<span class="text-warm-600">// 2. Generic demo plans data</span>
+<span class="text-warm-400">const</span> PLANS = [
+  { id: <span class="text-emerald-400">"starter"</span>, name: <span class="text-emerald-400">"Starter"</span>, price: <span class="text-amber-400">49</span>,
+    features: [<span class="text-emerald-400">"Up to 3 active spaces"</span>, <span class="text-emerald-400">"5 GB cloud storage"</span>, <span class="text-emerald-400">"Community support"</span>],
+    highlighted: <span class="text-amber-400">false</span> },
+  { id: <span class="text-emerald-400">"pro"</span>, name: <span class="text-emerald-400">"Pro"</span>, price: <span class="text-amber-400">99</span>, badge: <span class="text-emerald-400">"Most Popular"</span>,
+    features: [<span class="text-emerald-400">"Everything in Starter"</span>, <span class="text-emerald-400">"Unlimited active spaces"</span>, <span class="text-emerald-400">"60 FPS acceleration"</span>],
+    highlighted: <span class="text-amber-400">true</span> },
+  { id: <span class="text-emerald-400">"enterprise"</span>, name: <span class="text-emerald-400">"Enterprise"</span>, price: <span class="text-emerald-400">"Custom"</span>, badge: <span class="text-emerald-400">"Enterprise"</span>,
+    features: [<span class="text-emerald-400">"Dedicated cluster"</span>, <span class="text-emerald-400">"Custom shader pipelines"</span>, <span class="text-emerald-400">"SSO & audit logs"</span>],
+    highlighted: <span class="text-amber-400">false</span> },
+];
+
+<span class="text-warm-400">export default function</span> <span class="text-[#5CE0B8]">PricingDeck</span>() {
+  <span class="text-warm-400">const</span> isReducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    () =&gt; window.matchMedia(<span class="text-emerald-400">"(prefers-reduced-motion: reduce)"</span>).matches,
+    () =&gt; <span class="text-amber-400">false</span>
+  );
+  <span class="text-warm-400">const</span> [hoveredIdx, setHoveredIdx] = useState&lt;<span class="text-[#5CE0B8]">number | null</span>&gt;(<span class="text-amber-400">null</span>);
+
+  <span class="text-warm-400">return</span> (
+    &lt;<span class="text-[#5CE0B8]">section</span> id=<span class="text-emerald-400">"pricing"</span> className=<span class="text-emerald-400">"relative py-20 bg-[#F4FBF8] overflow-hidden"</span>&gt;
+      &lt;<span class="text-[#5CE0B8]">div</span> className=<span class="text-emerald-400">"max-w-7xl mx-auto px-6"</span>&gt;
+        {!isReducedMotion ? (
+          &lt;<span class="text-[#5CE0B8]">div</span> className=<span class="text-emerald-400">"hidden lg:flex items-end justify-center min-h-[580px]"</span>&gt;
+            &lt;<span class="text-[#5CE0B8]">div</span> className=<span class="text-emerald-400">"relative flex items-end justify-center -space-x-12 xl:-space-x-14"</span>&gt;
+              {PLANS.map((plan, i) =&gt; {
+                <span class="text-warm-400">const</span> isPro = plan.id === <span class="text-emerald-400">"pro"</span>;
+                <span class="text-warm-400">const</span> isHovered = hoveredIdx === i;
+
+                <span class="text-warm-400">let</span> transform = hoveredIdx === <span class="text-amber-400">null</span>
+                  ? [<span class="text-emerald-400">"rotate(-4deg) translateY(6px) scale(0.96)"</span>,
+                     <span class="text-emerald-400">"rotate(0deg) translateY(0px) scale(1.0)"</span>,
+                     <span class="text-emerald-400">"rotate(4deg) translateY(6px) scale(0.96)"</span>][i]
+                  : isHovered
+                    ? <span class="text-emerald-400">"rotate(0deg) translateY(-14px) scale(1.025)"</span>
+                    : [<span class="text-emerald-400">"rotate(-4deg) translateY(8px) scale(0.95)"</span>,
+                       <span class="text-emerald-400">"rotate(0deg) translateY(6px) scale(0.97)"</span>,
+                       <span class="text-emerald-400">"rotate(4deg) translateY(8px) scale(0.95)"</span>][i];
+
+                <span class="text-warm-400">return</span> (
+                  &lt;<span class="text-[#5CE0B8]">div</span>
+                    key={plan.id}
+                    onMouseEnter={() =&gt; setHoveredIdx(i)}
+                    onMouseLeave={() =&gt; setHoveredIdx(<span class="text-amber-400">null</span>)}
+                    style={{ transform, zIndex: isHovered ? <span class="text-amber-400">35</span> : isPro ? <span class="text-amber-400">20</span> : <span class="text-amber-400">10</span>,
+                             transformOrigin: <span class="text-emerald-400">"bottom center"</span> }}
+                    className=<span class="text-emerald-400">"relative w-[360px] rounded-3xl bg-white p-6 flex flex-col
+                              transition-all duration-300 ease-out cursor-pointer will-change-transform"</span>
+                  &gt;
+                    &lt;<span class="text-[#5CE0B8]">h3</span> className=<span class="text-emerald-400">"text-2xl font-bold"</span>&gt;{plan.name}&lt;/<span class="text-[#5CE0B8]">h3</span>&gt;
+
+                    {<span class="text-warm-600">/* Benefit list reveal */</span>}
+                    &lt;<span class="text-[#5CE0B8]">AnimatePresence</span>&gt;
+                      {isHovered &amp;&amp; (
+                        &lt;<span class="text-[#5CE0B8]">motion.div</span>
+                          initial={{ opacity: <span class="text-amber-400">0</span>, height: <span class="text-amber-400">0</span> }}
+                          animate={{ opacity: <span class="text-amber-400">1</span>, height: <span class="text-emerald-400">"auto"</span> }}
+                          exit={{ opacity: <span class="text-amber-400">0</span>, height: <span class="text-amber-400">0</span> }}
+                          transition={{ duration: <span class="text-amber-400">0.28</span>, ease: [<span class="text-amber-400">0.16, 1, 0.3, 1</span>] }}
+                        &gt;
+                          {plan.features.map((feat, fIdx) =&gt; (
+                            &lt;<span class="text-[#5CE0B8]">motion.li</span>
+                              key={fIdx}
+                              initial={{ opacity: <span class="text-amber-400">0</span>, y: <span class="text-amber-400">5</span> }}
+                              animate={{ opacity: <span class="text-amber-400">1</span>, y: <span class="text-amber-400">0</span> }}
+                              transition={{ duration: <span class="text-amber-400">0.2</span>, delay: fIdx * <span class="text-amber-400">0.025</span> }}
+                            &gt;{feat}&lt;/<span class="text-[#5CE0B8]">motion.li</span>&gt;
+                          ))}
+                        &lt;/<span class="text-[#5CE0B8]">motion.div</span>&gt;
+                      )}
+                    &lt;/<span class="text-[#5CE0B8]">AnimatePresence</span>&gt;
+                  &lt;/<span class="text-[#5CE0B8]">div</span>&gt;
+                );
+              })}
+            &lt;/<span class="text-[#5CE0B8]">div</span>&gt;
+          &lt;/<span class="text-[#5CE0B8]">div</span>&gt;
+        ) : null}
+      &lt;/<span class="text-[#5CE0B8]">div</span>&gt;
+    &lt;/<span class="text-[#5CE0B8]">section</span>&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Vanilla Panel -->
+      <div id="cpanel-vanilla" class="code-panel">
+        <div class="relative rounded-2xl overflow-hidden border border-white/10 bg-[#0E1014]">
+          <div class="flex items-center justify-between px-5 py-3 border-b border-white/10">
+            <span class="text-[10px] font-mono text-warm-600 uppercase tracking-widest">pricing-deck.js — Vanilla JS Zero Dependencies</span>
+            <button class="copy-btn" onclick="copyCode('cpanel-vanilla')">Copy</button>
+          </div>
+          <pre class="p-5 text-[0.68rem] leading-relaxed overflow-x-auto"><code class="text-warm-300"><span class="text-warm-600">// Vanilla JS 3D Pricing Deck — zero framework dependencies</span>
+<span class="text-warm-600">// Requires: cards with class="deck-card", benefits wrapper class="benefits-wrapper"</span>
+
+<span class="text-warm-400">const</span> RESTING = [
+  <span class="text-emerald-400">"rotate(-4deg) translateY(6px) scale(0.96)"</span>,  <span class="text-warm-600">// Starter</span>
+  <span class="text-emerald-400">"rotate(0deg) translateY(0px) scale(1.0)"</span>,    <span class="text-warm-600">// Pro</span>
+  <span class="text-emerald-400">"rotate(4deg) translateY(6px) scale(0.96)"</span>,   <span class="text-warm-600">// Enterprise</span>
+];
+<span class="text-warm-400">const</span> RECEDE = [
+  <span class="text-emerald-400">"rotate(-4deg) translateY(8px) scale(0.95)"</span>,
+  <span class="text-emerald-400">"rotate(0deg) translateY(6px) scale(0.97)"</span>,
+  <span class="text-emerald-400">"rotate(4deg) translateY(8px) scale(0.95)"</span>,
+];
+<span class="text-warm-400">const</span> HOVER_LIFT = <span class="text-emerald-400">"rotate(0deg) translateY(-14px) scale(1.025)"</span>;
+<span class="text-warm-400">const</span> Z_RESTING = [<span class="text-amber-400">10</span>, <span class="text-amber-400">20</span>, <span class="text-amber-400">10</span>];
+<span class="text-warm-400">const</span> Z_HOVER   = <span class="text-amber-400">35</span>;
+<span class="text-warm-400">const</span> Z_RECEDE  = [<span class="text-amber-400">10</span>, <span class="text-amber-400">15</span>, <span class="text-amber-400">10</span>];
+
+<span class="text-warm-400">function</span> <span class="text-[#5CE0B8]">initPricingDeck</span>() {
+  <span class="text-warm-400">const</span> cards = document.querySelectorAll(<span class="text-emerald-400">".deck-card"</span>);
+  <span class="text-warm-400">if</span> (!cards.length) <span class="text-warm-400">return</span>;
+
+  <span class="text-warm-600">// Skip all motion if prefers-reduced-motion</span>
+  <span class="text-warm-400">if</span> (window.matchMedia(<span class="text-emerald-400">"(prefers-reduced-motion: reduce)"</span>).matches) <span class="text-warm-400">return</span>;
+
+  <span class="text-warm-400">function</span> <span class="text-[#5CE0B8]">applyResting</span>() {
+    cards.forEach((card, i) =&gt; {
+      card.style.transform = RESTING[i];
+      card.style.zIndex = Z_RESTING[i];
+      <span class="text-warm-400">const</span> bw = card.querySelector(<span class="text-emerald-400">".benefits-wrapper"</span>);
+      <span class="text-warm-400">if</span> (bw) { bw.style.maxHeight = <span class="text-emerald-400">"0"</span>; bw.style.opacity = <span class="text-emerald-400">"0"</span>; }
+      card.querySelectorAll(<span class="text-emerald-400">".benefit-item"</span>)
+          .forEach(el =&gt; el.classList.remove(<span class="text-emerald-400">"revealed"</span>));
+    });
+  }
+
+  <span class="text-warm-400">function</span> <span class="text-[#5CE0B8]">applyHover</span>(activeIdx) {
+    cards.forEach((card, i) =&gt; {
+      <span class="text-warm-400">if</span> (i === activeIdx) {
+        card.style.transform = HOVER_LIFT;
+        card.style.zIndex = Z_HOVER;
+        <span class="text-warm-400">const</span> bw = card.querySelector(<span class="text-emerald-400">".benefits-wrapper"</span>);
+        <span class="text-warm-400">if</span> (bw) { bw.style.maxHeight = <span class="text-emerald-400">"300px"</span>; bw.style.opacity = <span class="text-emerald-400">"1"</span>; }
+        card.querySelectorAll(<span class="text-emerald-400">".benefit-item"</span>).forEach((el, fIdx) =&gt; {
+          setTimeout(() =&gt; el.classList.add(<span class="text-emerald-400">"revealed"</span>), fIdx * <span class="text-amber-400">25</span>);
+        });
+      } <span class="text-warm-400">else</span> {
+        card.style.transform = RECEDE[i];
+        card.style.zIndex = Z_RECEDE[i];
+        <span class="text-warm-400">const</span> bw = card.querySelector(<span class="text-emerald-400">".benefits-wrapper"</span>);
+        <span class="text-warm-400">if</span> (bw) { bw.style.maxHeight = <span class="text-emerald-400">"0"</span>; bw.style.opacity = <span class="text-emerald-400">"0"</span>; }
+        card.querySelectorAll(<span class="text-emerald-400">".benefit-item"</span>)
+            .forEach(el =&gt; el.classList.remove(<span class="text-emerald-400">"revealed"</span>));
+      }
+    });
+  }
+
+  cards.forEach((card, i) =&gt; {
+    card.addEventListener(<span class="text-emerald-400">"mouseenter"</span>, () =&gt; applyHover(i));
+    card.addEventListener(<span class="text-emerald-400">"mouseleave"</span>, applyResting);
+    card.addEventListener(<span class="text-emerald-400">"click"</span>, () =&gt; applyHover(i));
+  });
+
+  <span class="text-warm-600">// Magnetic CTA buttons</span>
+  <span class="text-warm-400">if</span> (window.gsap &amp;&amp; !window.matchMedia(<span class="text-emerald-400">"(pointer: coarse)"</span>).matches) {
+    document.querySelectorAll(<span class="text-emerald-400">"[data-magnetic]"</span>).forEach(el =&gt; {
+      <span class="text-warm-400">const</span> xTo = gsap.quickTo(el, <span class="text-emerald-400">"x"</span>, { duration: <span class="text-amber-400">0.9</span>, ease: <span class="text-emerald-400">"elastic.out(1, 0.3)"</span> });
+      <span class="text-warm-400">const</span> yTo = gsap.quickTo(el, <span class="text-emerald-400">"y"</span>, { duration: <span class="text-amber-400">0.9</span>, ease: <span class="text-emerald-400">"elastic.out(1, 0.3)"</span> });
+      el.addEventListener(<span class="text-emerald-400">"mousemove"</span>, e =&gt; {
+        <span class="text-warm-400">const</span> r = el.getBoundingClientRect();
+        xTo(((e.clientX - r.left - r.width/<span class="text-amber-400">2</span>) / r.width) * <span class="text-amber-400">15</span>);
+        yTo(((e.clientY - r.top - r.height/<span class="text-amber-400">2</span>) / r.height) * <span class="text-amber-400">15</span>);
+      });
+      el.addEventListener(<span class="text-emerald-400">"mouseleave"</span>, () =&gt; { xTo(<span class="text-amber-400">0</span>); yTo(<span class="text-amber-400">0</span>); });
+    });
+  }
+}
+
+document.addEventListener(<span class="text-emerald-400">"DOMContentLoaded"</span>, initPricingDeck);</code></pre>
+        </div>
+      </div>
+
+      <!-- CSS Panel -->
+      <div id="cpanel-css" class="code-panel">
+        <div class="relative rounded-2xl overflow-hidden border border-white/10 bg-[#0E1014]">
+          <div class="flex items-center justify-between px-5 py-3 border-b border-white/10">
+            <span class="text-[10px] font-mono text-warm-600 uppercase tracking-widest">pricing-deck.css — Design Tokens &amp; Utilities</span>
+            <button class="copy-btn" onclick="copyCode('cpanel-css')">Copy</button>
+          </div>
+          <pre class="p-5 text-[0.68rem] leading-relaxed overflow-x-auto"><code class="text-warm-300"><span class="text-warm-600">/* =====================================================
+   3D Pricing Deck — Design Token Layer
+   ===================================================== */</span>
+
+:root {
+  <span class="text-[#5CE0B8]">--deck-ink</span>: <span class="text-amber-400">#16191C</span>;
+  <span class="text-[#5CE0B8]">--deck-accent</span>: <span class="text-amber-400">#5CE0B8</span>;
+  <span class="text-[#5CE0B8]">--deck-purple</span>: <span class="text-amber-400">#5A4BD6</span>;
+  <span class="text-[#5CE0B8]">--deck-bg</span>: <span class="text-amber-400">#F4FBF8</span>;
+  <span class="text-[#5CE0B8]">--deck-surface</span>: <span class="text-amber-400">#FFFFFF</span>;
+  <span class="text-[#5CE0B8]">--deck-ease</span>: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+<span class="text-warm-600">/* Deck card base */</span>
+<span class="text-[#5CE0B8]">.deck-card</span> {
+  will-change: transform;
+  transition: all 300ms var(--deck-ease);
+  transform-origin: bottom center;
+  cursor: pointer;
+  background: var(--deck-surface);
+  border-radius: 1.5rem;
+}
+
+<span class="text-warm-600">/* Benefits collapse/expand via CSS max-height */</span>
+<span class="text-[#5CE0B8]">.benefits-wrapper</span> {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 280ms var(--deck-ease),
+    opacity 220ms ease;
+}
+<span class="text-[#5CE0B8]">.benefits-wrapper.expanded</span> {
+  max-height: 300px;
+  opacity: 1;
+}
+
+<span class="text-warm-600">/* Individual benefit stagger items */</span>
+<span class="text-[#5CE0B8]">.benefit-item</span> {
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+<span class="text-[#5CE0B8]">.benefit-item.revealed</span> {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+<span class="text-warm-600">/* Primary CTA button */</span>
+<span class="text-[#5CE0B8]">.deck-btn-primary</span> {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.5rem; background: var(--deck-accent); color: var(--deck-ink);
+  font-weight: 700; border-radius: 9999px; border: none;
+  box-shadow: 0 4px 16px rgba(92,224,184,.22);
+  transition: background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+<span class="text-[#5CE0B8]">.deck-btn-primary:hover</span> {
+  background: #4dd3ab;
+  box-shadow: 0 8px 24px rgba(92,224,184,.38);
+  transform: translateY(-1px);
+}
+
+<span class="text-warm-600">/* Gradient text accent */</span>
+<span class="text-[#5CE0B8]">.deck-gradient-text</span> {
+  background: linear-gradient(135deg, #16191C 40%, #5A4BD6 80%, #5CE0B8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+<span class="text-warm-600">/* Reduced-motion override */</span>
+@media (prefers-reduced-motion: reduce) {
+  <span class="text-[#5CE0B8]">.deck-card, .benefits-wrapper, .benefit-item</span> {
+    transition: none !important;
+    animation: none !important;
+  }
+}</code></pre>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <site-footer back-to-hub="true"></site-footer>
+
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT                                                                 -->
+  <!-- ========================================================================= -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. Hero heading word pull-up animation (staggered entrance)
+    // -------------------------------------------------------------------------
+    function initWordsPullUp() {
+      const container = document.getElementById('pull-up-title');
+      if (!container) return;
+      const text = "Flexible plans. Engineered for scale.";
+      const highlightWords = ["Engineered", "scale."];
+      const words = text.split(' ');
+      container.innerHTML = '';
+
+      words.forEach((word, idx) => {
+        const wrap = document.createElement('span');
+        wrap.className = 'inline-block overflow-hidden mr-3 leading-tight';
+        const inner = document.createElement('span');
+        const isHighlight = highlightWords.some(hw => word.toLowerCase().includes(hw.toLowerCase()));
+        inner.className = `inline-block font-black ${isHighlight ? 'deck-gradient-text' : ''}`;
+        inner.textContent = word;
+        inner.style.opacity = '0';
+        inner.style.transform = 'translateY(110%)';
+        wrap.appendChild(inner);
+        container.appendChild(wrap);
+
+        // Stagger entrance using GSAP
+        gsap.to(inner, {
+          opacity: 1,
+          y: '0%',
+          duration: 0.7,
+          ease: 'power3.out',
+          delay: 0.1 + idx * 0.08,
+        });
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. 3D Card Deck Hover Interaction Mechanics
+    // -------------------------------------------------------------------------
+    const RESTING_TRANSFORMS = [
+      'rotate(-4deg) translateY(6px) scale(0.96)',
+      'rotate(0deg) translateY(0px) scale(1.0)',
+      'rotate(4deg) translateY(6px) scale(0.96)',
+    ];
+    const RECEDE_TRANSFORMS = [
+      'rotate(-4deg) translateY(8px) scale(0.95)',
+      'rotate(0deg) translateY(6px) scale(0.97)',
+      'rotate(4deg) translateY(8px) scale(0.95)',
+    ];
+    const HOVER_LIFT_TRANSFORM = 'rotate(0deg) translateY(-14px) scale(1.025)';
+    const Z_RESTING = [10, 20, 10];
+    const Z_HOVER = 35;
+    const Z_RECEDE = [10, 15, 10];
+
+    let currentHoveredCard = null;
+
+    function deckHover(idx) {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      currentHoveredCard = idx;
+
+      for (let i = 0; i < 3; i++) {
+        const card = document.getElementById(`pd-card-${i}`);
+        const benefits = document.getElementById(`pd-benefits-${i}`);
+        const blist = document.getElementById(`pd-blist-${i}`);
+        const h3 = document.getElementById(`pd-h3-${i}`);
+        if (!card) continue;
+
+        if (i === idx) {
+          // ACTIVE CARD: straightens, lifts, scales up, highest z-index
+          card.style.transform = HOVER_LIFT_TRANSFORM;
+          card.style.zIndex = Z_HOVER;
+          if (i === 1) { // Pro
+            card.style.boxShadow = '0 28px 65px -12px rgba(92, 224, 184, 0.35), 0 12px 24px -6px rgba(0, 0, 0, 0.08)';
+          } else {
+            card.style.boxShadow = '0 28px 65px -12px rgba(0, 0, 0, 0.16), 0 12px 24px -6px rgba(0, 0, 0, 0.08)';
+          }
+          if (h3) h3.style.transform = 'scale(1.04)';
+
+          // Expand benefit list
+          if (benefits) benefits.classList.add('expanded');
+
+          // Stagger reveal individual benefit items
+          if (blist) {
+            const items = blist.querySelectorAll('.benefit-item');
+            items.forEach((item, fIdx) => {
+              setTimeout(() => {
+                if (currentHoveredCard === idx) item.classList.add('revealed');
+              }, fIdx * 25);
+            });
+          }
+        } else {
+          // NON-HOVERED: recedes in place
+          card.style.transform = RECEDE_TRANSFORMS[i];
+          card.style.zIndex = Z_RECEDE[i];
+          card.style.boxShadow = '0 6px 18px rgba(0, 0, 0, 0.04)';
+          if (h3) h3.style.transform = 'scale(1.0)';
+
+          // Collapse benefits
+          if (benefits) benefits.classList.remove('expanded');
+          if (blist) {
+            blist.querySelectorAll('.benefit-item').forEach(item => item.classList.remove('revealed'));
+          }
+        }
+      }
+    }
+
+    function deckRest() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      currentHoveredCard = null;
+
+      for (let i = 0; i < 3; i++) {
+        const card = document.getElementById(`pd-card-${i}`);
+        const benefits = document.getElementById(`pd-benefits-${i}`);
+        const blist = document.getElementById(`pd-blist-${i}`);
+        const h3 = document.getElementById(`pd-h3-${i}`);
+        if (!card) continue;
+
+        card.style.transform = RESTING_TRANSFORMS[i];
+        card.style.zIndex = Z_RESTING[i];
+        if (i === 1) {
+          card.style.boxShadow = '0 20px 50px -12px rgba(92, 224, 184, 0.22), 0 8px 20px rgba(0, 0, 0, 0.04)';
+        } else {
+          card.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.06)';
+        }
+        if (h3) h3.style.transform = 'scale(1.0)';
+
+        if (benefits) benefits.classList.remove('expanded');
+        if (blist) {
+          blist.querySelectorAll('.benefit-item').forEach(item => item.classList.remove('revealed'));
+        }
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. Elastic Magnetic CTA Buttons (GSAP quickTo)
+    // -------------------------------------------------------------------------
+    function initMagnetic() {
+      const isTouch = window.matchMedia('(pointer: coarse)').matches;
+      const prefersRM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (isTouch || prefersRM) return;
+      document.querySelectorAll('[data-magnetic]').forEach(el => {
+        const xTo = gsap.quickTo(el, 'x', { duration: 0.9, ease: 'elastic.out(1, 0.3)' });
+        const yTo = gsap.quickTo(el, 'y', { duration: 0.9, ease: 'elastic.out(1, 0.3)' });
+        el.addEventListener('mousemove', e => {
+          const r = el.getBoundingClientRect();
+          xTo(((e.clientX - r.left - r.width / 2) / r.width) * 15);
+          yTo(((e.clientY - r.top - r.height / 2) / r.height) * 15);
+        });
+        el.addEventListener('mouseleave', () => { xTo(0); yTo(0); });
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. Mode Switcher (Desktop / Mobile / Reduced)
+    // -------------------------------------------------------------------------
+    function setMode(mode) {
+      ['desktop', 'mobile', 'reduced'].forEach(m => {
+        document.getElementById(`live-deck-${m}`).classList.add('hidden');
+        document.getElementById(`mode-${m}`).classList.remove('active');
+      });
+      document.getElementById(`live-deck-${mode}`).classList.remove('hidden');
+      document.getElementById(`mode-${mode}`).classList.add('active');
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. Mobile Tab Accordion
+    // -------------------------------------------------------------------------
+    let currentMobileTab = 0;
+    function setMobileTab(idx) {
+      for (let i = 0; i < 3; i++) {
+        const card = document.getElementById(`macc-${i}`);
+        const bw = document.getElementById(`macc-b-${i}`);
+        const hint = document.getElementById(`macc-hint-${i}`);
+        const tab = document.getElementById(`mtab-${i}`);
+        if (!card) continue;
+        const isSelected = i === idx;
+        tab.classList.toggle('active', isSelected);
+        hint.textContent = isSelected ? 'Active' : 'Tap to view';
+        card.style.opacity = isSelected ? '1' : '0.7';
+        if (i === 1) { // Pro
+          card.className = `mobile-acc-card relative ${isSelected ? 'border-2 border-[#5CE0B8] shadow-md shadow-[#5CE0B8]/15' : 'border border-slate-200/80 shadow-sm'}`;
+        } else {
+          card.className = `mobile-acc-card relative ${isSelected ? 'border-2 border-slate-300 shadow-sm' : 'border border-slate-200/80 shadow-sm'}`;
+        }
+        if (bw) bw.classList.toggle('open', isSelected);
+      }
+      currentMobileTab = idx;
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Deconstruct step tabs
+    // -------------------------------------------------------------------------
+    function setDeconStep(step) {
+      for (let i = 0; i < 4; i++) {
+        document.getElementById(`dstep-panel-${i}`).classList.add('hidden');
+        document.getElementById(`dstep-${i}`).classList.remove('active');
+      }
+      document.getElementById(`dstep-panel-${step}`).classList.remove('hidden');
+      document.getElementById(`dstep-${step}`).classList.add('active');
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. Code tabs
+    // -------------------------------------------------------------------------
+    function setCodeTab(tab) {
+      ['react', 'vanilla', 'css'].forEach(t => {
+        document.getElementById(`cpanel-${t}`).classList.remove('active');
+        document.getElementById(`ctab-${t}`).classList.remove('active');
+      });
+      document.getElementById(`cpanel-${tab}`).classList.add('active');
+      document.getElementById(`ctab-${tab}`).classList.add('active');
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. Copy code
+    // -------------------------------------------------------------------------
+    async function copyCode(panelId) {
+      const panel = document.getElementById(panelId);
+      const code = panel ? panel.querySelector('code') : null;
+      if (!code) return;
+      try {
+        await navigator.clipboard.writeText(code.innerText);
+        const btn = panel.querySelector('.copy-btn');
+        if (btn) { const orig = btn.textContent; btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = orig, 1800); }
+      } catch (e) { console.warn('Copy failed', e); }
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. Auto-cycle demo (runs when page loads, every 3.5s)
+    // -------------------------------------------------------------------------
+    let autoCycleIdx = 0;
+    let autoCycleTimer = null;
+
+    function startAutoCycle() {
+      autoCycleTimer = setInterval(() => {
+        deckHover(autoCycleIdx);
+        autoCycleIdx = (autoCycleIdx + 1) % 3;
+      }, 3500);
+    }
+
+    function stopAutoCycle() {
+      if (autoCycleTimer) { clearInterval(autoCycleTimer); autoCycleTimer = null; }
+    }
+
+    // Pause auto-cycle while user hovers the deck manually
+    document.addEventListener('DOMContentLoaded', () => {
+      const deckDesktop = document.getElementById('live-deck-desktop');
+      if (deckDesktop) {
+        deckDesktop.addEventListener('mouseenter', stopAutoCycle);
+        deckDesktop.addEventListener('mouseleave', () => {
+          deckRest();
+          startAutoCycle();
+        });
+      }
+    });
+
+    // -------------------------------------------------------------------------
+    // INIT
+    // -------------------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      initWordsPullUp();
+      initMagnetic();
+      // Start auto-cycle after 1.5s intro delay
+      setTimeout(() => startAutoCycle(), 1500);
+    });
+  </script>
+</body>
+</html>

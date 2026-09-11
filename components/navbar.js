@@ -69,6 +69,9 @@
             <a href="gsap-horizontal-video-showcase.html" class="text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-2.5 sm:px-3 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
               Horizontal
             </a>
+            <a href="interactive-3d-pricing-deck.html" class="text-[10px] sm:text-xs font-semibold tracking-widest uppercase px-2.5 sm:px-3 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
+              Pricing Deck
+            </a>
             <a href="https://github.com/UdayPratap902/Animations" target="_blank" rel="noopener noreferrer" class="text-[10px] sm:text-xs font-bold tracking-widest uppercase border px-3 sm:px-4 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-2xs flex items-center gap-1.5">
               <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
               <span>GitHub</span>
@@ -157,6 +160,34 @@
             </a>
           </div>
         `;
+      } else if (active === "pricing-deck") {
+        desktopNavInner = `
+          <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+            <a href="index.html" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-[10px] sm:text-xs font-semibold tracking-wider uppercase transition-colors shadow-2xs">
+              <span>←</span>
+              <span>Hub</span>
+            </a>
+            <div class="h-3.5 w-[1px] bg-warm-300 hidden sm:block"></div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-[#5CE0B8] animate-pulse"></span>
+              <span class="font-bold text-xs sm:text-sm tracking-wide uppercase text-ink font-mono">3D Pricing <span class="text-warm-700 font-normal">Deck</span></span>
+            </div>
+          </div>
+
+          <div class="hidden lg:flex items-center gap-1 bg-warm-200/70 p-1 rounded-full border border-warm-300 text-xs font-mono shrink-0">
+            <a href="#experience" class="px-3 py-1 rounded-full hover:bg-white text-ink font-medium transition-all">01. Live Stage</a>
+            <a href="#deconstruct" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">02. Deconstruct</a>
+            <a href="#reference" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">03. Specs</a>
+            <a href="#code" class="px-3 py-1 rounded-full hover:bg-white text-ink-muted hover:text-ink transition-all">04. Code</a>
+          </div>
+
+          <div class="hidden md:flex items-center gap-2 shrink-0">
+            <a href="#code" class="text-[10px] sm:text-xs font-bold tracking-wider uppercase border px-3.5 py-1.5 rounded-full bg-ink text-warm-100 border-ink hover:bg-warm-900 hover:text-white transition-all shadow-xs flex items-center gap-1">
+              <span>&lt;/&gt;</span>
+              <span>Get Code</span>
+            </a>
+          </div>
+        `;
       }
 
       // Generate Page-specific Quick Section Links in Mobile Menu
@@ -204,6 +235,21 @@
           </a>
           <a href="#specs" class="px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-xs font-semibold transition-all shadow-2xs">
             04. Specs
+          </a>
+        `;
+      } else if (active === "pricing-deck") {
+        mobileQuickJumps = `
+          <a href="#experience" class="px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-xs font-semibold transition-all shadow-2xs">
+            01. Live Stage
+          </a>
+          <a href="#deconstruct" class="px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-xs font-semibold transition-all shadow-2xs">
+            02. Deconstruct
+          </a>
+          <a href="#reference" class="px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-xs font-semibold transition-all shadow-2xs">
+            03. Specs
+          </a>
+          <a href="#code" class="px-3 py-1 rounded-full border border-warm-300 bg-white/80 hover:bg-white text-ink text-xs font-semibold transition-all shadow-2xs">
+            04. Code
           </a>
         `;
       }
@@ -326,6 +372,28 @@
                     </div>
                     <div class="text-[11px] text-ink-muted line-clamp-1">
                       Multi-panel scroll-pinned horizontal slider &amp; specs
+                    </div>
+                  </div>
+                </div>
+                <span class="text-ink-subtle group-hover:text-ink group-hover:translate-x-1 transition-all text-sm font-bold">→</span>
+              </a>
+
+              <!-- Link 5: 3D Pricing Deck -->
+              <a href="interactive-3d-pricing-deck.html" class="mobile-nav-item group relative p-3.5 sm:p-4 rounded-2xl border ${active === "pricing-deck" ? "border-warm-700 bg-warm-200/90 shadow-sm" : "border-warm-300 bg-white/80 hover:bg-white hover:border-warm-400 shadow-2xs"} transition-all duration-300 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl ${active === "pricing-deck" ? "bg-warm-300/80 border-warm-400/60" : "bg-warm-200/70 border-warm-300"} border flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-transform">
+                    💳
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] font-mono font-bold uppercase tracking-widest ${active === "pricing-deck" ? "text-warm-800" : "text-warm-700"}">05 &bull; Pricing Deck</span>
+                      ${active === "pricing-deck" ? '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-warm-800 text-warm-50 font-bold">CURRENT</span>' : ""}
+                    </div>
+                    <div class="font-bold text-sm text-ink group-hover:text-warm-900 transition-colors">
+                      3D Pricing Deck
+                    </div>
+                    <div class="text-[11px] text-ink-muted line-clamp-1">
+                      Hover-elevation fanning deck with benefit expansion
                     </div>
                   </div>
                 </div>
