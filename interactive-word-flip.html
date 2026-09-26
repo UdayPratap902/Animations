@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Word Flip &amp; Staggered Typography Lab — Kinetic Text Motion</title>
-  <meta name="description" content="Kinetic word flip, staggered spring pull-up, and 3D tumbling typography animations ported from AvadaKeDevara. Complete with interactive playground, visual deconstructor, and production React + GSAP code." />
+  <meta name="description" content="Kinetic word flip, staggered spring pull-up, and 3D tumbling typography animations. Complete with interactive playground, visual deconstructor, and production React + GSAP code." />
 
   <!-- Google Fonts: Instrument Serif + Almarai + Plus Jakarta Sans + Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -100,29 +100,14 @@
       display: inline-flex;
       position: relative;
       vertical-align: baseline;
-      overflow: hidden;
-      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Individual Word Pill Tag */
-    .word-tag {
-      transition: all 0.2s ease;
-    }
-    .word-tag:hover {
-      transform: translateY(-2px);
-    }
-
-    /* Code block syntax highlight simulation */
+    /* Code block syntax highlight */
     .code-container {
       background: #181816;
       border: 1px solid #2B2B28;
     }
-    .code-tag { color: #E5C07B; }
-    .code-prop { color: #98C379; }
-    .code-str { color: #61AFEF; }
-    .code-fn { color: #C678DD; }
-    .code-kw { color: #D19A66; }
-    .code-com { color: #5C6370; font-style: italic; }
 
     /* Custom range sliders */
     input[type=range] {
@@ -150,7 +135,7 @@
     <!-- ========================================================================= -->
     <section id="experience" class="pt-28 sm:pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
       
-      <!-- Top Badging & Source Origin Attribution -->
+      <!-- Top Badging & Clean Architecture Identifier -->
       <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div class="flex items-center gap-2">
           <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-2xs">
@@ -160,17 +145,17 @@
             </span>
           </div>
           <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-200/80 border border-warm-300 text-warm-800 text-[10px] font-mono font-medium">
-            <span>Project:</span> <strong class="font-bold text-ink">AvadaKeDevara</strong>
+            <span>Architecture:</span> <strong class="font-bold text-ink">Kinetic Typography Lab</strong>
           </span>
         </div>
 
         <!-- Mode Switcher Buttons -->
         <div class="flex items-center gap-1.5 bg-warm-200/80 p-1 rounded-full border border-warm-300 text-xs font-mono">
-          <button id="mode-btn-pullup" class="mode-tab-btn active px-3 py-1 rounded-full bg-white text-ink font-bold shadow-2xs transition-all">
-            01. Word Pull-Up
+          <button id="mode-btn-tumbler" class="mode-tab-btn active px-3 py-1 rounded-full bg-white text-ink font-bold shadow-2xs transition-all">
+            01. 3D Flip Tumbler
           </button>
-          <button id="mode-btn-tumbler" class="mode-tab-btn px-3 py-1 rounded-full text-ink-muted hover:text-ink transition-all">
-            02. 3D Flip Tumbler
+          <button id="mode-btn-pullup" class="mode-tab-btn px-3 py-1 rounded-full text-ink-muted hover:text-ink transition-all">
+            02. Word Pull-Up
           </button>
           <button id="mode-btn-splitflap" class="mode-tab-btn px-3 py-1 rounded-full text-ink-muted hover:text-ink transition-all">
             03. Split-Flap
@@ -189,7 +174,7 @@
           <div class="flex items-center gap-3">
             <span class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-warm-600"></span>
-              <span id="live-mode-label" class="font-bold text-ink">AvadaKeDevara Spring Pull-Up</span>
+              <span id="live-mode-label" class="font-bold text-ink">3D Perspective Rotating Tumbler</span>
             </span>
             <span class="text-warm-400">|</span>
             <span id="active-fps-badge" class="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/70">60 FPS Hardware-Accelerated</span>
@@ -209,18 +194,17 @@
           <!-- Category Subheading Pill -->
           <div id="stage-badge-container" class="mb-4 inline-flex items-center gap-2 rounded-full border border-warm-300 bg-white/80 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-warm-800 shadow-2xs">
             <span class="text-amber-600">✦</span>
-            <span id="stage-badge-text">Academic Learning &amp; Motion Architecture</span>
+            <span id="stage-badge-text">SaaS Motion &amp; Spatial Architecture</span>
           </div>
 
           <!-- Main Dynamic Kinetic Headline -->
-          <h1 id="headline-target" class="perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.75rem] font-serif font-medium text-ink tracking-tight leading-[1.12] max-w-4xl mx-auto select-none">
+          <h1 id="headline-target" class="perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.25rem] font-serif font-medium text-ink tracking-tight leading-[1.18] max-w-4xl mx-auto select-none flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5">
             <!-- Dynamically populated and animated by the kinetic typography engine -->
-            Every Child Deserves a Magical Education
           </h1>
 
           <!-- Descriptive Subtitle with Staggered Reveal -->
           <p id="subtitle-target" class="mt-5 text-sm sm:text-base md:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
-            The professional academic environment for curriculum mastery, gamified practice, and fluid spatial interfaces.
+            Hardware-accelerated kinetic typography modules engineered with zero-reflow CSS transforms, organic spring momentum, and 60 FPS precision.
           </p>
 
         </div>
@@ -228,17 +212,20 @@
         <!-- Bottom Real-time Control Toolbar -->
         <div class="mt-8 pt-5 border-t border-warm-200/80 flex flex-col md:flex-row items-center justify-between gap-5 bg-warm-100/50 -mx-6 sm:-mx-10 md:-mx-14 -mb-6 sm:-mb-10 md:-mb-14 p-5 sm:p-6 px-6 sm:px-10 md:px-14 rounded-b-3xl">
           
-          <!-- Quick Preset Phrases -->
+          <!-- Clean Demo Presets -->
           <div class="flex items-center gap-2 flex-wrap w-full md:w-auto">
             <span class="text-[11px] font-mono text-ink-subtle uppercase tracking-wider">Presets:</span>
-            <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="avadakedavara">
-              AvadaKeDevara Hero
-            </button>
-            <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="ukhero">
-              UK 11+ Confidence
-            </button>
             <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="saas">
               Modern SaaS Motion
+            </button>
+            <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="velocity">
+              Kinetic Velocity
+            </button>
+            <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="editorial">
+              Editorial Studio
+            </button>
+            <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="splitflap">
+              Split-Flap Ticker
             </button>
             <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="custom">
               Custom Editor ✎
@@ -249,8 +236,8 @@
           <div class="flex items-center gap-6 text-xs font-mono text-ink w-full md:w-auto justify-end">
             <div class="flex items-center gap-2">
               <label for="slider-stagger" class="text-ink-muted">Stagger:</label>
-              <input id="slider-stagger" type="range" min="0.02" max="0.18" step="0.01" value="0.06" class="w-20 cursor-pointer">
-              <span id="val-stagger" class="text-ink font-bold w-10">0.06s</span>
+              <input id="slider-stagger" type="range" min="0.02" max="0.18" step="0.01" value="0.05" class="w-20 cursor-pointer">
+              <span id="val-stagger" class="text-ink font-bold w-10">0.05s</span>
             </div>
 
             <div class="flex items-center gap-2">
@@ -266,27 +253,33 @@
 
       <!-- Live Custom Text Input Editor (Toggled via Custom Editor button) -->
       <div id="custom-editor-panel" class="hidden mt-6 warm-card rounded-2xl p-5 border border-warm-300 bg-white">
-        <div class="flex flex-col sm:flex-row gap-4 items-center">
-          <div class="flex-1 w-full">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
             <label class="block text-[11px] font-mono text-ink-muted uppercase tracking-wider mb-1.5">
-              Custom Headline Text (Animated Word-by-Word):
+              Prefix Text (Appears before flipping word):
             </label>
-            <input id="custom-text-input" type="text" value="Crafting Unforgettable Spatial Web Interfaces" class="w-full px-4 py-2.5 rounded-xl border border-warm-300 bg-warm-50 font-serif text-lg text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400 transition-all" />
+            <input id="custom-prefix-input" type="text" value="Build Web Experiences That Are" class="w-full px-4 py-2 rounded-xl border border-warm-300 bg-warm-50 font-serif text-base text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400 transition-all" />
           </div>
 
-          <div class="flex items-center gap-2 self-end sm:self-auto pt-4 sm:pt-5">
-            <button id="apply-custom-text-btn" class="px-5 py-2.5 rounded-xl bg-ink text-warm-100 hover:bg-warm-900 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-xs">
-              Apply &amp; Play
-            </button>
+          <div>
+            <label class="block text-[11px] font-mono text-ink-muted uppercase tracking-wider mb-1.5">
+              Full Sentence (Used in Word Pull-Up &amp; Blur modes):
+            </label>
+            <input id="custom-headline-input" type="text" value="Build High-Performance Interfaces That Feel Alive" class="w-full px-4 py-2 rounded-xl border border-warm-300 bg-warm-50 font-serif text-base text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400 transition-all" />
           </div>
         </div>
 
-        <!-- Flip Word Cycling Bank (Active in Tumbler Mode) -->
-        <div id="tumbler-words-config" class="mt-4 pt-4 border-t border-warm-200">
+        <!-- 3D Rotating Words Bank -->
+        <div class="mt-4 pt-4 border-t border-warm-200">
           <label class="block text-[11px] font-mono text-ink-muted uppercase tracking-wider mb-2">
-            3D Tumbler Rotating Words (comma separated):
+            3D Tumbler Rotating Words (comma-separated):
           </label>
-          <input id="custom-flip-words-input" type="text" value="Magical, Effortless, Transformative, Unstoppable, Inspiring" class="w-full px-4 py-2 rounded-lg border border-warm-300 bg-warm-50 font-mono text-xs text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400" />
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input id="custom-flip-words-input" type="text" value="Effortless, Instantaneous, Transformative, Unstoppable, Seamless" class="flex-1 px-4 py-2 rounded-lg border border-warm-300 bg-warm-50 font-mono text-xs text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400" />
+            <button id="apply-custom-text-btn" class="px-5 py-2 rounded-lg bg-ink text-warm-100 hover:bg-warm-900 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-xs shrink-0 cursor-pointer">
+              Apply &amp; Play
+            </button>
+          </div>
         </div>
       </div>
 
@@ -302,10 +295,10 @@
           <span class="text-[10px] font-mono uppercase tracking-widest text-warm-800 font-bold">Architecture Inspection</span>
         </div>
         <h2 class="text-3xl sm:text-4xl font-serif text-ink font-normal tracking-tight">
-          Visual Anatomy of the MotionWords Engine
+          Visual Anatomy of the Kinetic Typography Engine
         </h2>
         <p class="mt-2.5 text-sm sm:text-base text-ink-muted leading-relaxed">
-          How the AvadaKeDevara tokenizer and framer-motion pipeline deconstructs typography strings into isolated GPU transform layers without destroying accessibility or causing document reflow.
+          How the kinetic tokenizer and hardware-accelerated motion pipeline deconstructs typography into isolated GPU transform layers without destroying accessibility or causing document reflow.
         </p>
       </div>
 
@@ -325,7 +318,7 @@
               String Tokenizer &amp; Whitespace Keeper
             </h3>
             <p class="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
-              The input string is split by space boundaries into discreet lexical tokens. To maintain precise typography layout, right margins (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">mr-[0.25em]</code>) are applied dynamically to every word except the final token (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">last:mr-0</code>).
+              The input string is split by space boundaries into discrete lexical tokens. To maintain precise typography layout, right margins (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">mr-[0.25em]</code>) are applied dynamically to every word except the final token (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">last:mr-0</code>).
             </p>
           </div>
           
@@ -370,17 +363,17 @@
               <span class="text-xs font-mono text-ink-subtle">Kinetic Damping</span>
             </div>
             <h3 class="text-lg font-bold text-ink font-serif mb-2">
-              Spring Damping &amp; Inertial Decay
+              Spring Damping &amp; Dynamic Width Morphing
             </h3>
             <p class="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
-              Rather than generic linear easing, words ascend with calculated mass and damping physics (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">stiffness: 100, damping: 20</code>). Each sequential word receives a staggered delay offset (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">i * 0.06s</code>), giving a fluid, organic wave arrival.
+              Words ascend with calculated mass and damping physics (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">stiffness: 100, damping: 20</code>). During 3D tumbler word switches, the container width seamlessly morphs to match the incoming word length, eliminating layout jumps.
             </p>
           </div>
 
           <div class="bg-warm-100 rounded-xl p-3.5 border border-warm-300 font-mono text-[11px] text-ink space-y-1">
-            <div class="text-ink-subtle">// Physical Hooke's Law configuration</div>
+            <div class="text-ink-subtle">// Physical Hooke's Law & Width Morph</div>
             <div>transition: { stiffness: 100, damping: 20 }</div>
-            <div class="text-emerald-700">staggerChildren: 0.06s</div>
+            <div class="text-emerald-700">tl.to(container, { width: nextWidth, duration: 0.45 })</div>
           </div>
         </div>
 
@@ -425,7 +418,7 @@
           Mathematical Parameters &amp; Kinematics
         </h2>
         <p class="mt-2.5 text-sm sm:text-base text-ink-muted leading-relaxed">
-          Standardized values extracted directly from the AvadaKeDevara production deployment across desktop and mobile breakpoints.
+          Standardized production benchmarks for kinetic text animations across desktop and mobile viewports.
         </p>
       </div>
 
@@ -436,7 +429,7 @@
             <thead>
               <tr class="bg-warm-100 border-b border-warm-200 text-ink-muted font-mono uppercase tracking-wider text-[11px]">
                 <th class="py-3.5 px-4 sm:px-6">Parameter</th>
-                <th class="py-3.5 px-4 sm:px-6">AvadaKeDevara Value</th>
+                <th class="py-3.5 px-4 sm:px-6">Standard Value</th>
                 <th class="py-3.5 px-4 sm:px-6">Alternative Modes</th>
                 <th class="py-3.5 px-4 sm:px-6">Purpose / Equation</th>
               </tr>
@@ -463,7 +456,7 @@
               <tr class="hover:bg-warm-50/50 transition-colors">
                 <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">Stagger Delta (<code class="text-xs">stagger</code>)</td>
                 <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">0.05s – 0.08s</td>
-                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">0.04s (fast headline)</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">0.03s (fast headline)</td>
                 <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Sequential delay step between consecutive words: <code class="font-mono">t_i = i * Δ</code></td>
               </tr>
               <tr class="hover:bg-warm-50/50 transition-colors">
@@ -499,7 +492,7 @@
             Drop-in Component Implementation
           </h2>
           <p class="mt-2 text-sm text-ink-muted">
-            Choose your stack: React + Framer Motion (AvadaKeDevara source), Vanilla GSAP 3.12, or Pure CSS.
+            Choose your stack: React + Framer Motion (Production Architecture), Vanilla GSAP 3.12, or Pure CSS.
           </p>
         </div>
 
@@ -526,7 +519,7 @@
             <span class="w-3 h-3 rounded-full bg-[#E06C75]/80 inline-block"></span>
             <span class="w-3 h-3 rounded-full bg-[#E5C07B]/80 inline-block"></span>
             <span class="w-3 h-3 rounded-full bg-[#98C379]/80 inline-block"></span>
-            <span id="code-filename" class="ml-2 text-warm-200/90 font-semibold">MotionWordsPullUp.tsx (AvadaKeDevara Source)</span>
+            <span id="code-filename" class="ml-2 text-warm-200/90 font-semibold">MotionWordsPullUp.tsx (Production Component)</span>
           </div>
 
           <button id="copy-code-btn" class="px-3 py-1 rounded bg-[#2B2B28] hover:bg-[#383834] text-warm-200 font-mono text-[11px] transition-all flex items-center gap-1.5 cursor-pointer">
@@ -552,16 +545,17 @@
   <script>
     // State Store
     const state = {
-      mode: 'pullup', // 'pullup' | 'tumbler' | 'splitflap' | 'blur'
-      headline: 'Every Child Deserves a Magical Education',
-      badgeText: 'Academic Learning & Motion Architecture',
-      subtitle: 'The professional academic environment for curriculum mastery, gamified practice, and fluid spatial interfaces.',
-      stagger: 0.06,
+      mode: 'tumbler', // 'tumbler' | 'pullup' | 'splitflap' | 'blur'
+      prefix: 'Build Web Experiences That Are',
+      suffix: '',
+      headline: 'Build High-Performance Interfaces That Feel Alive',
+      badgeText: 'SaaS Motion & Spatial Architecture',
+      subtitle: 'Hardware-accelerated kinetic typography modules engineered with zero-reflow CSS transforms, dynamic spring momentum, and zero layout shift.',
+      stagger: 0.05,
       duration: 0.55,
       tumblerIndex: 0,
-      tumblerWords: ['Magical', 'Effortless', 'Transformative', 'Unstoppable', 'Inspiring'],
+      tumblerWords: ['Effortless', 'Instantaneous', 'Transformative', 'Unstoppable', 'Seamless'],
       tumblerTimer: null,
-      isAnimating: false,
     };
 
     // DOM Target References
@@ -571,7 +565,130 @@
     const liveModeLabel = document.getElementById('live-mode-label');
 
     // =========================================================================
-    // Core Render: AvadaKeDevara MotionWordsPullUp Algorithm
+    // Mode 1: 3D Tumbler Rotating Flip Words (Flawless zero-layout-shift engine)
+    // =========================================================================
+    function render3DTumbler(prefix, wordsArray, suffix = '') {
+      if (state.tumblerTimer) {
+        clearInterval(state.tumblerTimer);
+        state.tumblerTimer = null;
+      }
+
+      headlineTarget.innerHTML = '';
+      headlineTarget.className = 'perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.25rem] font-serif font-medium text-ink tracking-tight leading-[1.18] max-w-4xl mx-auto select-none flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5';
+
+      // 1. Prefix text
+      if (prefix) {
+        const prefixSpan = document.createElement('span');
+        prefixSpan.className = 'inline-block text-ink';
+        prefixSpan.textContent = prefix;
+        headlineTarget.appendChild(prefixSpan);
+      }
+
+      // 2. Dynamic 3D Tumbler Slot Container
+      const tumblerStage = document.createElement('span');
+      tumblerStage.id = 'tumbler-slot';
+      tumblerStage.className = 'relative inline-flex items-center justify-center text-amber-700 italic border-b-2 border-amber-600/40 pb-0.5 px-1';
+      tumblerStage.style.perspective = '1000px';
+      tumblerStage.style.transformStyle = 'preserve-3d';
+      tumblerStage.style.verticalAlign = 'baseline';
+
+      const initialWord = wordsArray[state.tumblerIndex % wordsArray.length];
+      const currentWordEl = document.createElement('span');
+      currentWordEl.className = 'tumbler-word inline-block transform-gpu will-change-transform';
+      currentWordEl.textContent = initialWord;
+      tumblerStage.appendChild(currentWordEl);
+      headlineTarget.appendChild(tumblerStage);
+
+      // 3. Suffix text
+      if (suffix) {
+        const suffixSpan = document.createElement('span');
+        suffixSpan.className = 'inline-block text-ink';
+        suffixSpan.textContent = suffix;
+        headlineTarget.appendChild(suffixSpan);
+      }
+
+      // Initial word entrance animation
+      gsap.fromTo(currentWordEl,
+        { opacity: 0, rotateX: -70, y: 20 },
+        { opacity: 1, rotateX: 0, y: 0, duration: 0.5, ease: 'back.out(1.5)' }
+      );
+
+      let isFlipping = false;
+
+      function cycleNextWord() {
+        if (isFlipping) return;
+        isFlipping = true;
+
+        const currentEl = tumblerStage.querySelector('.tumbler-word');
+        if (!currentEl) {
+          isFlipping = false;
+          return;
+        }
+
+        state.tumblerIndex = (state.tumblerIndex + 1) % wordsArray.length;
+        const nextWordStr = wordsArray[state.tumblerIndex];
+
+        // Create the incoming word element
+        const nextEl = document.createElement('span');
+        nextEl.className = 'inline-block transform-gpu will-change-transform text-amber-700 italic';
+        nextEl.style.position = 'absolute';
+        nextEl.style.left = '50%';
+        nextEl.style.top = '0';
+        nextEl.style.transform = 'translate(-50%, 0)';
+        nextEl.style.whiteSpace = 'nowrap';
+        nextEl.style.opacity = '0';
+        nextEl.textContent = nextWordStr;
+        tumblerStage.appendChild(nextEl);
+
+        const currentW = currentEl.offsetWidth;
+        const nextW = nextEl.offsetWidth;
+
+        // Lock container width so parent layout does not jump
+        tumblerStage.style.width = `${currentW}px`;
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            currentEl.remove();
+            nextEl.style.position = 'relative';
+            nextEl.style.left = 'auto';
+            nextEl.style.top = 'auto';
+            nextEl.style.transform = 'none';
+            nextEl.className = 'tumbler-word inline-block transform-gpu will-change-transform';
+            tumblerStage.style.width = 'auto';
+            isFlipping = false;
+          }
+        });
+
+        // 1. Morph container width smoothly between words
+        tl.to(tumblerStage, {
+          width: nextW,
+          duration: 0.45,
+          ease: 'power2.inOut'
+        }, 0);
+
+        // 2. Animate out current word: flip up 90deg, fade and blur
+        tl.to(currentEl, {
+          rotateX: 90,
+          y: -25,
+          opacity: 0,
+          filter: 'blur(4px)',
+          duration: 0.38,
+          ease: 'power2.in'
+        }, 0);
+
+        // 3. Animate in next word: flip down from -90deg with spring back ease
+        tl.fromTo(nextEl,
+          { rotateX: -90, y: 25, opacity: 0, filter: 'blur(4px)' },
+          { rotateX: 0, y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.52, ease: 'back.out(1.5)' },
+          0.12
+        );
+      }
+
+      state.tumblerTimer = setInterval(cycleNextWord, 2600);
+    }
+
+    // =========================================================================
+    // Mode 2: Kinetic Word Pull-Up Algorithm
     // =========================================================================
     function renderWordPullUp(text, staggerTime = state.stagger, dur = state.duration) {
       if (state.tumblerTimer) {
@@ -580,12 +697,13 @@
       }
 
       headlineTarget.innerHTML = '';
+      headlineTarget.className = 'perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none';
       headlineTarget.setAttribute('aria-label', text);
 
       const words = text.split(' ');
       const wordElements = [];
 
-      words.forEach((word, idx) => {
+      words.forEach((word) => {
         // Word container with overflow hidden for crisp clip-path pullup
         const spanWrapper = document.createElement('span');
         spanWrapper.className = 'inline-block overflow-hidden mr-[0.25em] last:mr-0 align-bottom';
@@ -601,7 +719,7 @@
         wordElements.push(wordSpan);
       });
 
-      // Animate with GSAP using exact AvadaKeDevara spring stiffness & damping
+      // Animate with GSAP using spring stiffness & damping
       gsap.killTweensOf(wordElements);
       gsap.to(wordElements, {
         y: '0%',
@@ -614,77 +732,6 @@
     }
 
     // =========================================================================
-    // Mode 2: 3D Tumbler Rotating Flip Words
-    // =========================================================================
-    function render3DTumbler(basePrefix, wordsArray) {
-      if (state.tumblerTimer) {
-        clearInterval(state.tumblerTimer);
-        state.tumblerTimer = null;
-      }
-
-      headlineTarget.innerHTML = '';
-      
-      const prefixSpan = document.createElement('span');
-      prefixSpan.className = 'inline-block mr-[0.28em]';
-      prefixSpan.textContent = basePrefix;
-      headlineTarget.appendChild(prefixSpan);
-
-      // Dedicated 3D Tumbler Stage Pill
-      const tumblerStage = document.createElement('span');
-      tumblerStage.id = 'tumbler-slot';
-      tumblerStage.className = 'flip-word-container inline-flex items-center text-amber-700 italic border-b-2 border-amber-600/40 pb-0.5';
-      tumblerStage.style.perspective = '800px';
-
-      const initialWord = document.createElement('span');
-      initialWord.className = 'tumbler-current-word inline-block transform-gpu will-change-transform';
-      initialWord.textContent = wordsArray[state.tumblerIndex % wordsArray.length];
-      tumblerStage.appendChild(initialWord);
-
-      headlineTarget.appendChild(tumblerStage);
-
-      // Cycle function
-      function cycleNextWord() {
-        state.tumblerIndex = (state.tumblerIndex + 1) % wordsArray.length;
-        const nextWordStr = wordsArray[state.tumblerIndex];
-
-        const oldWord = tumblerStage.querySelector('.tumbler-current-word');
-        if (!oldWord) return;
-
-        const incomingWord = document.createElement('span');
-        incomingWord.className = 'tumbler-incoming-word absolute inset-0 inline-block transform-gpu will-change-transform';
-        incomingWord.textContent = nextWordStr;
-        incomingWord.style.opacity = '0';
-        incomingWord.style.transform = 'rotateX(-90deg) translateY(40px)';
-        incomingWord.style.transformOrigin = 'bottom center';
-        tumblerStage.appendChild(incomingWord);
-
-        // Animate old word tumbling up & away
-        gsap.to(oldWord, {
-          rotateX: 90,
-          y: -40,
-          opacity: 0,
-          duration: 0.45,
-          ease: 'power2.in',
-          onComplete: () => oldWord.remove()
-        });
-
-        // Animate incoming word tumbling in from below
-        gsap.to(incomingWord, {
-          rotateX: 0,
-          y: 0,
-          opacity: 1,
-          duration: 0.55,
-          ease: 'back.out(1.4)',
-          onComplete: () => {
-            incomingWord.className = 'tumbler-current-word inline-block transform-gpu will-change-transform';
-          }
-        });
-      }
-
-      state.tumblerTimer = setInterval(cycleNextWord, 2600);
-    }
-
-    // =========================================================================
     // Mode 3: Split-Flap Character Ticker
     // =========================================================================
     function renderSplitFlap(text) {
@@ -694,6 +741,7 @@
       }
 
       headlineTarget.innerHTML = '';
+      headlineTarget.className = 'perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none';
       const chars = Array.from(text);
       const charElements = [];
 
@@ -732,6 +780,7 @@
       }
 
       headlineTarget.innerHTML = '';
+      headlineTarget.className = 'perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none';
       const words = text.split(' ');
       const wordElements = [];
 
@@ -766,13 +815,10 @@
         { opacity: 1, y: 0, duration: 0.6, delay: 0.25, ease: 'power2.out' }
       );
 
-      if (state.mode === 'pullup') {
+      if (state.mode === 'tumbler') {
+        render3DTumbler(state.prefix, state.tumblerWords, state.suffix);
+      } else if (state.mode === 'pullup') {
         renderWordPullUp(state.headline, state.stagger, state.duration);
-      } else if (state.mode === 'tumbler') {
-        const prefix = state.headline.includes('Magical') 
-          ? 'Every Child Deserves a' 
-          : 'Building Experiences That Are';
-        render3DTumbler(prefix, state.tumblerWords);
       } else if (state.mode === 'splitflap') {
         renderSplitFlap(state.headline);
       } else if (state.mode === 'blur') {
@@ -781,32 +827,52 @@
     }
 
     // =========================================================================
-    // Preset Configurations
+    // Clean Demo Presets (Zero third-party branding)
     // =========================================================================
     const presets = {
-      avadakedavara: {
-        mode: 'pullup',
-        badge: 'Academic Learning & Motion Architecture',
-        headline: 'Every Child Deserves a Magical Education',
-        subtitle: 'The professional academic environment for school curriculum mastery and competitive exam preparation. Designed for students who study, teachers who guide, and parents who monitor.',
-        stagger: 0.06,
-        duration: 0.55
-      },
-      ukhero: {
-        mode: 'pullup',
-        badge: 'UK 11+ Examination Guide',
-        headline: 'Build your child\'s 11+ confidence.',
-        subtitle: 'Engaging practice that identifies weak areas, adapts to their progress, and prepares them for grammar school entrance exams without the overwhelm.',
-        stagger: 0.05,
-        duration: 0.5
-      },
       saas: {
         mode: 'tumbler',
-        badge: 'Spatial Interface Lab',
-        headline: 'Building Experiences That Are',
-        subtitle: 'Hardware-accelerated kinetic typography modules engineered with zero-reflow CSS transforms and fluid spring momentum.',
-        stagger: 0.04,
+        badge: 'Next-Gen SaaS Architecture',
+        prefix: 'Build Web Experiences That Are',
+        flipWords: ['Effortless', 'Instantaneous', 'Transformative', 'Unstoppable', 'Seamless'],
+        suffix: '',
+        headline: 'Build Web Experiences That Are Effortless',
+        subtitle: 'Hardware-accelerated kinetic typography modules engineered with zero-reflow CSS transforms, dynamic spring momentum, and zero layout shift.',
+        stagger: 0.05,
+        duration: 0.55
+      },
+      velocity: {
+        mode: 'pullup',
+        badge: 'High-Velocity Motion Lab',
+        prefix: 'Engineered For',
+        flipWords: ['Pure Velocity', 'Sub-Pixel Motion', 'Tactile Fluidity', 'Peak Performance'],
+        suffix: 'Across Modern Web Apps',
+        headline: 'Engineered For Pure Velocity Across Modern Web Apps',
+        subtitle: 'Every glyph and word token ascends with calculated Hooke\'s Law mass and damping physics for fluid, organic visual arrivals.',
+        stagger: 0.06,
         duration: 0.5
+      },
+      editorial: {
+        mode: 'blur',
+        badge: 'Editorial Motion Lab',
+        prefix: 'Crafting Spatial Digital Products With',
+        flipWords: ['Sculptural Depth', 'Fluid Motion', 'Micro-Interactions', 'Tactile Grace'],
+        suffix: '',
+        headline: 'Crafting Spatial Digital Products With Tactile Fluidity',
+        subtitle: 'Smooth Gaussian blur dissipation paired with subtle elevation shifts to create luxurious editorial headlines.',
+        stagger: 0.08,
+        duration: 0.65
+      },
+      splitflap: {
+        mode: 'splitflap',
+        badge: 'Tactile Ticker Engine',
+        prefix: 'Tactile Precision In Every',
+        flipWords: ['Interaction', 'Micro-Motion', 'Visual Layer', 'Spatial State'],
+        suffix: '',
+        headline: 'Tactile Precision In Every Interaction',
+        subtitle: 'Mechanical ticker physics inspired by transit split-flap displays, tuned with snappy back-out springs for modern screens.',
+        stagger: 0.025,
+        duration: 0.35
       }
     };
 
@@ -815,6 +881,10 @@
       if (!p) return;
       state.mode = p.mode;
       state.badgeText = p.badge;
+      state.prefix = p.prefix;
+      state.flipWords = p.flipWords;
+      state.tumblerWords = p.flipWords;
+      state.suffix = p.suffix;
       state.headline = p.headline;
       state.subtitle = p.subtitle;
       state.stagger = p.stagger;
@@ -839,8 +909,8 @@
 
     function updateModeLabel() {
       const labels = {
-        pullup: 'AvadaKeDevara Spring Pull-Up',
         tumbler: '3D Perspective Rotating Tumbler',
+        pullup: 'Spring Word Pull-Up',
         splitflap: 'Split-Flap Character Ticker',
         blur: 'Fluid Blur & Elevation Dissolve'
       };
@@ -858,8 +928,8 @@
 
       // Mode Switcher
       const modeMap = {
-        'mode-btn-pullup': 'pullup',
         'mode-btn-tumbler': 'tumbler',
+        'mode-btn-pullup': 'pullup',
         'mode-btn-splitflap': 'splitflap',
         'mode-btn-blur': 'blur'
       };
@@ -904,17 +974,18 @@
 
       // Custom Text Apply
       document.getElementById('apply-custom-text-btn').addEventListener('click', () => {
-        const val = document.getElementById('custom-text-input').value.trim();
-        if (val) {
-          state.headline = val;
-          const flipWords = document.getElementById('custom-flip-words-input').value.split(',').map(s => s.trim()).filter(Boolean);
-          if (flipWords.length) state.tumblerWords = flipWords;
-          playAnimation();
-        }
+        const prefixVal = document.getElementById('custom-prefix-input').value.trim();
+        const headlineVal = document.getElementById('custom-headline-input').value.trim();
+        const flipWordsVal = document.getElementById('custom-flip-words-input').value.split(',').map(s => s.trim()).filter(Boolean);
+        
+        if (prefixVal) state.prefix = prefixVal;
+        if (headlineVal) state.headline = headlineVal;
+        if (flipWordsVal.length) state.tumblerWords = flipWordsVal;
+        playAnimation();
       });
 
-      // Initial Play
-      playAnimation();
+      // Initial Play (Modern SaaS Tumbler)
+      applyPreset('saas');
       renderCodeSnippet('react');
     });
 
@@ -922,7 +993,7 @@
     // Code Display Hub & Tab Switcher
     // =========================================================================
     const codeSnippets = {
-      react: `// MotionWordsPullUp.tsx — Direct from AvadaKeDevara Project Architecture
+      react: `// MotionWordsPullUp.tsx — Production Kinetic Typography Architecture
 import { motion, useReducedMotion } from "framer-motion";
 import { ElementType } from "react";
 
@@ -1106,7 +1177,6 @@ function animateWordPullUp(targetSelector, options = {}) {
   .word-mask:nth-child(4) .word-pullup { animation-delay: 0.20s; }
   .word-mask:nth-child(5) .word-pullup { animation-delay: 0.25s; }
   .word-mask:nth-child(6) .word-pullup { animation-delay: 0.30s; }
-  .word-mask:nth-child(7) .word-pullup { animation-delay: 0.35s; }
 
   @media (prefers-reduced-motion: reduce) {
     .word-pullup {
@@ -1117,13 +1187,13 @@ function animateWordPullUp(targetSelector, options = {}) {
   }
 </style>
 
-<h1 class="word-pullup-container" aria-label="Every Child Deserves a Magical Education">
-  <span class="word-mask"><span class="word-pullup">Every</span></span>
-  <span class="word-mask"><span class="word-pullup">Child</span></span>
-  <span class="word-mask"><span class="word-pullup">Deserves</span></span>
-  <span class="word-mask"><span class="word-pullup">a</span></span>
-  <span class="word-mask"><span class="word-pullup">Magical</span></span>
-  <span class="word-mask"><span class="word-pullup">Education</span></span>
+<h1 class="word-pullup-container" aria-label="Build High-Performance Interfaces That Feel Alive">
+  <span class="word-mask"><span class="word-pullup">Build</span></span>
+  <span class="word-mask"><span class="word-pullup">High-Performance</span></span>
+  <span class="word-mask"><span class="word-pullup">Interfaces</span></span>
+  <span class="word-mask"><span class="word-pullup">That</span></span>
+  <span class="word-mask"><span class="word-pullup">Feel</span></span>
+  <span class="word-mask"><span class="word-pullup">Alive</span></span>
 </h1>`
     };
 
@@ -1131,7 +1201,7 @@ function animateWordPullUp(targetSelector, options = {}) {
       const codeDisplay = document.getElementById('code-display');
       const filename = document.getElementById('code-filename');
       const filenames = {
-        react: 'MotionWordsPullUp.tsx (AvadaKeDevara Source)',
+        react: 'MotionWordsPullUp.tsx (Production Component)',
         gsap: 'animateWordPullUp.js (GSAP 3.12)',
         css: 'WordPullUp.html (Pure CSS Zero-Dependency)'
       };
