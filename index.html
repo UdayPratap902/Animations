@@ -177,7 +177,7 @@
         <span class="relative inline-flex rounded-full h-2 w-2 bg-warm-700"></span>
       </span>
       <span class="text-[10px] sm:text-xs tracking-[0.15em] uppercase text-ink font-bold font-mono">
-        Curated Web Motion &bull; 4 Production Animations
+        Curated Web Motion &bull; 5 Production Animations
       </span>
     </div>
 
@@ -660,6 +660,81 @@
 
       </article>
 
+      <!-- ===================================================================== -->
+      <!-- CARD 5: Word Flip & Staggered Kinetic Typography Lab                   -->
+      <!-- ===================================================================== -->
+      <article class="warm-card rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 relative overflow-hidden group">
+        
+        <!-- Live Animation Preview Stage -->
+        <div class="relative h-[250px] sm:h-[280px] bg-gradient-to-b from-[#FAF8F5] to-warm-200/50 rounded-xl border border-warm-300 overflow-hidden flex items-center justify-center select-none shadow-inner group/stage">
+
+          <!-- Ambient soft glows -->
+          <div class="absolute -top-12 -left-12 w-48 h-48 bg-amber-200/30 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-12 -right-12 w-48 h-48 bg-warm-400/20 rounded-full blur-3xl pointer-events-none"></div>
+
+          <!-- Mini Kinetic Stage -->
+          <div id="wf-mini-stage" class="relative flex flex-col items-center justify-center h-full w-full px-4 text-center select-none">
+            
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/90 border border-warm-300 text-warm-800 text-[9px] font-mono uppercase tracking-wider mb-3 shadow-2xs">
+              <span class="text-amber-600">✦</span>
+              <span>AvadaKeDevara Engine</span>
+            </div>
+
+            <!-- Kinetic Word Display -->
+            <div class="font-serif text-xl sm:text-2xl md:text-[1.65rem] text-ink leading-snug tracking-tight max-w-[360px]">
+              Every Child Deserves a 
+              <span id="wf-mini-flip-container" class="inline-flex relative overflow-hidden align-baseline text-amber-700 italic font-medium border-b border-amber-600/40 pb-0.5 mx-1" style="perspective:600px; min-width: 82px;">
+                <span id="wf-mini-word" class="inline-block transform-gpu will-change-transform">Magical</span>
+              </span>
+              Education
+            </div>
+
+            <p class="text-[11px] text-ink-muted mt-2.5 max-w-[280px] font-sans line-clamp-2">
+              Spring-powered word pull-up &amp; 3D perspective flip with zero layout reflow.
+            </p>
+
+            <!-- Mode pill indicators -->
+            <div class="flex items-center gap-1.5 mt-3 text-[9px] font-mono text-warm-700">
+              <span id="wf-pill-pullup" class="px-2 py-0.5 rounded-full bg-warm-200/90 border border-warm-300 font-bold">Pull-Up</span>
+              <span id="wf-pill-tumbler" class="px-2 py-0.5 rounded-full bg-white/80 border border-warm-300">3D Flip</span>
+              <span id="wf-pill-spring" class="px-2 py-0.5 rounded-full bg-white/80 border border-warm-300">Spring Damped</span>
+            </div>
+
+          </div><!-- /wf-mini-stage -->
+
+          <!-- Clickable Demo Launch Overlay -->
+          <a href="interactive-word-flip.html" class="absolute inset-0 z-30 flex items-center justify-center bg-ink/10 opacity-0 group-hover/stage:opacity-100 transition-opacity duration-200 backdrop-blur-[1px]">
+            <span class="px-4 py-2 rounded-full bg-ink text-warm-100 font-bold text-xs tracking-wider uppercase flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform">
+              <span>Open Full Demo</span>
+              <span>↗</span>
+            </span>
+          </a>
+        </div>
+
+        <!-- Bottom Info Bar -->
+        <div class="flex items-center justify-between pt-1 px-0.5">
+          <div class="flex items-center gap-3 min-w-0">
+            <!-- Avatar Icon -->
+            <div class="w-9 h-9 rounded-lg bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-xs shrink-0 font-mono shadow-2xs">
+              🔤
+            </div>
+            <div class="min-w-0">
+              <a href="interactive-word-flip.html" class="font-bold text-ink text-sm sm:text-base hover:text-warm-800 transition-colors truncate block leading-snug">
+                Word Flip &amp; Staggered Typography
+              </a>
+              <div class="text-xs text-ink-muted mt-0.5 font-sans truncate">
+                AvadaKeDevara Motion &bull; Kinetic Spring Words &amp; 3D Tumbler Engine
+              </div>
+            </div>
+          </div>
+          
+          <a href="interactive-word-flip.html" title="Open Word Flip Demo" class="text-ink-subtle hover:text-ink p-2 rounded-lg hover:bg-warm-200/60 transition-colors text-lg tracking-widest leading-none font-mono shrink-0">
+            &bull;&bull;&bull;
+          </a>
+        </div>
+
+      </article>
+
     </div>
 
   </main>
@@ -993,6 +1068,57 @@
       }
     }
 
+    // -------------------------------------------------------------------------
+    // Animation 5 Engine: Word Flip & Staggered Kinetic Typography Loop
+    // Ported from AvadaKeDevara MotionWordsPullUp & 3D Tumbler
+    // -------------------------------------------------------------------------
+    function initWordFlipLoop() {
+      const wordEl = document.getElementById("wf-mini-word");
+      const containerEl = document.getElementById("wf-mini-flip-container");
+      if (!wordEl || !containerEl) return;
+
+      const words = ["Magical", "Effortless", "Inspiring", "Transformative", "Guided"];
+      let wordIdx = 0;
+      let isAnimating = false;
+
+      function flipToNextWord() {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        wordIdx = (wordIdx + 1) % words.length;
+        const nextWordStr = words[wordIdx];
+
+        // Animate current word tumbling up and away
+        gsap.to(wordEl, {
+          rotateX: 90,
+          y: -22,
+          opacity: 0,
+          duration: 0.38,
+          ease: "power2.in",
+          onComplete: () => {
+            wordEl.textContent = nextWordStr;
+            gsap.set(wordEl, {
+              rotateX: -90,
+              y: 22,
+              opacity: 0
+            });
+            gsap.to(wordEl, {
+              rotateX: 0,
+              y: 0,
+              opacity: 1,
+              duration: 0.52,
+              ease: "back.out(1.5)",
+              onComplete: () => {
+                isAnimating = false;
+              }
+            });
+          }
+        });
+      }
+
+      setInterval(flipToNextWord, 2400);
+    }
+
     // Initialize all engines on DOM load
     document.addEventListener("DOMContentLoaded", () => {
       initGSAPDeck();
@@ -1000,6 +1126,7 @@
       initMiniCarouselListeners();
       initCard3PanelsLoop();
       initPricingDeckLoop();
+      initWordFlipLoop();
     });
   </script>
 </body>

@@ -12,6 +12,7 @@ Welcome to **Animations Lab**, an open-source collection of high-performance, dr
 | 💫 | **02. 3D Perspective Carousel & Glare Stack**<br><sub>Spatial 3D depth wings with dynamic cursor-tracked radial glare</sub> | `Framer Motion`<br>`3D Glare Tilt`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-3d-review-stack.html) • [Code & Guide](#-02-3d-perspective-carousel--glare-stack) |
 | 🎬 | **03. GSAP Horizontal Multi-Panel Showcase**<br><sub>ScrollTrigger horizontal pinned glide with GPU progress tracking & modal player</sub> | `GSAP 3.12`<br>`ScrollTrigger`<br>`YouTube Modal` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](gsap-horizontal-video-showcase.html) • [Code & Guide](#-03-gsap-scrolltrigger-horizontal-multi-panel-showcase) |
 | 💳 | **04. 3D Interactive Pricing Deck**<br><sub>Hover-elevation 3D fanning deck with benefit expansion, magnetic CTAs, and mobile accordion</sub> | `Framer Motion`<br>`GSAP Magnetic`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-3d-pricing-deck.html) • [Code & Guide](#-04-3d-interactive-pricing-deck) |
+| 🔤 | **05. Word Flip & Staggered Typography Lab**<br><sub>Kinetic spring word pull-up, 3D perspective tumbler, and split-flap ticker ported from AvadaKeDevara</sub> | `Framer Motion`<br>`GSAP 3.12`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-word-flip.html) • [Code & Guide](#-05-word-flip--staggered-kinetic-typography) |
 
 ---
 
@@ -37,6 +38,7 @@ npx serve .
 - **02. 3D Glare Review Carousel**: [`interactive-3d-review-stack.html`](interactive-3d-review-stack.html) (fullscreen 3D perspective review carousel with cursor glare and visual deconstructor)
 - **03. GSAP Horizontal Multi-Panel Showcase**: [`gsap-horizontal-video-showcase.html`](gsap-horizontal-video-showcase.html) (fullscreen horizontal pinned multi-panel showcase with modal player)
 - **04. 3D Interactive Pricing Deck**: [`interactive-3d-pricing-deck.html`](interactive-3d-pricing-deck.html) (spatial 3D fanning pricing deck with hover elevation, benefit expansion, deconstructor, and production code)
+- **05. Word Flip & Kinetic Typography**: [`interactive-word-flip.html`](interactive-word-flip.html) (interactive word playground, 4 kinetic modes, visual deconstructor, and production drop-in code)
 
 ---
 
@@ -130,3 +132,32 @@ A spatial 3D pricing card deck that fans three plans (Starter, Pro, Enterprise) 
 - **Mobile accordion**: tab switcher with max-height CSS transition, no JS animation required.
 - **Elastic magnetic CTAs**: GSAP `quickTo` with `elastic.out(1, 0.3)` ease, disabled on `pointer: coarse` devices.
 - **Zero layout shift**: all transforms use GPU-composited properties (transform, opacity) only — no width/height reflow.
+
+---
+
+## 🔤 05. Word Flip & Staggered Kinetic Typography
+
+Ported directly from the flagship educational platform **AvadaKeDevara** (`MotionWordsPullUp.tsx`), this kinetic typography engine breaks headlines into discreet word tokens and animates them using Hooke's Law spring physics, hardware composite transforms, and screen-reader accessible DOM serialization.
+
+### Mathematical Parameters & Formulas
+
+| Parameter | AvadaKeDevara Default | Alternative / Dynamic | Formula / Physical Purpose |
+|:---|:---:|:---:|:---|
+| **Initial Displacement ($y$)** | `+20px` (or `100%`) | `+40px` (Large hero) | Vertical entry offset beneath resting baseline |
+| **Spring Stiffness ($k$)** | `100` | `140` (snappy) / `60` (soft) | Restoring tensile force in Hooke's Law equation $F = -kx$ |
+| **Damping Coefficient ($c$)** | `20` | `15` (bouncy) / `25` (critical) | Viscous decay preventing endless harmonic oscillation |
+| **Stagger Offset ($\Delta t$)** | `0.05s – 0.08s` | `0.04s` (rapid) | Inter-token delay progression: $t_i = t_0 + (i \cdot \Delta t)$ |
+| **3D Perspective ($d$)** | `1000px` | `800px` | Eye distance for cylindrical 3D tumbler rotateX flips |
+| **Tumbler Arc ($\theta_x$)** | `-90deg → 0deg → 90deg` | `-180deg` (full split) | Exit flip-up and entrance flip-down rotational trajectory |
+
+### Architecture Highlights
+- **Whitespace & Typography Preservation**: Custom spacing rule applies `margin-right: 0.25em` to every token except the final word (`last:mr-0`), preserving precise browser kerning and justification.
+- **A11y & Screen Reader Optimization**: Unlike naive tokenizers that cause robotic word-by-word pauses in screen readers, the container receives `aria-label={fullSentence}` and animated word spans receive `aria-hidden="true"`.
+- **Zero Document Reflow**: All kinetic motion executes strictly across GPU composite channels (`transform: translateY()`, `rotateX()`, and `opacity`) with zero changes to `height`, `width`, or `top`.
+- **4 Distinct Animation Modes**:
+  1. **AvadaKeDevara Spring Pull-Up**: Exact staggered spring reveal from the production hero sections.
+  2. **3D Perspective Tumbler**: Cylindrical rotating word flip with dynamic bank cycling.
+  3. **Split-Flap Ticker**: Mechanical tactile letter ticker reminiscent of transit departure boards.
+  4. **Fluid Blur Dissolve**: Optical Gaussian blur dissipation with elevation float.
+- **Multi-Stack Drop-in Code**: Provided in React + Framer Motion (AvadaKeDevara source), Vanilla GSAP 3.12, and Pure CSS.
+

@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Flip &amp; Staggered Typography Lab — Kinetic Text Motion</title>
+  <meta name="description" content="Kinetic word flip, staggered spring pull-up, and 3D tumbling typography animations ported from AvadaKeDevara. Complete with interactive playground, visual deconstructor, and production React + GSAP code." />
+
+  <!-- Google Fonts: Instrument Serif + Almarai + Plus Jakarta Sans + Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Fira+Code:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Almarai', '"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            warm: {
+              50: '#FDFCFB', 100: '#FAF9F6', 200: '#F4F1EA',
+              300: '#EDE8DC', 400: '#DEDBC8', 500: '#C8C4AB',
+              600: '#A49F83', 700: '#757159', 800: '#474435', 900: '#1C1B15',
+            },
+            ink: { DEFAULT: '#141413', muted: '#6C6A63', subtle: '#9E9B91' },
+            amber: { DEFAULT: '#D97706', light: '#FEF3C7', dark: '#92400E' },
+            accent: { DEFAULT: '#D4A373', gold: '#C5A059', wine: '#780016' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- Shared Components -->
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+
+  <style>
+    :root {
+      --bg-warm: #FAF9F6;
+      --foreground: #141413;
+      --ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body {
+      background-color: #FAF9F6;
+      color: #141413;
+      font-family: 'Almarai', 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Subtle warm noise texture overlay */
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.08;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    /* Ambient Warm Glows */
+    .warm-glow {
+      filter: blur(100px);
+      border-radius: 9999px;
+      pointer-events: none;
+      position: absolute;
+    }
+
+    /* Card styling */
+    .warm-card {
+      background: #FFFFFF;
+      border: 1px solid #EDE8DC;
+      box-shadow: 0 10px 30px -8px rgba(30, 24, 12, 0.05), 0 2px 6px rgba(0, 0, 0, 0.02);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .warm-card:hover {
+      border-color: #DEDBC8;
+      box-shadow: 0 25px 45px -12px rgba(30, 24, 12, 0.1), 0 0 0 1px rgba(222, 219, 200, 0.6);
+    }
+
+    /* 3D Flip Perspective Container */
+    .perspective-stage {
+      perspective: 1000px;
+      transform-style: preserve-3d;
+    }
+
+    .flip-word-container {
+      display: inline-flex;
+      position: relative;
+      vertical-align: baseline;
+      overflow: hidden;
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Individual Word Pill Tag */
+    .word-tag {
+      transition: all 0.2s ease;
+    }
+    .word-tag:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Code block syntax highlight simulation */
+    .code-container {
+      background: #181816;
+      border: 1px solid #2B2B28;
+    }
+    .code-tag { color: #E5C07B; }
+    .code-prop { color: #98C379; }
+    .code-str { color: #61AFEF; }
+    .code-fn { color: #C678DD; }
+    .code-kw { color: #D19A66; }
+    .code-com { color: #5C6370; font-style: italic; }
+
+    /* Custom range sliders */
+    input[type=range] {
+      accent-color: #141413;
+    }
+  </style>
+</head>
+<body class="bg-[#FAF9F6] text-ink font-sans antialiased selection:bg-warm-400 selection:text-ink min-h-screen flex flex-col justify-between relative">
+
+  <!-- Noise Texture Overlay -->
+  <div class="noise-overlay"></div>
+
+  <!-- Ambient Light Orbs -->
+  <div class="warm-glow top-0 left-1/2 -translate-x-1/2 w-[700px] sm:w-[950px] h-[380px] bg-gradient-to-b from-warm-300/40 via-warm-200/25 to-transparent rounded-full -z-10"></div>
+  <div class="warm-glow top-[40%] right-[-10%] w-[500px] h-[450px] bg-amber-100/35 -z-10"></div>
+  <div class="warm-glow bottom-[20%] left-[-10%] w-[550px] h-[400px] bg-warm-200/40 -z-10"></div>
+
+  <!-- Reusable Floating Navbar -->
+  <site-navbar active="word-flip"></site-navbar>
+
+  <main class="w-full flex-1">
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 01: HERO & LIVE INTERACTIVE STAGE                                -->
+    <!-- ========================================================================= -->
+    <section id="experience" class="pt-28 sm:pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+      
+      <!-- Top Badging & Source Origin Attribution -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div class="flex items-center gap-2">
+          <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+            <span class="text-[10px] sm:text-xs tracking-[0.18em] uppercase text-ink font-bold font-mono">
+              05 &bull; Kinetic Typography
+            </span>
+          </div>
+          <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-200/80 border border-warm-300 text-warm-800 text-[10px] font-mono font-medium">
+            <span>Project:</span> <strong class="font-bold text-ink">AvadaKeDevara</strong>
+          </span>
+        </div>
+
+        <!-- Mode Switcher Buttons -->
+        <div class="flex items-center gap-1.5 bg-warm-200/80 p-1 rounded-full border border-warm-300 text-xs font-mono">
+          <button id="mode-btn-pullup" class="mode-tab-btn active px-3 py-1 rounded-full bg-white text-ink font-bold shadow-2xs transition-all">
+            01. Word Pull-Up
+          </button>
+          <button id="mode-btn-tumbler" class="mode-tab-btn px-3 py-1 rounded-full text-ink-muted hover:text-ink transition-all">
+            02. 3D Flip Tumbler
+          </button>
+          <button id="mode-btn-splitflap" class="mode-tab-btn px-3 py-1 rounded-full text-ink-muted hover:text-ink transition-all">
+            03. Split-Flap
+          </button>
+          <button id="mode-btn-blur" class="mode-tab-btn px-3 py-1 rounded-full text-ink-muted hover:text-ink transition-all">
+            04. Blur Dissolve
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive Stage Canvas -->
+      <div class="warm-card rounded-3xl p-6 sm:p-10 md:p-14 relative overflow-hidden bg-gradient-to-b from-white via-warm-50 to-warm-100/40 border border-warm-300 min-h-[380px] sm:min-h-[460px] flex flex-col justify-between">
+        
+        <!-- Subtle Top Metadata Bar -->
+        <div class="flex items-center justify-between border-b border-warm-200/80 pb-4 mb-6 text-[11px] font-mono text-ink-muted">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-warm-600"></span>
+              <span id="live-mode-label" class="font-bold text-ink">AvadaKeDevara Spring Pull-Up</span>
+            </span>
+            <span class="text-warm-400">|</span>
+            <span id="active-fps-badge" class="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/70">60 FPS Hardware-Accelerated</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="replay-btn" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-200 hover:bg-warm-300 text-ink font-medium transition-all active:scale-95 shadow-2xs cursor-pointer">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              <span>Replay</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Central Typographic Display Canvas -->
+        <div class="my-auto py-8 sm:py-12 flex flex-col items-center justify-center text-center">
+          
+          <!-- Category Subheading Pill -->
+          <div id="stage-badge-container" class="mb-4 inline-flex items-center gap-2 rounded-full border border-warm-300 bg-white/80 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-warm-800 shadow-2xs">
+            <span class="text-amber-600">✦</span>
+            <span id="stage-badge-text">Academic Learning &amp; Motion Architecture</span>
+          </div>
+
+          <!-- Main Dynamic Kinetic Headline -->
+          <h1 id="headline-target" class="perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.75rem] font-serif font-medium text-ink tracking-tight leading-[1.12] max-w-4xl mx-auto select-none">
+            <!-- Dynamically populated and animated by the kinetic typography engine -->
+            Every Child Deserves a Magical Education
+          </h1>
+
+          <!-- Descriptive Subtitle with Staggered Reveal -->
+          <p id="subtitle-target" class="mt-5 text-sm sm:text-base md:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
+            The professional academic environment for curriculum mastery, gamified practice, and fluid spatial interfaces.
+          </p>
+
+        </div>
+
+        <!-- Bottom Real-time Control Toolbar -->
+        <div class="mt-8 pt-5 border-t border-warm-200/80 flex flex-col md:flex-row items-center justify-between gap-5 bg-warm-100/50 -mx-6 sm:-mx-10 md:-mx-14 -mb-6 sm:-mb-10 md:-mb-14 p-5 sm:p-6 px-6 sm:px-10 md:px-14 rounded-b-3xl">
+          
+          <!-- Quick Preset Phrases -->
+          <div class="flex items-center gap-2 flex-wrap w-full md:w-auto">
+            <span class="text-[11px] font-mono text-ink-subtle uppercase tracking-wider">Presets:</span>
+            <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="avadakedavara">
+              AvadaKeDevara Hero
+            </button>
+            <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="ukhero">
+              UK 11+ Confidence
+            </button>
+            <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="saas">
+              Modern SaaS Motion
+            </button>
+            <button class="preset-btn px-3 py-1 rounded-full border border-warm-300 bg-white hover:bg-warm-50 text-[11px] font-mono text-ink font-semibold transition-all shadow-2xs" data-preset="custom">
+              Custom Editor ✎
+            </button>
+          </div>
+
+          <!-- Parameter Toggles: Stagger & Speed -->
+          <div class="flex items-center gap-6 text-xs font-mono text-ink w-full md:w-auto justify-end">
+            <div class="flex items-center gap-2">
+              <label for="slider-stagger" class="text-ink-muted">Stagger:</label>
+              <input id="slider-stagger" type="range" min="0.02" max="0.18" step="0.01" value="0.06" class="w-20 cursor-pointer">
+              <span id="val-stagger" class="text-ink font-bold w-10">0.06s</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="slider-duration" class="text-ink-muted">Duration:</label>
+              <input id="slider-duration" type="range" min="0.3" max="1.2" step="0.05" value="0.55" class="w-20 cursor-pointer">
+              <span id="val-duration" class="text-ink font-bold w-10">0.55s</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Live Custom Text Input Editor (Toggled via Custom Editor button) -->
+      <div id="custom-editor-panel" class="hidden mt-6 warm-card rounded-2xl p-5 border border-warm-300 bg-white">
+        <div class="flex flex-col sm:flex-row gap-4 items-center">
+          <div class="flex-1 w-full">
+            <label class="block text-[11px] font-mono text-ink-muted uppercase tracking-wider mb-1.5">
+              Custom Headline Text (Animated Word-by-Word):
+            </label>
+            <input id="custom-text-input" type="text" value="Crafting Unforgettable Spatial Web Interfaces" class="w-full px-4 py-2.5 rounded-xl border border-warm-300 bg-warm-50 font-serif text-lg text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400 transition-all" />
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-auto pt-4 sm:pt-5">
+            <button id="apply-custom-text-btn" class="px-5 py-2.5 rounded-xl bg-ink text-warm-100 hover:bg-warm-900 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-xs">
+              Apply &amp; Play
+            </button>
+          </div>
+        </div>
+
+        <!-- Flip Word Cycling Bank (Active in Tumbler Mode) -->
+        <div id="tumbler-words-config" class="mt-4 pt-4 border-t border-warm-200">
+          <label class="block text-[11px] font-mono text-ink-muted uppercase tracking-wider mb-2">
+            3D Tumbler Rotating Words (comma separated):
+          </label>
+          <input id="custom-flip-words-input" type="text" value="Magical, Effortless, Transformative, Unstoppable, Inspiring" class="w-full px-4 py-2 rounded-lg border border-warm-300 bg-warm-50 font-mono text-xs text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400" />
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 02: VISUAL ANATOMY & DECONSTRUCTOR                               -->
+    <!-- ========================================================================= -->
+    <section id="deconstruct" class="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto border-t border-warm-200">
+      
+      <div class="max-w-3xl mb-12">
+        <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/80 px-3.5 py-1 rounded-full mb-3 shadow-2xs">
+          <span class="text-[10px] font-mono uppercase tracking-widest text-warm-800 font-bold">Architecture Inspection</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif text-ink font-normal tracking-tight">
+          Visual Anatomy of the MotionWords Engine
+        </h2>
+        <p class="mt-2.5 text-sm sm:text-base text-ink-muted leading-relaxed">
+          How the AvadaKeDevara tokenizer and framer-motion pipeline deconstructs typography strings into isolated GPU transform layers without destroying accessibility or causing document reflow.
+        </p>
+      </div>
+
+      <!-- 4-Stage Architectural Breakdown Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Stage 1: String Tokenizer & Whitespace Preservation -->
+        <div class="warm-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-warm-700 bg-warm-100 border border-warm-300 px-2 py-0.5 rounded">
+                Stage 01
+              </span>
+              <span class="text-xs font-mono text-ink-subtle">DOM Serialization</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink font-serif mb-2">
+              String Tokenizer &amp; Whitespace Keeper
+            </h3>
+            <p class="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
+              The input string is split by space boundaries into discreet lexical tokens. To maintain precise typography layout, right margins (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">mr-[0.25em]</code>) are applied dynamically to every word except the final token (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">last:mr-0</code>).
+            </p>
+          </div>
+          
+          <div class="bg-warm-100 rounded-xl p-3.5 border border-warm-300 font-mono text-[11px] text-ink space-y-1">
+            <div class="text-ink-subtle">// Word tokenization with margin preservation</div>
+            <div>const words = text.split(" ");</div>
+            <div class="text-emerald-700">className: "inline-block mr-[0.25em] last:mr-0"</div>
+          </div>
+        </div>
+
+        <!-- Stage 2: Hardware Composite Clip Masks -->
+        <div class="warm-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-warm-700 bg-warm-100 border border-warm-300 px-2 py-0.5 rounded">
+                Stage 02
+              </span>
+              <span class="text-xs font-mono text-ink-subtle">GPU Layer Isolation</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink font-serif mb-2">
+              Hardware-Accelerated Transform Matrix
+            </h3>
+            <p class="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
+              Each word span is promoted to an independent hardware compositor layer via <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">translateY</code> or <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">rotateX</code>. Because geometry shifts avoid modifying <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">top</code> or <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">height</code>, zero CSS layout reflow occurs.
+            </p>
+          </div>
+
+          <div class="bg-warm-100 rounded-xl p-3.5 border border-warm-300 font-mono text-[11px] text-ink space-y-1">
+            <div class="text-ink-subtle">// Hidden to Visible state vector</div>
+            <div>hidden: { y: 20, opacity: 0 }</div>
+            <div class="text-emerald-700">show: { y: 0, opacity: 1, type: "spring" }</div>
+          </div>
+        </div>
+
+        <!-- Stage 3: Spring Physics & Damping Matrix -->
+        <div class="warm-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-warm-700 bg-warm-100 border border-warm-300 px-2 py-0.5 rounded">
+                Stage 03
+              </span>
+              <span class="text-xs font-mono text-ink-subtle">Kinetic Damping</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink font-serif mb-2">
+              Spring Damping &amp; Inertial Decay
+            </h3>
+            <p class="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
+              Rather than generic linear easing, words ascend with calculated mass and damping physics (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">stiffness: 100, damping: 20</code>). Each sequential word receives a staggered delay offset (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">i * 0.06s</code>), giving a fluid, organic wave arrival.
+            </p>
+          </div>
+
+          <div class="bg-warm-100 rounded-xl p-3.5 border border-warm-300 font-mono text-[11px] text-ink space-y-1">
+            <div class="text-ink-subtle">// Physical Hooke's Law configuration</div>
+            <div>transition: { stiffness: 100, damping: 20 }</div>
+            <div class="text-emerald-700">staggerChildren: 0.06s</div>
+          </div>
+        </div>
+
+        <!-- Stage 4: Accessibility & Screen Readers -->
+        <div class="warm-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-warm-700 bg-warm-100 border border-warm-300 px-2 py-0.5 rounded">
+                Stage 04
+              </span>
+              <span class="text-xs font-mono text-ink-subtle">Accessibility &amp; A11y</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink font-serif mb-2">
+              Seamless A11y &amp; Reduced-Motion
+            </h3>
+            <p class="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
+              Breaking text into multiple DOM spans normally causes screen readers to pause after every word. The production component assigns the full sentence to <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">aria-label</code> and sets <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">aria-hidden="true"</code> on animated spans, while honoring <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">prefers-reduced-motion</code>.
+            </p>
+          </div>
+
+          <div class="bg-warm-100 rounded-xl p-3.5 border border-warm-300 font-mono text-[11px] text-ink space-y-1">
+            <div class="text-ink-subtle">// Screen reader & reduced-motion guard</div>
+            <div>&lt;h1 aria-label={text}&gt;</div>
+            <div class="text-emerald-700">if (prefersReducedMotion) return &lt;span&gt;{text}&lt;/span&gt;</div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 03: TECHNICAL SPECIFICATIONS & BENCHMARKS                         -->
+    <!-- ========================================================================= -->
+    <section id="reference" class="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto border-t border-warm-200">
+      
+      <div class="max-w-3xl mb-12">
+        <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/80 px-3.5 py-1 rounded-full mb-3 shadow-2xs">
+          <span class="text-[10px] font-mono uppercase tracking-widest text-warm-800 font-bold">Kinetic Parameters</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif text-ink font-normal tracking-tight">
+          Mathematical Parameters &amp; Kinematics
+        </h2>
+        <p class="mt-2.5 text-sm sm:text-base text-ink-muted leading-relaxed">
+          Standardized values extracted directly from the AvadaKeDevara production deployment across desktop and mobile breakpoints.
+        </p>
+      </div>
+
+      <!-- Specs Table -->
+      <div class="warm-card rounded-2xl overflow-hidden border border-warm-300">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-warm-100 border-b border-warm-200 text-ink-muted font-mono uppercase tracking-wider text-[11px]">
+                <th class="py-3.5 px-4 sm:px-6">Parameter</th>
+                <th class="py-3.5 px-4 sm:px-6">AvadaKeDevara Value</th>
+                <th class="py-3.5 px-4 sm:px-6">Alternative Modes</th>
+                <th class="py-3.5 px-4 sm:px-6">Purpose / Equation</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-warm-200 text-ink">
+              <tr class="hover:bg-warm-50/50 transition-colors">
+                <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">Y-Offset Initial (<code class="text-xs">hidden.y</code>)</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">+20px</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">+40px (Hero large)</td>
+                <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Vertical starting displacement beneath resting baseline</td>
+              </tr>
+              <tr class="hover:bg-warm-50/50 transition-colors">
+                <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">Spring Stiffness (<code class="text-xs">k</code>)</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">100</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">140 (snappy) / 60 (soft)</td>
+                <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Tensile restore force constant in spring physics equation</td>
+              </tr>
+              <tr class="hover:bg-warm-50/50 transition-colors">
+                <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">Damping Coefficient (<code class="text-xs">c</code>)</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">20</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">15 (bouncy) / 25 (critically damped)</td>
+                <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Frictional decay preventing erratic overshoot oscillations</td>
+              </tr>
+              <tr class="hover:bg-warm-50/50 transition-colors">
+                <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">Stagger Delta (<code class="text-xs">stagger</code>)</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">0.05s – 0.08s</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">0.04s (fast headline)</td>
+                <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Sequential delay step between consecutive words: <code class="font-mono">t_i = i * Δ</code></td>
+              </tr>
+              <tr class="hover:bg-warm-50/50 transition-colors">
+                <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">3D Perspective (<code class="text-xs">perspective</code>)</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">1000px</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">800px – 1200px</td>
+                <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Eye distance for cylindrical 3D tumbler rotateX flips</td>
+              </tr>
+              <tr class="hover:bg-warm-50/50 transition-colors">
+                <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">Rotation Arc (<code class="text-xs">rotateX</code>)</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">-90deg → 0deg → 90deg</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">-180deg (full split)</td>
+                <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Exit flip-up and entrance flip-down tumbling trajectory</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 04: PRODUCTION-READY DROP-IN CODE HUB                             -->
+    <!-- ========================================================================= -->
+    <section id="code" class="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto border-t border-warm-200">
+      
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+        <div>
+          <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/80 px-3.5 py-1 rounded-full mb-3 shadow-2xs">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-warm-800 font-bold">Production Code</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-serif text-ink font-normal tracking-tight">
+            Drop-in Component Implementation
+          </h2>
+          <p class="mt-2 text-sm text-ink-muted">
+            Choose your stack: React + Framer Motion (AvadaKeDevara source), Vanilla GSAP 3.12, or Pure CSS.
+          </p>
+        </div>
+
+        <!-- Code Language Switcher -->
+        <div class="flex items-center gap-1.5 bg-warm-200 p-1 rounded-full border border-warm-300 text-xs font-mono self-start sm:self-auto">
+          <button id="code-tab-react" class="code-tab-btn active px-3.5 py-1.5 rounded-full bg-white text-ink font-bold shadow-2xs transition-all">
+            React + Framer
+          </button>
+          <button id="code-tab-gsap" class="code-tab-btn px-3.5 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
+            Vanilla + GSAP
+          </button>
+          <button id="code-tab-css" class="code-tab-btn px-3.5 py-1.5 rounded-full text-ink-muted hover:text-ink transition-all">
+            Pure CSS / HTML
+          </button>
+        </div>
+      </div>
+
+      <!-- Code Box -->
+      <div class="code-container rounded-2xl overflow-hidden shadow-2xl relative text-left">
+        
+        <!-- Code Window Top Bar -->
+        <div class="flex items-center justify-between px-4 py-3 bg-[#20201D] border-b border-[#2B2B28] text-xs font-mono text-warm-300/80">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#E06C75]/80 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-[#E5C07B]/80 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-[#98C379]/80 inline-block"></span>
+            <span id="code-filename" class="ml-2 text-warm-200/90 font-semibold">MotionWordsPullUp.tsx (AvadaKeDevara Source)</span>
+          </div>
+
+          <button id="copy-code-btn" class="px-3 py-1 rounded bg-[#2B2B28] hover:bg-[#383834] text-warm-200 font-mono text-[11px] transition-all flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copy-btn-text">Copy Code</span>
+          </button>
+        </div>
+
+        <!-- Code Content Area -->
+        <pre class="p-5 sm:p-6 overflow-x-auto text-xs sm:text-[13px] font-mono leading-relaxed text-[#ABB2BF]"><code id="code-display"></code></pre>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Reusable Site Footer -->
+  <site-footer></site-footer>
+
+  <!-- ========================================================================= -->
+  <!-- KINETIC TYPOGRAPHY RUNTIME ENGINE & SCRIPT                                -->
+  <!-- ========================================================================= -->
+  <script>
+    // State Store
+    const state = {
+      mode: 'pullup', // 'pullup' | 'tumbler' | 'splitflap' | 'blur'
+      headline: 'Every Child Deserves a Magical Education',
+      badgeText: 'Academic Learning & Motion Architecture',
+      subtitle: 'The professional academic environment for curriculum mastery, gamified practice, and fluid spatial interfaces.',
+      stagger: 0.06,
+      duration: 0.55,
+      tumblerIndex: 0,
+      tumblerWords: ['Magical', 'Effortless', 'Transformative', 'Unstoppable', 'Inspiring'],
+      tumblerTimer: null,
+      isAnimating: false,
+    };
+
+    // DOM Target References
+    const headlineTarget = document.getElementById('headline-target');
+    const subtitleTarget = document.getElementById('subtitle-target');
+    const badgeTextTarget = document.getElementById('stage-badge-text');
+    const liveModeLabel = document.getElementById('live-mode-label');
+
+    // =========================================================================
+    // Core Render: AvadaKeDevara MotionWordsPullUp Algorithm
+    // =========================================================================
+    function renderWordPullUp(text, staggerTime = state.stagger, dur = state.duration) {
+      if (state.tumblerTimer) {
+        clearInterval(state.tumblerTimer);
+        state.tumblerTimer = null;
+      }
+
+      headlineTarget.innerHTML = '';
+      headlineTarget.setAttribute('aria-label', text);
+
+      const words = text.split(' ');
+      const wordElements = [];
+
+      words.forEach((word, idx) => {
+        // Word container with overflow hidden for crisp clip-path pullup
+        const spanWrapper = document.createElement('span');
+        spanWrapper.className = 'inline-block overflow-hidden mr-[0.25em] last:mr-0 align-bottom';
+
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'inline-block transform-gpu will-change-transform';
+        wordSpan.textContent = word;
+        wordSpan.style.opacity = '0';
+        wordSpan.style.transform = 'translateY(110%)';
+
+        spanWrapper.appendChild(wordSpan);
+        headlineTarget.appendChild(spanWrapper);
+        wordElements.push(wordSpan);
+      });
+
+      // Animate with GSAP using exact AvadaKeDevara spring stiffness & damping
+      gsap.killTweensOf(wordElements);
+      gsap.to(wordElements, {
+        y: '0%',
+        opacity: 1,
+        duration: dur,
+        stagger: staggerTime,
+        ease: 'power3.out',
+        clearProps: 'will-change'
+      });
+    }
+
+    // =========================================================================
+    // Mode 2: 3D Tumbler Rotating Flip Words
+    // =========================================================================
+    function render3DTumbler(basePrefix, wordsArray) {
+      if (state.tumblerTimer) {
+        clearInterval(state.tumblerTimer);
+        state.tumblerTimer = null;
+      }
+
+      headlineTarget.innerHTML = '';
+      
+      const prefixSpan = document.createElement('span');
+      prefixSpan.className = 'inline-block mr-[0.28em]';
+      prefixSpan.textContent = basePrefix;
+      headlineTarget.appendChild(prefixSpan);
+
+      // Dedicated 3D Tumbler Stage Pill
+      const tumblerStage = document.createElement('span');
+      tumblerStage.id = 'tumbler-slot';
+      tumblerStage.className = 'flip-word-container inline-flex items-center text-amber-700 italic border-b-2 border-amber-600/40 pb-0.5';
+      tumblerStage.style.perspective = '800px';
+
+      const initialWord = document.createElement('span');
+      initialWord.className = 'tumbler-current-word inline-block transform-gpu will-change-transform';
+      initialWord.textContent = wordsArray[state.tumblerIndex % wordsArray.length];
+      tumblerStage.appendChild(initialWord);
+
+      headlineTarget.appendChild(tumblerStage);
+
+      // Cycle function
+      function cycleNextWord() {
+        state.tumblerIndex = (state.tumblerIndex + 1) % wordsArray.length;
+        const nextWordStr = wordsArray[state.tumblerIndex];
+
+        const oldWord = tumblerStage.querySelector('.tumbler-current-word');
+        if (!oldWord) return;
+
+        const incomingWord = document.createElement('span');
+        incomingWord.className = 'tumbler-incoming-word absolute inset-0 inline-block transform-gpu will-change-transform';
+        incomingWord.textContent = nextWordStr;
+        incomingWord.style.opacity = '0';
+        incomingWord.style.transform = 'rotateX(-90deg) translateY(40px)';
+        incomingWord.style.transformOrigin = 'bottom center';
+        tumblerStage.appendChild(incomingWord);
+
+        // Animate old word tumbling up & away
+        gsap.to(oldWord, {
+          rotateX: 90,
+          y: -40,
+          opacity: 0,
+          duration: 0.45,
+          ease: 'power2.in',
+          onComplete: () => oldWord.remove()
+        });
+
+        // Animate incoming word tumbling in from below
+        gsap.to(incomingWord, {
+          rotateX: 0,
+          y: 0,
+          opacity: 1,
+          duration: 0.55,
+          ease: 'back.out(1.4)',
+          onComplete: () => {
+            incomingWord.className = 'tumbler-current-word inline-block transform-gpu will-change-transform';
+          }
+        });
+      }
+
+      state.tumblerTimer = setInterval(cycleNextWord, 2600);
+    }
+
+    // =========================================================================
+    // Mode 3: Split-Flap Character Ticker
+    // =========================================================================
+    function renderSplitFlap(text) {
+      if (state.tumblerTimer) {
+        clearInterval(state.tumblerTimer);
+        state.tumblerTimer = null;
+      }
+
+      headlineTarget.innerHTML = '';
+      const chars = Array.from(text);
+      const charElements = [];
+
+      chars.forEach((ch) => {
+        const charWrap = document.createElement('span');
+        charWrap.className = 'inline-block transform-gpu will-change-transform';
+        if (ch === ' ') {
+          charWrap.innerHTML = '&nbsp;';
+          charWrap.style.width = '0.3em';
+        } else {
+          charWrap.textContent = ch;
+        }
+        charWrap.style.opacity = '0';
+        charWrap.style.transform = 'rotateX(90deg) scale(0.9)';
+        headlineTarget.appendChild(charWrap);
+        charElements.push(charWrap);
+      });
+
+      gsap.to(charElements, {
+        rotateX: 0,
+        scale: 1,
+        opacity: 1,
+        duration: 0.35,
+        stagger: 0.02,
+        ease: 'back.out(1.7)'
+      });
+    }
+
+    // =========================================================================
+    // Mode 4: Fluid Blur & Elevation Dissolve
+    // =========================================================================
+    function renderBlurDissolve(text) {
+      if (state.tumblerTimer) {
+        clearInterval(state.tumblerTimer);
+        state.tumblerTimer = null;
+      }
+
+      headlineTarget.innerHTML = '';
+      const words = text.split(' ');
+      const wordElements = [];
+
+      words.forEach((word) => {
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'inline-block mr-[0.25em] last:mr-0 transform-gpu will-change-transform';
+        wordSpan.textContent = word;
+        wordSpan.style.opacity = '0';
+        wordSpan.style.filter = 'blur(12px)';
+        wordSpan.style.transform = 'translateY(16px) scale(0.96)';
+
+        headlineTarget.appendChild(wordSpan);
+        wordElements.push(wordSpan);
+      });
+
+      gsap.to(wordElements, {
+        y: 0,
+        scale: 1,
+        opacity: 1,
+        filter: 'blur(0px)',
+        duration: state.duration * 1.2,
+        stagger: state.stagger * 1.1,
+        ease: 'power2.out'
+      });
+    }
+
+    // Main Dispatcher
+    function playAnimation() {
+      // Re-trigger subtitle reveal
+      gsap.fromTo(subtitleTarget, 
+        { opacity: 0, y: 15 }, 
+        { opacity: 1, y: 0, duration: 0.6, delay: 0.25, ease: 'power2.out' }
+      );
+
+      if (state.mode === 'pullup') {
+        renderWordPullUp(state.headline, state.stagger, state.duration);
+      } else if (state.mode === 'tumbler') {
+        const prefix = state.headline.includes('Magical') 
+          ? 'Every Child Deserves a' 
+          : 'Building Experiences That Are';
+        render3DTumbler(prefix, state.tumblerWords);
+      } else if (state.mode === 'splitflap') {
+        renderSplitFlap(state.headline);
+      } else if (state.mode === 'blur') {
+        renderBlurDissolve(state.headline);
+      }
+    }
+
+    // =========================================================================
+    // Preset Configurations
+    // =========================================================================
+    const presets = {
+      avadakedavara: {
+        mode: 'pullup',
+        badge: 'Academic Learning & Motion Architecture',
+        headline: 'Every Child Deserves a Magical Education',
+        subtitle: 'The professional academic environment for school curriculum mastery and competitive exam preparation. Designed for students who study, teachers who guide, and parents who monitor.',
+        stagger: 0.06,
+        duration: 0.55
+      },
+      ukhero: {
+        mode: 'pullup',
+        badge: 'UK 11+ Examination Guide',
+        headline: 'Build your child\'s 11+ confidence.',
+        subtitle: 'Engaging practice that identifies weak areas, adapts to their progress, and prepares them for grammar school entrance exams without the overwhelm.',
+        stagger: 0.05,
+        duration: 0.5
+      },
+      saas: {
+        mode: 'tumbler',
+        badge: 'Spatial Interface Lab',
+        headline: 'Building Experiences That Are',
+        subtitle: 'Hardware-accelerated kinetic typography modules engineered with zero-reflow CSS transforms and fluid spring momentum.',
+        stagger: 0.04,
+        duration: 0.5
+      }
+    };
+
+    function applyPreset(key) {
+      const p = presets[key];
+      if (!p) return;
+      state.mode = p.mode;
+      state.badgeText = p.badge;
+      state.headline = p.headline;
+      state.subtitle = p.subtitle;
+      state.stagger = p.stagger;
+      state.duration = p.duration;
+
+      // Update badge & subtitles
+      badgeTextTarget.textContent = p.badge;
+      subtitleTarget.textContent = p.subtitle;
+      document.getElementById('slider-stagger').value = p.stagger;
+      document.getElementById('val-stagger').textContent = `${p.stagger}s`;
+      document.getElementById('slider-duration').value = p.duration;
+      document.getElementById('val-duration').textContent = `${p.duration}s`;
+
+      // Update UI active buttons
+      document.querySelectorAll('.mode-tab-btn').forEach(btn => btn.classList.remove('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs'));
+      const activeBtn = document.getElementById(`mode-btn-${p.mode}`);
+      if (activeBtn) activeBtn.classList.add('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs');
+
+      updateModeLabel();
+      playAnimation();
+    }
+
+    function updateModeLabel() {
+      const labels = {
+        pullup: 'AvadaKeDevara Spring Pull-Up',
+        tumbler: '3D Perspective Rotating Tumbler',
+        splitflap: 'Split-Flap Character Ticker',
+        blur: 'Fluid Blur & Elevation Dissolve'
+      };
+      liveModeLabel.textContent = labels[state.mode] || 'Kinetic Typography';
+    }
+
+    // =========================================================================
+    // Event Listeners Initialization
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Replay Button
+      document.getElementById('replay-btn').addEventListener('click', () => {
+        playAnimation();
+      });
+
+      // Mode Switcher
+      const modeMap = {
+        'mode-btn-pullup': 'pullup',
+        'mode-btn-tumbler': 'tumbler',
+        'mode-btn-splitflap': 'splitflap',
+        'mode-btn-blur': 'blur'
+      };
+
+      Object.entries(modeMap).forEach(([btnId, m]) => {
+        const btn = document.getElementById(btnId);
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.mode-tab-btn').forEach(b => b.classList.remove('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs'));
+          btn.classList.add('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs');
+          state.mode = m;
+          updateModeLabel();
+          playAnimation();
+        });
+      });
+
+      // Preset Buttons
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const p = btn.getAttribute('data-preset');
+          if (p === 'custom') {
+            const panel = document.getElementById('custom-editor-panel');
+            panel.classList.toggle('hidden');
+          } else {
+            applyPreset(p);
+          }
+        });
+      });
+
+      // Sliders
+      const sStagger = document.getElementById('slider-stagger');
+      const sDuration = document.getElementById('slider-duration');
+      sStagger.addEventListener('input', (e) => {
+        state.stagger = parseFloat(e.target.value);
+        document.getElementById('val-stagger').textContent = `${state.stagger.toFixed(2)}s`;
+        playAnimation();
+      });
+      sDuration.addEventListener('input', (e) => {
+        state.duration = parseFloat(e.target.value);
+        document.getElementById('val-duration').textContent = `${state.duration.toFixed(2)}s`;
+        playAnimation();
+      });
+
+      // Custom Text Apply
+      document.getElementById('apply-custom-text-btn').addEventListener('click', () => {
+        const val = document.getElementById('custom-text-input').value.trim();
+        if (val) {
+          state.headline = val;
+          const flipWords = document.getElementById('custom-flip-words-input').value.split(',').map(s => s.trim()).filter(Boolean);
+          if (flipWords.length) state.tumblerWords = flipWords;
+          playAnimation();
+        }
+      });
+
+      // Initial Play
+      playAnimation();
+      renderCodeSnippet('react');
+    });
+
+    // =========================================================================
+    // Code Display Hub & Tab Switcher
+    // =========================================================================
+    const codeSnippets = {
+      react: `// MotionWordsPullUp.tsx — Direct from AvadaKeDevara Project Architecture
+import { motion, useReducedMotion } from "framer-motion";
+import { ElementType } from "react";
+
+interface MotionWordsPullUpProps {
+  text: string;
+  as?: ElementType;
+  className?: string;
+  wordClassName?: string;
+  delay?: number;
+  duration?: number;
+  stagger?: number;
+}
+
+export default function MotionWordsPullUp({
+  text,
+  as: Component = "span" as any,
+  className = "",
+  wordClassName = "",
+  delay = 0,
+  duration = 0.5,
+  stagger = 0.08,
+}: MotionWordsPullUpProps) {
+  const prefersReducedMotion = useReducedMotion();
+  const words = text.split(" ");
+
+  // Stagger orchestration container
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: stagger,
+        delayChildren: delay,
+      },
+    },
+  };
+
+  // Kinetic spring physical parameters
+  const item = {
+    hidden: { y: 20, opacity: 0 },
+    show: {
+      y: 0,
+      opacity: 1,
+      transition: { 
+        type: "spring", 
+        stiffness: 100, 
+        damping: 20, 
+        duration 
+      },
+    },
+  };
+
+  const MotionComponent = motion(Component as any);
+
+  // A11y & Reduced-motion graceful degradation
+  if (prefersReducedMotion) {
+    return (
+      <Component className={\`inline-block \${className}\`} aria-label={text}>
+        {text}
+      </Component>
+    );
+  }
+
+  return (
+    <MotionComponent
+      variants={container}
+      initial="hidden"
+      animate="show"
+      viewport={{ once: true }}
+      className={\`inline-block \${className}\`}
+      aria-label={text}
+    >
+      {words.map((word, i) => (
+        <span key={i} className="inline-block overflow-hidden mr-[0.25em] last:mr-0 align-bottom">
+          <motion.span
+            variants={item}
+            className={\`inline-block transform-gpu \${wordClassName}\`}
+            aria-hidden="true"
+          >
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </MotionComponent>
+  );
+}`,
+      gsap: `// Vanilla JavaScript + GSAP 3.12 Standalone Implementation
+// Works with any HTML headline — zero framework dependencies required
+
+function animateWordPullUp(targetSelector, options = {}) {
+  const el = typeof targetSelector === 'string' 
+    ? document.querySelector(targetSelector) 
+    : targetSelector;
+  if (!el) return;
+
+  const {
+    stagger = 0.06,
+    duration = 0.55,
+    ease = "power3.out",
+    yOffset = "100%"
+  } = options;
+
+  // Preserve full text for screen readers
+  const rawText = el.textContent.trim();
+  el.setAttribute('aria-label', rawText);
+  el.innerHTML = '';
+
+  const words = rawText.split(/\\s+/);
+  const wordSpans = [];
+
+  words.forEach(word => {
+    // Outer mask container prevents bleed
+    const mask = document.createElement('span');
+    mask.style.display = 'inline-block';
+    mask.style.overflow = 'hidden';
+    mask.style.marginRight = '0.25em';
+    mask.style.verticalAlign = 'bottom';
+
+    // Kinetic inner span
+    const inner = document.createElement('span');
+    inner.style.display = 'inline-block';
+    inner.style.willChange = 'transform, opacity';
+    inner.textContent = word;
+    inner.setAttribute('aria-hidden', 'true');
+
+    mask.appendChild(inner);
+    el.appendChild(mask);
+    wordSpans.push(inner);
+  });
+
+  // Run hardware-accelerated GPU timeline
+  return gsap.fromTo(wordSpans, 
+    { y: yOffset, opacity: 0 },
+    { 
+      y: '0%', 
+      opacity: 1, 
+      duration, 
+      stagger, 
+      ease,
+      clearProps: 'willChange'
+    }
+  );
+}
+
+// Usage Example:
+// animateWordPullUp('#hero-title', { stagger: 0.05, duration: 0.6 });`,
+      css: `<!-- Pure CSS Staggered Word Pull-Up (Zero JS Libraries Required) -->
+<style>
+  .word-pullup-container {
+    display: inline-block;
+  }
+  .word-mask {
+    display: inline-block;
+    overflow: hidden;
+    margin-right: 0.25em;
+    vertical-align: bottom;
+  }
+  .word-pullup {
+    display: inline-block;
+    will-change: transform, opacity;
+    animation: wordPullUpAnim 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  @keyframes wordPullUpAnim {
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+  }
+
+  /* Sequential CSS Stagger Delays */
+  .word-mask:nth-child(1) .word-pullup { animation-delay: 0.05s; }
+  .word-mask:nth-child(2) .word-pullup { animation-delay: 0.10s; }
+  .word-mask:nth-child(3) .word-pullup { animation-delay: 0.15s; }
+  .word-mask:nth-child(4) .word-pullup { animation-delay: 0.20s; }
+  .word-mask:nth-child(5) .word-pullup { animation-delay: 0.25s; }
+  .word-mask:nth-child(6) .word-pullup { animation-delay: 0.30s; }
+  .word-mask:nth-child(7) .word-pullup { animation-delay: 0.35s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .word-pullup {
+      animation: none;
+      transform: none;
+      opacity: 1;
+    }
+  }
+</style>
+
+<h1 class="word-pullup-container" aria-label="Every Child Deserves a Magical Education">
+  <span class="word-mask"><span class="word-pullup">Every</span></span>
+  <span class="word-mask"><span class="word-pullup">Child</span></span>
+  <span class="word-mask"><span class="word-pullup">Deserves</span></span>
+  <span class="word-mask"><span class="word-pullup">a</span></span>
+  <span class="word-mask"><span class="word-pullup">Magical</span></span>
+  <span class="word-mask"><span class="word-pullup">Education</span></span>
+</h1>`
+    };
+
+    function renderCodeSnippet(lang) {
+      const codeDisplay = document.getElementById('code-display');
+      const filename = document.getElementById('code-filename');
+      const filenames = {
+        react: 'MotionWordsPullUp.tsx (AvadaKeDevara Source)',
+        gsap: 'animateWordPullUp.js (GSAP 3.12)',
+        css: 'WordPullUp.html (Pure CSS Zero-Dependency)'
+      };
+      filename.textContent = filenames[lang] || 'Code Snippet';
+      codeDisplay.textContent = codeSnippets[lang];
+    }
+
+    document.getElementById('code-tab-react').addEventListener('click', function() {
+      document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs'));
+      this.classList.add('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs');
+      renderCodeSnippet('react');
+    });
+
+    document.getElementById('code-tab-gsap').addEventListener('click', function() {
+      document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs'));
+      this.classList.add('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs');
+      renderCodeSnippet('gsap');
+    });
+
+    document.getElementById('code-tab-css').addEventListener('click', function() {
+      document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs'));
+      this.classList.add('active', 'bg-white', 'text-ink', 'font-bold', 'shadow-2xs');
+      renderCodeSnippet('css');
+    });
+
+    // Copy Code Handler
+    document.getElementById('copy-code-btn').addEventListener('click', () => {
+      const activeText = document.getElementById('code-display').textContent;
+      navigator.clipboard.writeText(activeText).then(() => {
+        const btnText = document.getElementById('copy-btn-text');
+        btnText.textContent = 'Copied!';
+        setTimeout(() => { btnText.textContent = 'Copy Code'; }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>
