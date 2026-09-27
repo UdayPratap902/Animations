@@ -13,6 +13,7 @@ Welcome to **Animations Lab**, an open-source collection of high-performance, dr
 | 🎬 | **03. GSAP Horizontal Multi-Panel Showcase**<br><sub>ScrollTrigger horizontal pinned glide with GPU progress tracking & modal player</sub> | `GSAP 3.12`<br>`ScrollTrigger`<br>`YouTube Modal` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](gsap-horizontal-video-showcase.html) • [Code & Guide](#-03-gsap-scrolltrigger-horizontal-multi-panel-showcase) |
 | 💳 | **04. 3D Interactive Pricing Deck**<br><sub>Hover-elevation 3D fanning deck with benefit expansion, magnetic CTAs, and mobile accordion</sub> | `Framer Motion`<br>`GSAP Magnetic`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-3d-pricing-deck.html) • [Code & Guide](#-04-3d-interactive-pricing-deck) |
 | 🔤 | **05. Word Flip & Staggered Typography Lab**<br><sub>Kinetic spring word pull-up, split-flap ticker, and fluid blur dissolve with zero layout shift</sub> | `Framer Motion`<br>`GSAP 3.12`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-word-flip.html) • [Code & Guide](#-05-word-flip--staggered-kinetic-typography) |
+| 💬 | **06. Dual-Column Marquee Testimonials**<br><sub>Counter-scrolling vertical loop with stationary gradient alpha masks, 3x triplication kinematics, and zero reflow</sub> | `Tailwind CSS`<br>`CSS Keyframes`<br>`GSAP 3.12` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-dual-marquee-testimonials.html) • [Code & Guide](#-06-dual-column-marquee-testimonials) |
 
 ---
 
@@ -157,4 +158,28 @@ An open-source kinetic typography engine that breaks headlines into discrete wor
   2. **Split-Flap Ticker**: Mechanical tactile letter ticker reminiscent of transit departure boards.
   3. **Fluid Blur Dissolve**: Optical Gaussian blur dissipation with elevation float.
 - **Multi-Stack Drop-in Code**: Provided in React + Framer Motion, Vanilla GSAP 3.12, and Pure CSS.
+
+---
+
+## 💬 06. Dual-Column Marquee Testimonials
+
+A continuous counter-scrolling vertical testimonial marquee engine with seamless wraparound kinematics, stationary linear gradient alpha masks, and GPU compositor hardware acceleration.
+
+### Mathematical Parameters & Formulas
+
+| Parameter | Standard Default | Alternative / Dynamic | Formula / Physical Purpose |
+|:---|:---:|:---:|:---|
+| **Loop Translation ($\Delta y$)** | `0% → -66.666%` | `-50%` (2x loop) | Mathematical distance for 3x triplicated array continuous wraparound: $\Delta y = -\frac{2}{3} H_{\text{total}}$ |
+| **Duration Period ($T$)** | `24s` | `16s` (rapid) / `35s` (slow) | Velocity formula: $v = \frac{2 \cdot H_{\text{single}}}{T}$, optimized for comfortable readability during scroll |
+| **Mask Gradient Stops** | `0% / 12% / 88% / 100%` | `8% – 15%` edge fades | Alpha transparency threshold: $\alpha(y) = 0$ at extremities, $\alpha(y) = 1$ in active reading area |
+| **Easing Profile** | `linear` | `linear only` | Uniform velocity profile ensuring zero acceleration or deceleration jerks across loop boundaries |
+
+### Architecture Highlights
+- **Stationary Mask Container**: The outer wrapper remains static with `mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)`, ensuring edge fades stay anchored without clipping layout.
+- **Counter-Velocity Kinematics**: Column A scrolls upward while Column B scrolls downward, establishing visual symmetry and balanced kinetic energy across the section.
+- **3x Array Triplication Topology**: Triplicating the item list (`[...items, ...items, ...items]`) allows translation from `0%` to `-66.666%` before resetting imperceptibly to `0%`.
+- **Zero Document Reflow**: All animation executes strictly across GPU composite channels (`transform: translateY()`) with `will-change: transform`. Zero changes to layout geometry (`top`, `height`).
+- **Interactive Hover Pause**: Instantly freezes motion on card hover (`:hover { animation-play-state: paused; }`) for effortless reading.
+- **Multi-Stack Drop-in Code**: Provided in React + Tailwind CSS, Vanilla HTML + CSS, and GSAP 3.12.
+
 

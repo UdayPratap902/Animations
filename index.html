@@ -149,6 +149,20 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #C8C4AB;
     }
+
+    /* Animation 6 Mini Marquee Keyframes */
+    @keyframes tmMiniUp {
+      from { transform: translateY(0); }
+      to { transform: translateY(-50%); }
+    }
+    @keyframes tmMiniDown {
+      from { transform: translateY(-50%); }
+      to { transform: translateY(0); }
+    }
+    #tm-mini-stage:hover #tm-mini-col-up,
+    #tm-mini-stage:hover #tm-mini-col-down {
+      animation-play-state: paused;
+    }
   </style>
 </head>
 <body class="bg-[#FAF9F6] text-ink font-sans antialiased selection:bg-warm-400 selection:text-ink min-h-screen flex flex-col justify-between relative">
@@ -177,7 +191,7 @@
         <span class="relative inline-flex rounded-full h-2 w-2 bg-warm-700"></span>
       </span>
       <span class="text-[10px] sm:text-xs tracking-[0.15em] uppercase text-ink font-bold font-mono">
-        Curated Web Motion &bull; 5 Production Animations
+        Curated Web Motion &bull; 6 Production Animations
       </span>
     </div>
 
@@ -735,6 +749,84 @@
 
       </article>
 
+      <!-- ===================================================================== -->
+      <!-- CARD 06: Dual-Column Marquee Testimonials                             -->
+      <!-- ===================================================================== -->
+      <article class="flex flex-col gap-3 group">
+        
+        <!-- Showcase Stage Container -->
+        <div class="h-[280px] rounded-2xl bg-white border border-warm-300 relative overflow-hidden group/stage shadow-2xs hover:shadow-md transition-all duration-300">
+          
+          <!-- Mini Dual Marquee Stage -->
+          <div id="tm-mini-stage" class="relative h-full w-full p-4 overflow-hidden select-none bg-gradient-to-b from-warm-50/60 to-white">
+            
+            <!-- Top Badging Overlay -->
+            <div class="absolute top-3 left-3 right-3 z-20 flex items-center justify-between text-[9px] font-mono pointer-events-none">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/95 border border-warm-300 text-warm-800 shadow-2xs">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>06 &bull; DUAL MARQUEE</span>
+              </span>
+              <span class="px-2 py-0.5 rounded-full bg-white/90 border border-warm-300 text-ink-muted">
+                60 FPS Counter-Scroll
+              </span>
+            </div>
+
+            <!-- Stationary Gradient Alpha Mask Container -->
+            <div class="relative h-full w-full pt-8 pb-1 overflow-hidden" style="mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);">
+              
+              <div class="grid grid-cols-2 gap-2.5 h-full">
+                <!-- Column 1: Scrolls Up -->
+                <div class="overflow-hidden h-full">
+                  <div id="tm-mini-col-up" class="flex flex-col gap-2.5" style="animation: tmMiniUp 14s linear infinite; will-change: transform;">
+                    <!-- Mini Cards rendered via JS -->
+                  </div>
+                </div>
+
+                <!-- Column 2: Scrolls Down -->
+                <div class="overflow-hidden h-full">
+                  <div id="tm-mini-col-down" class="flex flex-col gap-2.5" style="animation: tmMiniDown 14s linear infinite; will-change: transform;">
+                    <!-- Mini Cards rendered via JS -->
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div><!-- /tm-mini-stage -->
+
+          <!-- Clickable Demo Launch Overlay -->
+          <a href="interactive-dual-marquee-testimonials.html" class="absolute inset-0 z-30 flex items-center justify-center bg-ink/10 opacity-0 group-hover/stage:opacity-100 transition-opacity duration-200 backdrop-blur-[1px]">
+            <span class="px-4 py-2 rounded-full bg-ink text-warm-100 font-bold text-xs tracking-wider uppercase flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform">
+              <span>Open Full Demo</span>
+              <span>↗</span>
+            </span>
+          </a>
+        </div>
+
+        <!-- Bottom Info Bar -->
+        <div class="flex items-center justify-between pt-1 px-0.5">
+          <div class="flex items-center gap-3 min-w-0">
+            <!-- Avatar Icon -->
+            <div class="w-9 h-9 rounded-lg bg-warm-200 border border-warm-400/40 text-ink font-bold flex items-center justify-center text-xs shrink-0 font-mono shadow-2xs">
+              💬
+            </div>
+            <div class="min-w-0">
+              <a href="interactive-dual-marquee-testimonials.html" class="font-bold text-ink text-sm sm:text-base hover:text-warm-800 transition-colors truncate block leading-snug">
+                Dual-Column Marquee Testimonials
+              </a>
+              <div class="text-xs text-ink-muted mt-0.5 font-sans truncate">
+                Infinite Motion &bull; Counter-Scrolling Loop with Gradient Masks
+              </div>
+            </div>
+          </div>
+          
+          <a href="interactive-dual-marquee-testimonials.html" title="Open Dual Marquee Demo" class="text-ink-subtle hover:text-ink p-2 rounded-lg hover:bg-warm-200/60 transition-colors text-lg tracking-widest leading-none font-mono shrink-0">
+            &bull;&bull;&bull;
+          </a>
+        </div>
+
+      </article>
+
     </div>
 
   </main>
@@ -1166,6 +1258,47 @@
       }, 2800);
     }
 
+    // -------------------------------------------------------------------------
+    // Animation 6 Engine: Dual-Column Marquee Testimonials Mini Loop
+    // -------------------------------------------------------------------------
+    function initTestimonialMarqueeMini() {
+      const colUp = document.getElementById("tm-mini-col-up");
+      const colDown = document.getElementById("tm-mini-col-down");
+      if (!colUp || !colDown) return;
+
+      const miniReviewsA = [
+        { name: "Elena R.", company: "CloudScale", quote: "Kept our enterprise roadmap on schedule.", rating: "5.0 ★" },
+        { name: "Marcus V.", company: "NexusFlow", quote: "Intuitive, blazing-fast dashboard.", rating: "5.0 ★" },
+        { name: "Aris T.", company: "BioHealth", quote: "Improved operational efficiency by 40%.", rating: "5.0 ★" }
+      ];
+
+      const miniReviewsB = [
+        { name: "Chloe D.", company: "Luxee Studio", quote: "Silky 60 FPS transitions and elegance.", rating: "5.0 ★" },
+        { name: "David S.", company: "Synthetix AI", quote: "Engineering standards never faltered.", rating: "5.0 ★" },
+        { name: "Amina M.", company: "ApexLayer", quote: "Precision engineering across every layer.", rating: "5.0 ★" }
+      ];
+
+      function makeMiniCard(item) {
+        return `
+          <div class="p-2.5 rounded-xl bg-white border border-warm-300 shadow-2xs text-left text-[11px] leading-snug">
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-[9px] font-mono text-amber-700 font-bold">${item.rating}</span>
+              <span class="text-[8px] font-mono px-1.5 py-0.2 rounded bg-warm-100 text-warm-700 border border-warm-300">${item.company}</span>
+            </div>
+            <p class="text-[10px] text-ink-muted line-clamp-2 italic font-sans mb-1.5">&ldquo;${item.quote}&rdquo;</p>
+            <div class="text-[9px] font-bold text-ink font-mono">${item.name}</div>
+          </div>
+        `;
+      }
+
+      // Duplicate each list for seamless infinite loop (0 -> -50%)
+      const loopA = [...miniReviewsA, ...miniReviewsA];
+      const loopB = [...miniReviewsB, ...miniReviewsB];
+
+      colUp.innerHTML = loopA.map(makeMiniCard).join("");
+      colDown.innerHTML = loopB.map(makeMiniCard).join("");
+    }
+
     // Initialize all engines on DOM load
     document.addEventListener("DOMContentLoaded", () => {
       initGSAPDeck();
@@ -1174,6 +1307,7 @@
       initCard3PanelsLoop();
       initPricingDeckLoop();
       initWordPullUpLoop();
+      initTestimonialMarqueeMini();
     });
   </script>
 </body>
