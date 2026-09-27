@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Word Flip &amp; Staggered Typography Lab — Kinetic Text Motion</title>
-  <meta name="description" content="Kinetic word flip, staggered spring pull-up, and 3D tumbling typography animations. Complete with interactive playground, visual deconstructor, and production React + GSAP code." />
+  <meta name="description" content="Kinetic word flip, staggered spring pull-up, split-flap ticker, and fluid blur dissolve typography animations. Complete with interactive playground, visual deconstructor, and production React + GSAP code." />
 
   <!-- Google Fonts: Instrument Serif + Almarai + Plus Jakarta Sans + Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -90,19 +90,6 @@
       box-shadow: 0 25px 45px -12px rgba(30, 24, 12, 0.1), 0 0 0 1px rgba(222, 219, 200, 0.6);
     }
 
-    /* 3D Flip Perspective Container */
-    .perspective-stage {
-      perspective: 1000px;
-      transform-style: preserve-3d;
-    }
-
-    .flip-word-container {
-      display: inline-flex;
-      position: relative;
-      vertical-align: baseline;
-      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
     /* Code block syntax highlight */
     .code-container {
       background: #181816;
@@ -135,7 +122,7 @@
     <!-- ========================================================================= -->
     <section id="experience" class="pt-28 sm:pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
       
-      <!-- Top Badging & Clean Architecture Identifier -->
+      <!-- Top Badging & Architecture Identifier -->
       <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div class="flex items-center gap-2">
           <div class="inline-flex items-center gap-2 border border-warm-300 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-2xs">
@@ -149,19 +136,16 @@
           </span>
         </div>
 
-        <!-- Mode Switcher Buttons -->
+        <!-- Mode Switcher Buttons (Kinetic Typography Motion Modes) -->
         <div class="flex items-center gap-1.5 bg-warm-200/80 p-1 rounded-full border border-warm-300 text-xs font-mono">
-          <button id="mode-btn-tumbler" class="mode-tab-btn active px-3 py-1 rounded-full bg-white text-ink font-bold shadow-2xs transition-all">
-            01. 3D Flip Tumbler
-          </button>
-          <button id="mode-btn-pullup" class="mode-tab-btn px-3 py-1 rounded-full text-ink-muted hover:text-ink transition-all">
-            02. Word Pull-Up
+          <button id="mode-btn-pullup" class="mode-tab-btn active px-3 py-1 rounded-full bg-white text-ink font-bold shadow-2xs transition-all">
+            01. Word Pull-Up
           </button>
           <button id="mode-btn-splitflap" class="mode-tab-btn px-3 py-1 rounded-full text-ink-muted hover:text-ink transition-all">
-            03. Split-Flap
+            02. Split-Flap
           </button>
           <button id="mode-btn-blur" class="mode-tab-btn px-3 py-1 rounded-full text-ink-muted hover:text-ink transition-all">
-            04. Blur Dissolve
+            03. Blur Dissolve
           </button>
         </div>
       </div>
@@ -174,7 +158,7 @@
           <div class="flex items-center gap-3">
             <span class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-warm-600"></span>
-              <span id="live-mode-label" class="font-bold text-ink">3D Perspective Rotating Tumbler</span>
+              <span id="live-mode-label" class="font-bold text-ink">Kinetic Word Pull-Up</span>
             </span>
             <span class="text-warm-400">|</span>
             <span id="active-fps-badge" class="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/70">60 FPS Hardware-Accelerated</span>
@@ -198,7 +182,7 @@
           </div>
 
           <!-- Main Dynamic Kinetic Headline -->
-          <h1 id="headline-target" class="perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.25rem] font-serif font-medium text-ink tracking-tight leading-[1.18] max-w-4xl mx-auto select-none flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5">
+          <h1 id="headline-target" class="text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none">
             <!-- Dynamically populated and animated by the kinetic typography engine -->
           </h1>
 
@@ -253,33 +237,16 @@
 
       <!-- Live Custom Text Input Editor (Toggled via Custom Editor button) -->
       <div id="custom-editor-panel" class="hidden mt-6 warm-card rounded-2xl p-5 border border-warm-300 bg-white">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <div class="flex-1">
             <label class="block text-[11px] font-mono text-ink-muted uppercase tracking-wider mb-1.5">
-              Prefix Text (Appears before flipping word):
+              Custom Headline Text (Animated Word-by-Word):
             </label>
-            <input id="custom-prefix-input" type="text" value="Build Web Experiences That Are" class="w-full px-4 py-2 rounded-xl border border-warm-300 bg-warm-50 font-serif text-base text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400 transition-all" />
+            <input id="custom-headline-input" type="text" value="Build High-Performance Interfaces That Feel Alive" class="w-full px-4 py-2.5 rounded-xl border border-warm-300 bg-warm-50 font-serif text-lg text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400 transition-all" />
           </div>
-
-          <div>
-            <label class="block text-[11px] font-mono text-ink-muted uppercase tracking-wider mb-1.5">
-              Full Sentence (Used in Word Pull-Up &amp; Blur modes):
-            </label>
-            <input id="custom-headline-input" type="text" value="Build High-Performance Interfaces That Feel Alive" class="w-full px-4 py-2 rounded-xl border border-warm-300 bg-warm-50 font-serif text-base text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400 transition-all" />
-          </div>
-        </div>
-
-        <!-- 3D Rotating Words Bank -->
-        <div class="mt-4 pt-4 border-t border-warm-200">
-          <label class="block text-[11px] font-mono text-ink-muted uppercase tracking-wider mb-2">
-            3D Tumbler Rotating Words (comma-separated):
-          </label>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <input id="custom-flip-words-input" type="text" value="Effortless, Instantaneous, Transformative, Unstoppable, Seamless" class="flex-1 px-4 py-2 rounded-lg border border-warm-300 bg-warm-50 font-mono text-xs text-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-warm-400" />
-            <button id="apply-custom-text-btn" class="px-5 py-2 rounded-lg bg-ink text-warm-100 hover:bg-warm-900 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-xs shrink-0 cursor-pointer">
-              Apply &amp; Play
-            </button>
-          </div>
+          <button id="apply-custom-text-btn" class="self-end px-6 py-2.5 rounded-xl bg-ink text-warm-100 hover:bg-warm-900 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-xs shrink-0 cursor-pointer h-[46px]">
+            Apply &amp; Play
+          </button>
         </div>
       </div>
 
@@ -342,18 +309,18 @@
               Hardware-Accelerated Transform Matrix
             </h3>
             <p class="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
-              Each word span is promoted to an independent hardware compositor layer via <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">translateY</code> or <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">rotateX</code>. Because geometry shifts avoid modifying <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">top</code> or <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">height</code>, zero CSS layout reflow occurs.
+              Each word span is promoted to an independent hardware compositor layer via <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">translateY</code>. Because geometry shifts avoid modifying <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">top</code> or <code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">height</code>, zero CSS layout reflow occurs.
             </p>
           </div>
 
           <div class="bg-warm-100 rounded-xl p-3.5 border border-warm-300 font-mono text-[11px] text-ink space-y-1">
             <div class="text-ink-subtle">// Hidden to Visible state vector</div>
-            <div>hidden: { y: 20, opacity: 0 }</div>
-            <div class="text-emerald-700">show: { y: 0, opacity: 1, type: "spring" }</div>
+            <div>hidden: { y: "110%", opacity: 0 }</div>
+            <div class="text-emerald-700">show: { y: "0%", opacity: 1, type: "spring" }</div>
           </div>
         </div>
 
-        <!-- Stage 3: Spring Physics & Damping Matrix -->
+        <!-- Stage 3: Spring Physics & Damping Wave -->
         <div class="warm-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-4">
@@ -363,17 +330,17 @@
               <span class="text-xs font-mono text-ink-subtle">Kinetic Damping</span>
             </div>
             <h3 class="text-lg font-bold text-ink font-serif mb-2">
-              Spring Damping &amp; Dynamic Width Morphing
+              Spring Damping &amp; Sequential Stagger Wave
             </h3>
             <p class="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
-              Words ascend with calculated mass and damping physics (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">stiffness: 100, damping: 20</code>). During 3D tumbler word switches, the container width seamlessly morphs to match the incoming word length, eliminating layout jumps.
+              Words ascend with calculated Hooke's Law mass and damping physics (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">stiffness: 100, damping: 20</code>). Each sequential word receives a staggered delay offset (<code class="font-mono text-[11px] bg-warm-200 px-1 py-0.5 rounded">i * 0.05s</code>), creating an organic wave across the headline.
             </p>
           </div>
 
           <div class="bg-warm-100 rounded-xl p-3.5 border border-warm-300 font-mono text-[11px] text-ink space-y-1">
-            <div class="text-ink-subtle">// Physical Hooke's Law & Width Morph</div>
+            <div class="text-ink-subtle">// Physical Hooke's Law configuration</div>
             <div>transition: { stiffness: 100, damping: 20 }</div>
-            <div class="text-emerald-700">tl.to(container, { width: nextWidth, duration: 0.45 })</div>
+            <div class="text-emerald-700">staggerChildren: 0.05s</div>
           </div>
         </div>
 
@@ -437,7 +404,7 @@
             <tbody class="divide-y divide-warm-200 text-ink">
               <tr class="hover:bg-warm-50/50 transition-colors">
                 <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">Y-Offset Initial (<code class="text-xs">hidden.y</code>)</td>
-                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">+20px</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">+20px (or 110%)</td>
                 <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">+40px (Hero large)</td>
                 <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Vertical starting displacement beneath resting baseline</td>
               </tr>
@@ -460,16 +427,10 @@
                 <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Sequential delay step between consecutive words: <code class="font-mono">t_i = i * Δ</code></td>
               </tr>
               <tr class="hover:bg-warm-50/50 transition-colors">
-                <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">3D Perspective (<code class="text-xs">perspective</code>)</td>
-                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">1000px</td>
-                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">800px – 1200px</td>
-                <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Eye distance for cylindrical 3D tumbler rotateX flips</td>
-              </tr>
-              <tr class="hover:bg-warm-50/50 transition-colors">
-                <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">Rotation Arc (<code class="text-xs">rotateX</code>)</td>
-                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">-90deg → 0deg → 90deg</td>
-                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">-180deg (full split)</td>
-                <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Exit flip-up and entrance flip-down tumbling trajectory</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono font-bold text-warm-900">Hardware Layer Promotion</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-emerald-800 font-semibold">will-change: transform</td>
+                <td class="py-3.5 px-4 sm:px-6 font-mono text-ink-muted">transform-gpu</td>
+                <td class="py-3.5 px-4 sm:px-6 text-ink-muted">Promotes animated spans to independent GPU compositor layers</td>
               </tr>
             </tbody>
           </table>
@@ -545,17 +506,12 @@
   <script>
     // State Store
     const state = {
-      mode: 'tumbler', // 'tumbler' | 'pullup' | 'splitflap' | 'blur'
-      prefix: 'Build Web Experiences That Are',
-      suffix: '',
-      headline: 'Build High-Performance Interfaces That Feel Alive',
+      mode: 'pullup', // 'pullup' | 'splitflap' | 'blur'
+      headline: 'Build High-Performance Web Interfaces That Feel Alive',
       badgeText: 'SaaS Motion & Spatial Architecture',
-      subtitle: 'Hardware-accelerated kinetic typography modules engineered with zero-reflow CSS transforms, dynamic spring momentum, and zero layout shift.',
+      subtitle: 'Hardware-accelerated kinetic typography modules engineered with zero-reflow CSS transforms, organic spring momentum, and 60 FPS precision.',
       stagger: 0.05,
       duration: 0.55,
-      tumblerIndex: 0,
-      tumblerWords: ['Effortless', 'Instantaneous', 'Transformative', 'Unstoppable', 'Seamless'],
-      tumblerTimer: null,
     };
 
     // DOM Target References
@@ -565,139 +521,11 @@
     const liveModeLabel = document.getElementById('live-mode-label');
 
     // =========================================================================
-    // Mode 1: 3D Tumbler Rotating Flip Words (Flawless zero-layout-shift engine)
-    // =========================================================================
-    function render3DTumbler(prefix, wordsArray, suffix = '') {
-      if (state.tumblerTimer) {
-        clearInterval(state.tumblerTimer);
-        state.tumblerTimer = null;
-      }
-
-      headlineTarget.innerHTML = '';
-      headlineTarget.className = 'perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.25rem] font-serif font-medium text-ink tracking-tight leading-[1.18] max-w-4xl mx-auto select-none flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5';
-
-      // 1. Prefix text
-      if (prefix) {
-        const prefixSpan = document.createElement('span');
-        prefixSpan.className = 'inline-block text-ink';
-        prefixSpan.textContent = prefix;
-        headlineTarget.appendChild(prefixSpan);
-      }
-
-      // 2. Dynamic 3D Tumbler Slot Container
-      const tumblerStage = document.createElement('span');
-      tumblerStage.id = 'tumbler-slot';
-      tumblerStage.className = 'relative inline-flex items-center justify-center text-amber-700 italic border-b-2 border-amber-600/40 pb-0.5 px-1';
-      tumblerStage.style.perspective = '1000px';
-      tumblerStage.style.transformStyle = 'preserve-3d';
-      tumblerStage.style.verticalAlign = 'baseline';
-
-      const initialWord = wordsArray[state.tumblerIndex % wordsArray.length];
-      const currentWordEl = document.createElement('span');
-      currentWordEl.className = 'tumbler-word inline-block transform-gpu will-change-transform';
-      currentWordEl.textContent = initialWord;
-      tumblerStage.appendChild(currentWordEl);
-      headlineTarget.appendChild(tumblerStage);
-
-      // 3. Suffix text
-      if (suffix) {
-        const suffixSpan = document.createElement('span');
-        suffixSpan.className = 'inline-block text-ink';
-        suffixSpan.textContent = suffix;
-        headlineTarget.appendChild(suffixSpan);
-      }
-
-      // Initial word entrance animation
-      gsap.fromTo(currentWordEl,
-        { opacity: 0, rotateX: -70, y: 20 },
-        { opacity: 1, rotateX: 0, y: 0, duration: 0.5, ease: 'back.out(1.5)' }
-      );
-
-      let isFlipping = false;
-
-      function cycleNextWord() {
-        if (isFlipping) return;
-        isFlipping = true;
-
-        const currentEl = tumblerStage.querySelector('.tumbler-word');
-        if (!currentEl) {
-          isFlipping = false;
-          return;
-        }
-
-        state.tumblerIndex = (state.tumblerIndex + 1) % wordsArray.length;
-        const nextWordStr = wordsArray[state.tumblerIndex];
-
-        // Create the incoming word element
-        const nextEl = document.createElement('span');
-        nextEl.className = 'inline-block transform-gpu will-change-transform text-amber-700 italic';
-        nextEl.style.position = 'absolute';
-        nextEl.style.left = '50%';
-        nextEl.style.top = '0';
-        nextEl.style.transform = 'translate(-50%, 0)';
-        nextEl.style.whiteSpace = 'nowrap';
-        nextEl.style.opacity = '0';
-        nextEl.textContent = nextWordStr;
-        tumblerStage.appendChild(nextEl);
-
-        const currentW = currentEl.offsetWidth;
-        const nextW = nextEl.offsetWidth;
-
-        // Lock container width so parent layout does not jump
-        tumblerStage.style.width = `${currentW}px`;
-
-        const tl = gsap.timeline({
-          onComplete: () => {
-            currentEl.remove();
-            nextEl.style.position = 'relative';
-            nextEl.style.left = 'auto';
-            nextEl.style.top = 'auto';
-            nextEl.style.transform = 'none';
-            nextEl.className = 'tumbler-word inline-block transform-gpu will-change-transform';
-            tumblerStage.style.width = 'auto';
-            isFlipping = false;
-          }
-        });
-
-        // 1. Morph container width smoothly between words
-        tl.to(tumblerStage, {
-          width: nextW,
-          duration: 0.45,
-          ease: 'power2.inOut'
-        }, 0);
-
-        // 2. Animate out current word: flip up 90deg, fade and blur
-        tl.to(currentEl, {
-          rotateX: 90,
-          y: -25,
-          opacity: 0,
-          filter: 'blur(4px)',
-          duration: 0.38,
-          ease: 'power2.in'
-        }, 0);
-
-        // 3. Animate in next word: flip down from -90deg with spring back ease
-        tl.fromTo(nextEl,
-          { rotateX: -90, y: 25, opacity: 0, filter: 'blur(4px)' },
-          { rotateX: 0, y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.52, ease: 'back.out(1.5)' },
-          0.12
-        );
-      }
-
-      state.tumblerTimer = setInterval(cycleNextWord, 2600);
-    }
-
-    // =========================================================================
-    // Mode 2: Kinetic Word Pull-Up Algorithm
+    // Mode 1: Kinetic Word Pull-Up Algorithm
     // =========================================================================
     function renderWordPullUp(text, staggerTime = state.stagger, dur = state.duration) {
-      if (state.tumblerTimer) {
-        clearInterval(state.tumblerTimer);
-        state.tumblerTimer = null;
-      }
-
       headlineTarget.innerHTML = '';
-      headlineTarget.className = 'perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none';
+      headlineTarget.className = 'text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none';
       headlineTarget.setAttribute('aria-label', text);
 
       const words = text.split(' ');
@@ -712,7 +540,7 @@
         wordSpan.className = 'inline-block transform-gpu will-change-transform';
         wordSpan.textContent = word;
         wordSpan.style.opacity = '0';
-        wordSpan.style.transform = 'translateY(110%)';
+        wordSpan.style.transform = 'translateY(115%)';
 
         spanWrapper.appendChild(wordSpan);
         headlineTarget.appendChild(spanWrapper);
@@ -732,16 +560,13 @@
     }
 
     // =========================================================================
-    // Mode 3: Split-Flap Character Ticker
+    // Mode 2: Split-Flap Character Ticker
     // =========================================================================
     function renderSplitFlap(text) {
-      if (state.tumblerTimer) {
-        clearInterval(state.tumblerTimer);
-        state.tumblerTimer = null;
-      }
-
       headlineTarget.innerHTML = '';
-      headlineTarget.className = 'perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none';
+      headlineTarget.className = 'text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none';
+      headlineTarget.setAttribute('aria-label', text);
+
       const chars = Array.from(text);
       const charElements = [];
 
@@ -760,6 +585,7 @@
         charElements.push(charWrap);
       });
 
+      gsap.killTweensOf(charElements);
       gsap.to(charElements, {
         rotateX: 0,
         scale: 1,
@@ -771,16 +597,13 @@
     }
 
     // =========================================================================
-    // Mode 4: Fluid Blur & Elevation Dissolve
+    // Mode 3: Fluid Blur & Elevation Dissolve
     // =========================================================================
     function renderBlurDissolve(text) {
-      if (state.tumblerTimer) {
-        clearInterval(state.tumblerTimer);
-        state.tumblerTimer = null;
-      }
-
       headlineTarget.innerHTML = '';
-      headlineTarget.className = 'perspective-stage text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none';
+      headlineTarget.className = 'text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-serif font-medium text-ink tracking-tight leading-[1.14] max-w-4xl mx-auto select-none';
+      headlineTarget.setAttribute('aria-label', text);
+
       const words = text.split(' ');
       const wordElements = [];
 
@@ -796,6 +619,7 @@
         wordElements.push(wordSpan);
       });
 
+      gsap.killTweensOf(wordElements);
       gsap.to(wordElements, {
         y: 0,
         scale: 1,
@@ -815,9 +639,7 @@
         { opacity: 1, y: 0, duration: 0.6, delay: 0.25, ease: 'power2.out' }
       );
 
-      if (state.mode === 'tumbler') {
-        render3DTumbler(state.prefix, state.tumblerWords, state.suffix);
-      } else if (state.mode === 'pullup') {
+      if (state.mode === 'pullup') {
         renderWordPullUp(state.headline, state.stagger, state.duration);
       } else if (state.mode === 'splitflap') {
         renderSplitFlap(state.headline);
@@ -827,27 +649,21 @@
     }
 
     // =========================================================================
-    // Clean Demo Presets (Zero third-party branding)
+    // Clean Demo Presets
     // =========================================================================
     const presets = {
       saas: {
-        mode: 'tumbler',
-        badge: 'Next-Gen SaaS Architecture',
-        prefix: 'Build Web Experiences That Are',
-        flipWords: ['Effortless', 'Instantaneous', 'Transformative', 'Unstoppable', 'Seamless'],
-        suffix: '',
-        headline: 'Build Web Experiences That Are Effortless',
-        subtitle: 'Hardware-accelerated kinetic typography modules engineered with zero-reflow CSS transforms, dynamic spring momentum, and zero layout shift.',
+        mode: 'pullup',
+        badge: 'SaaS & Spatial Motion Architecture',
+        headline: 'Build High-Performance Web Interfaces That Feel Alive',
+        subtitle: 'Hardware-accelerated kinetic typography modules engineered with zero-reflow CSS transforms, organic spring momentum, and 60 FPS precision.',
         stagger: 0.05,
         duration: 0.55
       },
       velocity: {
         mode: 'pullup',
         badge: 'High-Velocity Motion Lab',
-        prefix: 'Engineered For',
-        flipWords: ['Pure Velocity', 'Sub-Pixel Motion', 'Tactile Fluidity', 'Peak Performance'],
-        suffix: 'Across Modern Web Apps',
-        headline: 'Engineered For Pure Velocity Across Modern Web Apps',
+        headline: 'Engineered For Pure Velocity Across Modern Digital Products',
         subtitle: 'Every glyph and word token ascends with calculated Hooke\'s Law mass and damping physics for fluid, organic visual arrivals.',
         stagger: 0.06,
         duration: 0.5
@@ -855,21 +671,15 @@
       editorial: {
         mode: 'blur',
         badge: 'Editorial Motion Lab',
-        prefix: 'Crafting Spatial Digital Products With',
-        flipWords: ['Sculptural Depth', 'Fluid Motion', 'Micro-Interactions', 'Tactile Grace'],
-        suffix: '',
         headline: 'Crafting Spatial Digital Products With Tactile Fluidity',
         subtitle: 'Smooth Gaussian blur dissipation paired with subtle elevation shifts to create luxurious editorial headlines.',
-        stagger: 0.08,
+        stagger: 0.07,
         duration: 0.65
       },
       splitflap: {
         mode: 'splitflap',
         badge: 'Tactile Ticker Engine',
-        prefix: 'Tactile Precision In Every',
-        flipWords: ['Interaction', 'Micro-Motion', 'Visual Layer', 'Spatial State'],
-        suffix: '',
-        headline: 'Tactile Precision In Every Interaction',
+        headline: 'Tactile Precision In Every Micro-Interaction',
         subtitle: 'Mechanical ticker physics inspired by transit split-flap displays, tuned with snappy back-out springs for modern screens.',
         stagger: 0.025,
         duration: 0.35
@@ -881,10 +691,6 @@
       if (!p) return;
       state.mode = p.mode;
       state.badgeText = p.badge;
-      state.prefix = p.prefix;
-      state.flipWords = p.flipWords;
-      state.tumblerWords = p.flipWords;
-      state.suffix = p.suffix;
       state.headline = p.headline;
       state.subtitle = p.subtitle;
       state.stagger = p.stagger;
@@ -909,8 +715,7 @@
 
     function updateModeLabel() {
       const labels = {
-        tumbler: '3D Perspective Rotating Tumbler',
-        pullup: 'Spring Word Pull-Up',
+        pullup: 'Kinetic Word Pull-Up',
         splitflap: 'Split-Flap Character Ticker',
         blur: 'Fluid Blur & Elevation Dissolve'
       };
@@ -928,7 +733,6 @@
 
       // Mode Switcher
       const modeMap = {
-        'mode-btn-tumbler': 'tumbler',
         'mode-btn-pullup': 'pullup',
         'mode-btn-splitflap': 'splitflap',
         'mode-btn-blur': 'blur'
@@ -974,17 +778,14 @@
 
       // Custom Text Apply
       document.getElementById('apply-custom-text-btn').addEventListener('click', () => {
-        const prefixVal = document.getElementById('custom-prefix-input').value.trim();
         const headlineVal = document.getElementById('custom-headline-input').value.trim();
-        const flipWordsVal = document.getElementById('custom-flip-words-input').value.split(',').map(s => s.trim()).filter(Boolean);
-        
-        if (prefixVal) state.prefix = prefixVal;
-        if (headlineVal) state.headline = headlineVal;
-        if (flipWordsVal.length) state.tumblerWords = flipWordsVal;
-        playAnimation();
+        if (headlineVal) {
+          state.headline = headlineVal;
+          playAnimation();
+        }
       });
 
-      // Initial Play (Modern SaaS Tumbler)
+      // Initial Play (Modern SaaS Motion)
       applyPreset('saas');
       renderCodeSnippet('react');
     });
@@ -1090,10 +891,10 @@ function animateWordPullUp(targetSelector, options = {}) {
   if (!el) return;
 
   const {
-    stagger = 0.06,
+    stagger = 0.05,
     duration = 0.55,
     ease = "power3.out",
-    yOffset = "100%"
+    yOffset = "115%"
   } = options;
 
   // Preserve full text for screen readers
@@ -1139,7 +940,7 @@ function animateWordPullUp(targetSelector, options = {}) {
 }
 
 // Usage Example:
-// animateWordPullUp('#hero-title', { stagger: 0.05, duration: 0.6 });`,
+// animateWordPullUp('#hero-title', { stagger: 0.05, duration: 0.55 });`,
       css: `<!-- Pure CSS Staggered Word Pull-Up (Zero JS Libraries Required) -->
 <style>
   .word-pullup-container {
@@ -1155,13 +956,13 @@ function animateWordPullUp(targetSelector, options = {}) {
     display: inline-block;
     will-change: transform, opacity;
     animation: wordPullUpAnim 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    transform: translateY(100%);
+    transform: translateY(115%);
     opacity: 0;
   }
 
   @keyframes wordPullUpAnim {
     0% {
-      transform: translateY(100%);
+      transform: translateY(115%);
       opacity: 0;
     }
     100% {
@@ -1177,6 +978,7 @@ function animateWordPullUp(targetSelector, options = {}) {
   .word-mask:nth-child(4) .word-pullup { animation-delay: 0.20s; }
   .word-mask:nth-child(5) .word-pullup { animation-delay: 0.25s; }
   .word-mask:nth-child(6) .word-pullup { animation-delay: 0.30s; }
+  .word-mask:nth-child(7) .word-pullup { animation-delay: 0.35s; }
 
   @media (prefers-reduced-motion: reduce) {
     .word-pullup {
@@ -1187,9 +989,10 @@ function animateWordPullUp(targetSelector, options = {}) {
   }
 </style>
 
-<h1 class="word-pullup-container" aria-label="Build High-Performance Interfaces That Feel Alive">
+<h1 class="word-pullup-container" aria-label="Build High-Performance Web Interfaces That Feel Alive">
   <span class="word-mask"><span class="word-pullup">Build</span></span>
   <span class="word-mask"><span class="word-pullup">High-Performance</span></span>
+  <span class="word-mask"><span class="word-pullup">Web</span></span>
   <span class="word-mask"><span class="word-pullup">Interfaces</span></span>
   <span class="word-mask"><span class="word-pullup">That</span></span>
   <span class="word-mask"><span class="word-pullup">Feel</span></span>

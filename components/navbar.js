@@ -461,7 +461,7 @@
                       Word Flip &amp; Staggered Motion
                     </div>
                     <div class="text-[11px] text-ink-muted line-clamp-1">
-                      Spring-powered word pull-up &amp; 3D tumbler perspective flip
+                      Spring-powered word pull-up &amp; kinetic typography motion
                     </div>
                   </div>
                 </div>

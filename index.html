@@ -675,29 +675,29 @@
           <!-- Mini Kinetic Stage -->
           <div id="wf-mini-stage" class="relative flex flex-col items-center justify-center h-full w-full px-4 text-center select-none">
             
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/90 border border-warm-300 text-warm-800 text-[9px] font-mono uppercase tracking-wider mb-3 shadow-2xs">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/90 border border-warm-300 text-warm-800 text-[9px] font-mono uppercase tracking-wider mb-2.5 shadow-2xs">
               <span class="text-amber-600">✦</span>
               <span>Kinetic Typography</span>
             </div>
 
             <!-- Kinetic Word Display -->
-            <div class="font-serif text-xl sm:text-2xl md:text-[1.65rem] text-ink leading-snug tracking-tight max-w-[360px]">
-              Build Web Interfaces That Feel 
-              <span id="wf-mini-flip-container" class="inline-flex relative overflow-hidden align-baseline text-amber-700 italic font-medium border-b border-amber-600/40 pb-0.5 mx-1" style="perspective:600px; min-width: 78px;">
-                <span id="wf-mini-word" class="inline-block transform-gpu will-change-transform">Instant</span>
-              </span>
-              &amp; Alive
+            <div id="wf-mini-headline-wrap" class="font-serif text-xl sm:text-2xl md:text-[1.55rem] text-ink leading-snug tracking-tight max-w-[360px] min-h-[58px] flex flex-wrap items-center justify-center">
+              <span class="inline-block overflow-hidden mr-[0.28em] align-bottom"><span class="wf-pull-inner inline-block transform-gpu will-change-transform text-ink font-medium">Build</span></span>
+              <span class="inline-block overflow-hidden mr-[0.28em] align-bottom"><span class="wf-pull-inner inline-block transform-gpu will-change-transform text-amber-800 italic font-semibold">Interfaces</span></span>
+              <span class="inline-block overflow-hidden mr-[0.28em] align-bottom"><span class="wf-pull-inner inline-block transform-gpu will-change-transform text-ink font-medium">That</span></span>
+              <span class="inline-block overflow-hidden mr-[0.28em] align-bottom"><span class="wf-pull-inner inline-block transform-gpu will-change-transform text-ink font-medium">Feel</span></span>
+              <span class="inline-block overflow-hidden align-bottom"><span class="wf-pull-inner inline-block transform-gpu will-change-transform text-amber-800 italic font-semibold">Alive</span></span>
             </div>
 
-            <p class="text-[11px] text-ink-muted mt-2.5 max-w-[280px] font-sans line-clamp-2">
-              Spring-powered word pull-up &amp; 3D perspective flip with zero layout reflow.
+            <p class="text-[11px] text-ink-muted mt-2 max-w-[280px] font-sans line-clamp-2">
+              Spring-powered staggered word pull-up with zero layout reflow.
             </p>
 
             <!-- Mode pill indicators -->
-            <div class="flex items-center gap-1.5 mt-3 text-[9px] font-mono text-warm-700">
-              <span id="wf-pill-pullup" class="px-2 py-0.5 rounded-full bg-warm-200/90 border border-warm-300 font-bold">Pull-Up</span>
-              <span id="wf-pill-tumbler" class="px-2 py-0.5 rounded-full bg-white/80 border border-warm-300">3D Flip</span>
-              <span id="wf-pill-spring" class="px-2 py-0.5 rounded-full bg-white/80 border border-warm-300">Spring Damped</span>
+            <div class="flex items-center gap-1.5 mt-2.5 text-[9px] font-mono text-warm-700">
+              <span id="wf-pill-pullup" class="px-2 py-0.5 rounded-full bg-warm-200/90 border border-warm-300 font-bold">Word Pull-Up</span>
+              <span id="wf-pill-ticker" class="px-2 py-0.5 rounded-full bg-white/80 border border-warm-300">Split-Flap</span>
+              <span id="wf-pill-spring" class="px-2 py-0.5 rounded-full bg-white/80 border border-warm-300">Blur Dissolve</span>
             </div>
 
           </div><!-- /wf-mini-stage -->
@@ -720,10 +720,10 @@
             </div>
             <div class="min-w-0">
               <a href="interactive-word-flip.html" class="font-bold text-ink text-sm sm:text-base hover:text-warm-800 transition-colors truncate block leading-snug">
-                Word Flip &amp; Staggered Typography
+                Kinetic Word &amp; Typography Lab
               </a>
               <div class="text-xs text-ink-muted mt-0.5 font-sans truncate">
-                Kinetic Motion &bull; Zero-Reflow Spring Words &amp; 3D Tumbler Engine
+                Kinetic Motion &bull; Zero-Reflow Spring Words &amp; Typography Lab
               </div>
             </div>
           </div>
@@ -1069,53 +1069,101 @@
     }
 
     // -------------------------------------------------------------------------
-    // Animation 5 Engine: Word Flip & Staggered Kinetic Typography Loop
+    // Animation 5 Engine: Kinetic Word Pull-Up & Typography Lab Loop
     // -------------------------------------------------------------------------
-    function initWordFlipLoop() {
-      const wordEl = document.getElementById("wf-mini-word");
-      const containerEl = document.getElementById("wf-mini-flip-container");
-      if (!wordEl || !containerEl) return;
+    function initWordPullUpLoop() {
+      const container = document.getElementById("wf-mini-headline-wrap");
+      if (!container) return;
 
-      const words = ["Instant", "Effortless", "Seamless", "Dynamic", "Scalable"];
-      let wordIdx = 0;
+      const phrases = [
+        [
+          { text: "Build", highlight: false },
+          { text: "Interfaces", highlight: true },
+          { text: "That", highlight: false },
+          { text: "Feel", highlight: false },
+          { text: "Alive", highlight: true }
+        ],
+        [
+          { text: "Engineered", highlight: false },
+          { text: "For", highlight: false },
+          { text: "Pure", highlight: true },
+          { text: "Velocity", highlight: true }
+        ],
+        [
+          { text: "Precision", highlight: true },
+          { text: "Spring", highlight: false },
+          { text: "Typography", highlight: true }
+        ],
+        [
+          { text: "Zero-Reflow", highlight: true },
+          { text: "Hardware", highlight: false },
+          { text: "Motion", highlight: true }
+        ]
+      ];
+
+      let phraseIdx = 0;
       let isAnimating = false;
 
-      function flipToNextWord() {
+      function renderAndAnimate(idx) {
         if (isAnimating) return;
         isAnimating = true;
 
-        wordIdx = (wordIdx + 1) % words.length;
-        const nextWordStr = words[wordIdx];
+        const phrase = phrases[idx];
+        const oldWords = container.querySelectorAll(".wf-pull-inner");
 
-        // Animate current word tumbling up and away
-        gsap.to(wordEl, {
-          rotateX: 90,
-          y: -22,
-          opacity: 0,
-          duration: 0.38,
-          ease: "power2.in",
+        if (oldWords.length > 0) {
+          gsap.to(oldWords, {
+            y: "-110%",
+            opacity: 0,
+            duration: 0.35,
+            stagger: 0.03,
+            ease: "power2.in",
+            onComplete: () => {
+              createNewWords(phrase);
+            }
+          });
+        } else {
+          createNewWords(phrase);
+        }
+      }
+
+      function createNewWords(phrase) {
+        container.innerHTML = "";
+        const wordEls = [];
+
+        phrase.forEach((item) => {
+          const maskSpan = document.createElement("span");
+          maskSpan.className = "inline-block overflow-hidden mr-[0.28em] last:mr-0 align-bottom";
+
+          const innerSpan = document.createElement("span");
+          innerSpan.className = `wf-pull-inner inline-block transform-gpu will-change-transform ${
+            item.highlight ? "text-amber-800 italic font-semibold" : "text-ink font-medium"
+          }`;
+          innerSpan.textContent = item.text;
+
+          maskSpan.appendChild(innerSpan);
+          container.appendChild(maskSpan);
+          wordEls.push(innerSpan);
+        });
+
+        gsap.set(wordEls, { y: "115%", opacity: 0 });
+
+        gsap.to(wordEls, {
+          y: "0%",
+          opacity: 1,
+          duration: 0.65,
+          stagger: 0.05,
+          ease: "back.out(1.8)",
           onComplete: () => {
-            wordEl.textContent = nextWordStr;
-            gsap.set(wordEl, {
-              rotateX: -90,
-              y: 22,
-              opacity: 0
-            });
-            gsap.to(wordEl, {
-              rotateX: 0,
-              y: 0,
-              opacity: 1,
-              duration: 0.52,
-              ease: "back.out(1.5)",
-              onComplete: () => {
-                isAnimating = false;
-              }
-            });
+            isAnimating = false;
           }
         });
       }
 
-      setInterval(flipToNextWord, 2400);
+      setInterval(() => {
+        phraseIdx = (phraseIdx + 1) % phrases.length;
+        renderAndAnimate(phraseIdx);
+      }, 2800);
     }
 
     // Initialize all engines on DOM load
@@ -1125,7 +1173,7 @@
       initMiniCarouselListeners();
       initCard3PanelsLoop();
       initPricingDeckLoop();
-      initWordFlipLoop();
+      initWordPullUpLoop();
     });
   </script>
 </body>

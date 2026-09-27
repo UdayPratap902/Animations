@@ -12,7 +12,7 @@ Welcome to **Animations Lab**, an open-source collection of high-performance, dr
 | 💫 | **02. 3D Perspective Carousel & Glare Stack**<br><sub>Spatial 3D depth wings with dynamic cursor-tracked radial glare</sub> | `Framer Motion`<br>`3D Glare Tilt`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-3d-review-stack.html) • [Code & Guide](#-02-3d-perspective-carousel--glare-stack) |
 | 🎬 | **03. GSAP Horizontal Multi-Panel Showcase**<br><sub>ScrollTrigger horizontal pinned glide with GPU progress tracking & modal player</sub> | `GSAP 3.12`<br>`ScrollTrigger`<br>`YouTube Modal` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](gsap-horizontal-video-showcase.html) • [Code & Guide](#-03-gsap-scrolltrigger-horizontal-multi-panel-showcase) |
 | 💳 | **04. 3D Interactive Pricing Deck**<br><sub>Hover-elevation 3D fanning deck with benefit expansion, magnetic CTAs, and mobile accordion</sub> | `Framer Motion`<br>`GSAP Magnetic`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-3d-pricing-deck.html) • [Code & Guide](#-04-3d-interactive-pricing-deck) |
-| 🔤 | **05. Word Flip & Staggered Typography Lab**<br><sub>Kinetic spring word pull-up, 3D perspective tumbler, and split-flap ticker with zero layout shift</sub> | `Framer Motion`<br>`GSAP 3.12`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-word-flip.html) • [Code & Guide](#-05-word-flip--staggered-kinetic-typography) |
+| 🔤 | **05. Word Flip & Staggered Typography Lab**<br><sub>Kinetic spring word pull-up, split-flap ticker, and fluid blur dissolve with zero layout shift</sub> | `Framer Motion`<br>`GSAP 3.12`<br>`Tailwind CSS` | 🟢 **Live & Ready** | [Gallery Hub](index.html) • [Full Demo](interactive-word-flip.html) • [Code & Guide](#-05-word-flip--staggered-kinetic-typography) |
 
 ---
 
@@ -147,17 +147,14 @@ An open-source kinetic typography engine that breaks headlines into discrete wor
 | **Spring Stiffness ($k$)** | `100` | `140` (snappy) / `60` (soft) | Restoring tensile force in Hooke's Law equation $F = -kx$ |
 | **Damping Coefficient ($c$)** | `20` | `15` (bouncy) / `25` (critical) | Viscous decay preventing endless harmonic oscillation |
 | **Stagger Offset ($\Delta t$)** | `0.05s – 0.08s` | `0.04s` (rapid) | Inter-token delay progression: $t_i = t_0 + (i \cdot \Delta t)$ |
-| **3D Perspective ($d$)** | `1000px` | `800px` | Eye distance for cylindrical 3D tumbler rotateX flips |
-| **Tumbler Arc ($\theta_x$)** | `-90deg → 0deg → 90deg` | `-180deg` (full split) | Exit flip-up and entrance flip-down rotational trajectory |
 
 ### Architecture Highlights
 - **Whitespace & Typography Preservation**: Custom spacing rule applies `margin-right: 0.25em` to every token except the final word (`last:mr-0`), preserving precise browser kerning and justification.
 - **A11y & Screen Reader Optimization**: Unlike naive tokenizers that cause robotic word-by-word pauses in screen readers, the container receives `aria-label={fullSentence}` and animated word spans receive `aria-hidden="true"`.
-- **Zero Document Reflow**: All kinetic motion executes strictly across GPU composite channels (`transform: translateY()`, `rotateX()`, and `opacity`) with zero changes to `height`, `width`, or `top`.
-- **4 Distinct Animation Modes**:
-  1. **Spring Word Pull-Up**: Staggered spring reveal for impactful hero section headlines.
-  2. **3D Perspective Tumbler**: Cylindrical rotating word flip with dynamic width morphing and word bank cycling.
-  3. **Split-Flap Ticker**: Mechanical tactile letter ticker reminiscent of transit departure boards.
-  4. **Fluid Blur Dissolve**: Optical Gaussian blur dissipation with elevation float.
+- **Zero Document Reflow**: All kinetic motion executes strictly across GPU composite channels (`transform: translateY()`, `filter: blur()`, and `opacity`) with zero changes to `height`, `width`, or `top`.
+- **3 Distinct Animation Modes**:
+  1. **Spring Word Pull-Up**: Staggered spring reveal for impactful hero section headlines using Hooke's Law physics.
+  2. **Split-Flap Ticker**: Mechanical tactile letter ticker reminiscent of transit departure boards.
+  3. **Fluid Blur Dissolve**: Optical Gaussian blur dissipation with elevation float.
 - **Multi-Stack Drop-in Code**: Provided in React + Framer Motion, Vanilla GSAP 3.12, and Pure CSS.
 
