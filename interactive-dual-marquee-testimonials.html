@@ -221,33 +221,20 @@
     }
 
     /* Testimonial Card Styling (Aligned with Animations Lab Warm Palette) */
-    .testi-card-dark {
-      background: linear-gradient(160deg, #1C1B15 0%, #141413 100%);
-      border: 1px solid #2E2B23;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 16px 42px -8px rgba(20, 20, 19, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2);
-      color: #FAF9F6;
-    }
-    .testi-card-dark:hover {
-      border-color: #757159;
-      background: linear-gradient(160deg, #24221A 0%, #181712 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 24px 55px -10px rgba(20, 20, 19, 0.55), 0 0 22px rgba(217, 119, 6, 0.14);
-    }
-
-    .testi-card-warm {
-      background: rgba(255, 255, 255, 0.94);
+    .testi-card {
+      background: rgba(255, 255, 255, 0.95);
       border: 1px solid #EDE8DC;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 10px 30px -6px rgba(47, 44, 35, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px -8px rgba(30, 24, 12, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
       color: #141413;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .testi-card-warm:hover {
-      border-color: #D4A373;
+    .testi-card:hover {
+      border-color: #DEDBC8;
+      background: #FFFFFF;
       transform: translateY(-2px);
-      box-shadow: 0 20px 42px -8px rgba(47, 44, 35, 0.12);
+      box-shadow: 0 20px 42px -8px rgba(30, 24, 12, 0.12), 0 0 0 1px rgba(222, 219, 200, 0.6);
     }
   </style>
 </head>
@@ -314,10 +301,10 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <button id="theme-toggle-btn" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-200 hover:bg-warm-300 text-ink font-medium text-xs transition-all shadow-2xs cursor-pointer">
-              <span id="theme-toggle-icon">🌙</span>
-              <span id="theme-toggle-label">Theme: Warm Obsidian</span>
-            </button>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-200/80 border border-warm-300 text-warm-800 text-[11px] font-mono font-medium shadow-2xs">
+              <span class="text-amber-600">✦</span>
+              <span>Parchment Card Stack</span>
+            </span>
             <button id="pause-toggle-btn" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-200 hover:bg-warm-300 text-ink font-medium text-xs transition-all active:scale-95 shadow-2xs cursor-pointer">
               <span id="pause-icon">⏸</span>
               <span id="pause-label">Pause</span>
@@ -740,49 +727,40 @@
     const state = {
       speed: 24, // seconds
       isPaused: false,
-      isDarkTheme: true,
       isReversed: false,
       viewMode: "dual", // dual | single | mobile
       currentTab: "react"
     };
 
     // Render Card Template
-    function createTestimonialCardHTML(t, cardThemeClass) {
+    function createTestimonialCardHTML(t) {
       const initial = t.name.charAt(0);
       const starsHTML = Array.from({ length: t.rating || 5 })
-        .map(() => `<svg class="w-3.5 h-3.5 fill-current text-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`)
+        .map(() => `<svg class="w-3.5 h-3.5 fill-current text-amber-500" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`)
         .join('');
 
       return `
-        <div class="testi-card ${cardThemeClass} rounded-2xl p-5 text-left transition-all duration-300 select-none">
+        <div class="testi-card rounded-2xl p-5 text-left transition-all duration-300 select-none">
           <div class="flex items-center justify-between gap-3 text-xs mb-3">
             <div class="flex items-center gap-1">
               ${starsHTML}
             </div>
-            <span class="rounded-full px-2.5 py-0.5 text-[10px] font-mono tracking-wider font-semibold ${
-              state.isDarkTheme 
-                ? 'bg-[#27251E] text-warm-200 border border-[#3E3A2F]' 
-                : 'bg-warm-200 text-warm-900 border border-warm-300'
-            }">
+            <span class="rounded-full px-2.5 py-0.5 text-[10px] font-mono tracking-wider font-semibold bg-warm-100 text-warm-800 border border-warm-300">
               ${t.company}
             </span>
           </div>
 
-          <p class="text-sm leading-relaxed mb-4 font-sans ${state.isDarkTheme ? 'text-warm-100 font-normal' : 'text-ink font-normal'}">
+          <p class="text-sm leading-relaxed mb-4 font-sans text-ink font-normal">
             &ldquo;${t.quote}&rdquo;
           </p>
 
-          <div class="flex items-center gap-3 pt-3 border-t ${state.isDarkTheme ? 'border-[#2B2820]' : 'border-warm-200'}">
-            <div class="grid h-9 w-9 place-items-center rounded-full ${
-              state.isDarkTheme 
-                ? 'bg-gradient-to-br from-warm-800 to-warm-900 border border-warm-700/80 text-warm-100' 
-                : 'bg-gradient-to-br from-amber-600 to-warm-800 text-white'
-            } text-xs font-bold shadow-2xs">
+          <div class="flex items-center gap-3 pt-3 border-t border-warm-200">
+            <div class="grid h-9 w-9 place-items-center rounded-full bg-warm-200 text-ink font-serif font-bold text-xs border border-warm-400/40 shadow-2xs">
               ${initial}
             </div>
             <div class="leading-tight">
-              <div class="text-xs font-bold ${state.isDarkTheme ? 'text-warm-100' : 'text-ink'}">${t.name}</div>
-              <div class="text-[11px] font-mono ${state.isDarkTheme ? 'text-warm-500' : 'text-ink-muted'}">@${t.handle} &bull; ${t.role}</div>
+              <div class="text-xs font-bold text-ink">${t.name}</div>
+              <div class="text-[11px] font-mono text-ink-muted">@${t.handle} &bull; ${t.role}</div>
             </div>
           </div>
         </div>
@@ -796,8 +774,6 @@
       const colSingle = document.getElementById("col-single-loop");
       const colHorizontal = document.getElementById("col-horizontal-loop");
 
-      const themeClass = state.isDarkTheme ? "testi-card-dark" : "testi-card-warm";
-
       // Partition into two sets for dual columns
       const setA = [testimonialsData[0], testimonialsData[1], testimonialsData[2]];
       const setB = [testimonialsData[3], testimonialsData[4], testimonialsData[5]];
@@ -808,21 +784,21 @@
       const loopAll = [...testimonialsData, ...testimonialsData, ...testimonialsData];
 
       if (colUp) {
-        colUp.innerHTML = loopA.map(t => createTestimonialCardHTML(t, themeClass)).join('');
+        colUp.innerHTML = loopA.map(t => createTestimonialCardHTML(t)).join('');
       }
 
       if (colDown) {
-        colDown.innerHTML = loopB.map(t => createTestimonialCardHTML(t, themeClass)).join('');
+        colDown.innerHTML = loopB.map(t => createTestimonialCardHTML(t)).join('');
       }
 
       if (colSingle) {
-        colSingle.innerHTML = loopAll.map(t => createTestimonialCardHTML(t, themeClass)).join('');
+        colSingle.innerHTML = loopAll.map(t => createTestimonialCardHTML(t)).join('');
       }
 
       if (colHorizontal) {
         colHorizontal.innerHTML = loopAll.map(t => `
           <div class="min-w-[300px] max-w-[300px] shrink-0">
-            ${createTestimonialCardHTML(t, themeClass)}
+            ${createTestimonialCardHTML(t)}
           </div>
         `).join('');
       }
@@ -926,25 +902,25 @@ export default function DualMarqueeTestimonials() {
 
 function TestimonialCard({ data }) {
   return (
-    <div className="rounded-2xl p-5 border border-[#2E2B23] bg-[#1C1B15] backdrop-blur-md text-warm-100 shadow-xl hover:border-warm-700 transition-all duration-300">
+    <div className="rounded-2xl p-5 border border-warm-300 bg-white/95 backdrop-blur-md text-ink shadow-[0_10px_30px_-8px_rgba(30,24,12,0.06)] hover:border-warm-400 hover:shadow-[0_20px_42px_-8px_rgba(30,24,12,0.12)] transition-all duration-300">
       <div className="flex items-center justify-between mb-3">
         <div className="flex text-amber-500 gap-1">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star key={i} className="w-3.5 h-3.5 fill-current" />
           ))}
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#27251E] text-warm-200 border border-[#3E3A2F]">
+        <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-warm-100 text-warm-800 border border-warm-300">
           {data.company}
         </span>
       </div>
-      <p className="text-sm text-warm-100 leading-relaxed mb-4 font-sans">&ldquo;{data.quote}&rdquo;</p>
-      <div className="flex items-center gap-3 pt-3 border-t border-[#2B2820]">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-warm-800 to-warm-900 border border-warm-700/80 flex items-center justify-center text-xs font-bold text-warm-100 shadow-2xs">
+      <p className="text-sm text-ink leading-relaxed mb-4 font-sans">&ldquo;{data.quote}&rdquo;</p>
+      <div className="flex items-center gap-3 pt-3 border-t border-warm-200">
+        <div className="w-9 h-9 rounded-full bg-warm-200 text-ink border border-warm-400/40 flex items-center justify-center text-xs font-serif font-bold">
           {data.name.charAt(0)}
         </div>
         <div>
-          <div className="text-xs font-bold text-warm-100">{data.name}</div>
-          <div className="text-[10px] text-warm-500 font-mono">@{data.handle} &bull; {data.role}</div>
+          <div className="text-xs font-bold text-ink">{data.name}</div>
+          <div className="text-[11px] text-ink-muted font-mono">@{data.handle} &bull; {data.role}</div>
         </div>
       </div>
     </div>
@@ -1008,6 +984,21 @@ function TestimonialCard({ data }) {
   @keyframes marqueeDown {
     from { transform: translateY(-66.666%); }
     to { transform: translateY(0); }
+  }
+
+  /* 4. Warm Parchment Testimonial Card */
+  .testi-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #EDE8DC;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 10px 30px -8px rgba(30, 24, 12, 0.06);
+    color: #141413;
+  }
+  .testi-card:hover {
+    border-color: #DEDBC8;
+    background: #FFFFFF;
+    transform: translateY(-2px);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1153,20 +1144,7 @@ export function initGSAPMarquee(columnUpSelector, columnDownSelector, speed = 24
         });
       }
 
-      // 5. Theme Toggle (Warm Obsidian Dark vs Warm Parchment Light)
-      const themeBtn = document.getElementById("theme-toggle-btn");
-      const themeIcon = document.getElementById("theme-toggle-icon");
-      const themeLabel = document.getElementById("theme-toggle-label");
-      if (themeBtn) {
-        themeBtn.addEventListener("click", () => {
-          state.isDarkTheme = !state.isDarkTheme;
-          if (themeIcon) themeIcon.textContent = state.isDarkTheme ? "🌙" : "☀️";
-          if (themeLabel) themeLabel.textContent = state.isDarkTheme ? "Theme: Warm Obsidian" : "Theme: Warm Parchment";
-          renderMarqueeColumns();
-        });
-      }
-
-      // 6. View Mode Toggles
+      // 5. View Mode Toggles
       const dualView = document.getElementById("dual-column-view");
       const singleView = document.getElementById("single-column-view");
       const horizontalView = document.getElementById("horizontal-ticker-view");
