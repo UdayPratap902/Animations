@@ -220,34 +220,34 @@
       100% { transform: translateX(-50%); }
     }
 
-    /* Testimonial Card Styling (Dark Mode / Light Mode Support) */
+    /* Testimonial Card Styling (Aligned with Animations Lab Warm Palette) */
     .testi-card-dark {
-      background: rgba(20, 20, 19, 0.88);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: linear-gradient(160deg, #1C1B15 0%, #141413 100%);
+      border: 1px solid #2E2B23;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+      box-shadow: 0 16px 42px -8px rgba(20, 20, 19, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2);
       color: #FAF9F6;
     }
     .testi-card-dark:hover {
-      border-color: rgba(217, 119, 6, 0.45);
-      background: rgba(20, 20, 19, 0.96);
+      border-color: #757159;
+      background: linear-gradient(160deg, #24221A 0%, #181712 100%);
       transform: translateY(-2px);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38), 0 0 24px rgba(217, 119, 6, 0.18);
+      box-shadow: 0 24px 55px -10px rgba(20, 20, 19, 0.55), 0 0 22px rgba(217, 119, 6, 0.14);
     }
 
     .testi-card-warm {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.94);
       border: 1px solid #EDE8DC;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 12px 35px rgba(30, 24, 12, 0.06);
+      box-shadow: 0 10px 30px -6px rgba(47, 44, 35, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
       color: #141413;
     }
     .testi-card-warm:hover {
       border-color: #D4A373;
       transform: translateY(-2px);
-      box-shadow: 0 20px 45px rgba(30, 24, 12, 0.12);
+      box-shadow: 0 20px 42px -8px rgba(47, 44, 35, 0.12);
     }
   </style>
 </head>
@@ -316,7 +316,7 @@
           <div class="flex items-center gap-2">
             <button id="theme-toggle-btn" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-200 hover:bg-warm-300 text-ink font-medium text-xs transition-all shadow-2xs cursor-pointer">
               <span id="theme-toggle-icon">🌙</span>
-              <span id="theme-toggle-label">Dark Glass Cards</span>
+              <span id="theme-toggle-label">Theme: Warm Obsidian</span>
             </button>
             <button id="pause-toggle-btn" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-200 hover:bg-warm-300 text-ink font-medium text-xs transition-all active:scale-95 shadow-2xs cursor-pointer">
               <span id="pause-icon">⏸</span>
@@ -761,24 +761,28 @@
             </div>
             <span class="rounded-full px-2.5 py-0.5 text-[10px] font-mono tracking-wider font-semibold ${
               state.isDarkTheme 
-                ? 'bg-white/10 text-warm-200 border border-white/10' 
+                ? 'bg-[#27251E] text-warm-200 border border-[#3E3A2F]' 
                 : 'bg-warm-200 text-warm-900 border border-warm-300'
             }">
               ${t.company}
             </span>
           </div>
 
-          <p class="text-sm leading-relaxed mb-4 font-sans ${state.isDarkTheme ? 'text-white/85' : 'text-ink'}">
+          <p class="text-sm leading-relaxed mb-4 font-sans ${state.isDarkTheme ? 'text-warm-100 font-normal' : 'text-ink font-normal'}">
             &ldquo;${t.quote}&rdquo;
           </p>
 
-          <div class="flex items-center gap-3 pt-3 border-t ${state.isDarkTheme ? 'border-white/10' : 'border-warm-200'}">
-            <div class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-amber-600 via-amber-700 to-warm-900 text-xs font-bold text-white shadow-2xs">
+          <div class="flex items-center gap-3 pt-3 border-t ${state.isDarkTheme ? 'border-[#2B2820]' : 'border-warm-200'}">
+            <div class="grid h-9 w-9 place-items-center rounded-full ${
+              state.isDarkTheme 
+                ? 'bg-gradient-to-br from-warm-800 to-warm-900 border border-warm-700/80 text-warm-100' 
+                : 'bg-gradient-to-br from-amber-600 to-warm-800 text-white'
+            } text-xs font-bold shadow-2xs">
               ${initial}
             </div>
             <div class="leading-tight">
-              <div class="text-xs font-bold ${state.isDarkTheme ? 'text-white' : 'text-ink'}">${t.name}</div>
-              <div class="text-[11px] font-mono ${state.isDarkTheme ? 'text-white/60' : 'text-ink-muted'}">@${t.handle} &bull; ${t.role}</div>
+              <div class="text-xs font-bold ${state.isDarkTheme ? 'text-warm-100' : 'text-ink'}">${t.name}</div>
+              <div class="text-[11px] font-mono ${state.isDarkTheme ? 'text-warm-500' : 'text-ink-muted'}">@${t.handle} &bull; ${t.role}</div>
             </div>
           </div>
         </div>
@@ -922,25 +926,25 @@ export default function DualMarqueeTestimonials() {
 
 function TestimonialCard({ data }) {
   return (
-    <div className="rounded-2xl p-5 border border-white/10 bg-black/85 backdrop-blur-md text-white shadow-xl hover:border-amber-500/50 transition-all duration-300">
+    <div className="rounded-2xl p-5 border border-[#2E2B23] bg-[#1C1B15] backdrop-blur-md text-warm-100 shadow-xl hover:border-warm-700 transition-all duration-300">
       <div className="flex items-center justify-between mb-3">
-        <div className="flex text-amber-400 gap-1">
+        <div className="flex text-amber-500 gap-1">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star key={i} className="w-3.5 h-3.5 fill-current" />
           ))}
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white/70">
+        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#27251E] text-warm-200 border border-[#3E3A2F]">
           {data.company}
         </span>
       </div>
-      <p className="text-sm text-white/80 leading-relaxed mb-4 font-sans">&ldquo;{data.quote}&rdquo;</p>
-      <div className="flex items-center gap-3 pt-3 border-t border-white/10">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-xs font-bold">
+      <p className="text-sm text-warm-100 leading-relaxed mb-4 font-sans">&ldquo;{data.quote}&rdquo;</p>
+      <div className="flex items-center gap-3 pt-3 border-t border-[#2B2820]">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-warm-800 to-warm-900 border border-warm-700/80 flex items-center justify-center text-xs font-bold text-warm-100 shadow-2xs">
           {data.name.charAt(0)}
         </div>
         <div>
-          <div className="text-xs font-bold">{data.name}</div>
-          <div className="text-[10px] text-white/60">@{data.handle} &bull; {data.role}</div>
+          <div className="text-xs font-bold text-warm-100">{data.name}</div>
+          <div className="text-[10px] text-warm-500 font-mono">@{data.handle} &bull; {data.role}</div>
         </div>
       </div>
     </div>
@@ -1149,7 +1153,7 @@ export function initGSAPMarquee(columnUpSelector, columnDownSelector, speed = 24
         });
       }
 
-      // 5. Theme Toggle (Dark Glass vs Warm Parchment Glass)
+      // 5. Theme Toggle (Warm Obsidian Dark vs Warm Parchment Light)
       const themeBtn = document.getElementById("theme-toggle-btn");
       const themeIcon = document.getElementById("theme-toggle-icon");
       const themeLabel = document.getElementById("theme-toggle-label");
@@ -1157,7 +1161,7 @@ export function initGSAPMarquee(columnUpSelector, columnDownSelector, speed = 24
         themeBtn.addEventListener("click", () => {
           state.isDarkTheme = !state.isDarkTheme;
           if (themeIcon) themeIcon.textContent = state.isDarkTheme ? "🌙" : "☀️";
-          if (themeLabel) themeLabel.textContent = state.isDarkTheme ? "Dark Glass Cards" : "Warm Glass Cards";
+          if (themeLabel) themeLabel.textContent = state.isDarkTheme ? "Theme: Warm Obsidian" : "Theme: Warm Parchment";
           renderMarqueeColumns();
         });
       }
